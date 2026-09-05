@@ -1,23 +1,42 @@
 {
-  "name": "nanosend-tmp",
+  "name": "nanosend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "worker": "tsx src/worker/index.ts",
+    "dev:all": "concurrently -n app,worker -c cyan,magenta \"npm run dev\" \"npm run worker\"",
+    "seed": "tsx scripts/seed.ts",
+    "verify": "tsx scripts/verify-services.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1125.0",
+    "@aws-sdk/client-sns": "^3.1125.0",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.1.0",
+    "bcryptjs": "^3.0.3",
+    "bullmq": "^6.3.4",
+    "dotenv": "^17.4.2",
+    "ioredis": "^6.0.0",
+    "mongoose": "^9.9.4",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^10.0.5",
+    "mongodb-memory-server": "^11.2.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }

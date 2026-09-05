@@ -1,26 +1,109 @@
 @import "tailwindcss";
 
+/* ── Design tokens ─────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #08080b;
+  --bg-elevated: #0e0e13;
+  --bg-card: #101017;
+  --bg-hover: #16161f;
+  --border: #1e1e29;
+  --border-strong: #2a2a3a;
+  --fg: #ededf2;
+  --fg-muted: #9a9aad;
+  --fg-subtle: #6b6b80;
+  --accent: #6366f1;
+  --accent-hover: #7c7ff5;
+  --accent-fg: #ffffff;
+  --success: #22c55e;
+  --warning: #f5a623;
+  --danger: #ef4444;
+  --info: #38bdf8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-card: var(--bg-card);
+  --color-bg-hover: var(--bg-hover);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a4d; }
+
+/* ── Reusable components ───────────────────────────────────── */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
+      transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .btn-secondary {
+    background: var(--bg-hover);
+    color: var(--fg);
+    border: 1px solid var(--border-strong);
+  }
+  .btn-secondary:hover:not(:disabled) { background: var(--border); }
+  .btn-ghost { color: var(--fg-muted); }
+  .btn-ghost:hover:not(:disabled) { color: var(--fg); background: var(--bg-hover); }
+  .btn-danger {
+    background: color-mix(in srgb, var(--danger) 15%, transparent);
+    color: var(--danger);
+    border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  }
+  .btn-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger) 25%, transparent); }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    @apply rounded-xl;
+  }
+
+  .input {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    color: var(--fg);
+    @apply w-full rounded-lg px-3 py-2 text-sm outline-none transition-colors;
+  }
+  .input:focus { border-color: var(--accent); }
+  .input::placeholder { color: var(--fg-subtle); }
+
+  .label { @apply block text-sm font-medium mb-1.5; color: var(--fg-muted); }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .mono { font-family: var(--font-mono); }
 }

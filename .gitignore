@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local mongodb-memory-server data lives under node_modules/.cache (git-ignored)
+/.mongo-data
+
 # vercel
 .vercel
 

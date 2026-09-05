@@ -1,0 +1,82 @@
+import { z } from "zod";
+
+const emailList = z.union([z.string(), z.array(z.string())]).transform((v) =>
+  (Array.isArray(v) ? v : [v]).map((s) => s.trim()).filter(Boolean),
+);
+
+/** POST /v1/emails body. `from`, `to`, `subject` + at least one of html/text. */
+export const sendEmailSchema = z
+  .object({
+    from: z.string().min(3),
+    to: emailList,
+    cc: emailList.optional(),
+    bcc: emailList.optional(),
+    reply_to: emailList.optional(),
+    subject: z.string().min(1).max(998),
+    html: z.string().optional(),
+    text: z.string().optional(),
+  })
+  .refine((d) => d.to.length > 0, { message: "`to` must contain at least one recipient" })
+  .refine((d) => Boolean(d.html || d.text), {
+    message: "Provide `html` and/or `text` content",
+  });
+
+export type SendEmailInput = z.infer<typeof sendEmailSchema>;
+
+/** POST /v1/domains body. */
+export const createDomainSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^([a-z0-9-]+\.)+[a-z]{2,}$/, "Enter a valid domain, e.g. mail.acme.com"),
+  region: z.string().default("us-east-1"),
+});
+
+/** Dashboard: create API key. */
+export const createApiKeySchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  mode: z.enum(["live", "test"]).default("live"),
+});
+
+/** Dashboard: create webhook. */
+export const createWebhookSchema = z.object({
+  url: z.string().url(),
+  events: z.array(z.string()).default([]),
+});
+
+/** Audiences & contacts. */
+export const createAudienceSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+});
+
+export const createContactSchema = z.object({
+  email: z.string().email().toLowerCase(),
+  first_name: z.string().trim().max(120).optional(),
+  last_name: z.string().trim().max(120).optional(),
+});
+
+export const createBroadcastSchema = z
+  .object({
+    audience_id: z.string().min(1),
+    from: z.string().min(3),
+    subject: z.string().min(1).max(998),
+    html: z.string().optional(),
+    text: z.string().optional(),
+  })
+  .refine((d) => Boolean(d.html || d.text), {
+    message: "Provide `html` and/or `text` content",
+  });
+
+/** Auth. */
+export const signupSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  email: z.string().email().toLowerCase(),
+  password: z.string().min(8).max(200),
+  workspaceName: z.string().trim().min(1).max(80).optional(),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email().toLowerCase(),
+  password: z.string().min(1),
+});
