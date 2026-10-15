@@ -98,7 +98,8 @@ server {
 }
 EOF
   fi
-  reload_nginx || die "nginx rejected $CONF"
+  # Never leave a rejected file behind: it would break the next nginx restart for every site.
+  reload_nginx || { rm -f "$CONF"; "$NGINX" -s reload 2>/dev/null || true; die "nginx rejected the $DOMAIN config, removed it. Other sites are unaffected."; }
 }
 write_conf
 
