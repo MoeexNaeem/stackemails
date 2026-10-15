@@ -90,7 +90,9 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
       cache.seedPromise = (async () => {
         try {
           const { seedDemoData } = await import("@/lib/db/seed-data");
+          const { seedAdminData } = await import("@/lib/db/seed-admin");
           const result = await seedDemoData();
+          await seedAdminData();
           if (result) {
             console.log(
               `[db] seeded demo account — login: demo@nanosend.dev / password123 | api key: ${result.apiKey}`,

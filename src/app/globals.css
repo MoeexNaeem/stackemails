@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ── Design tokens ─────────────────────────────────────────── */
+/* ── Design tokens: dark is the default (matches the product) ─ */
 :root {
   --bg: #08080b;
   --bg-elevated: #0e0e13;
@@ -18,6 +18,28 @@
   --warning: #f5a623;
   --danger: #ef4444;
   --info: #38bdf8;
+  color-scheme: dark;
+}
+
+/* ── Light theme (opt-in via the appearance toggle) ────────── */
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-elevated: #fafafa;
+  --bg-card: #ffffff;
+  --bg-hover: #f4f4f6;
+  --border: #e6e6ea;
+  --border-strong: #d8d8df;
+  --fg: #18181b;
+  --fg-muted: #52525b;
+  --fg-subtle: #8a8a94;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-fg: #ffffff;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #0284c7;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -39,10 +61,6 @@
   --color-info: var(--info);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
-}
-
-html {
-  color-scheme: dark;
 }
 
 body {
@@ -106,4 +124,15 @@ body {
   }
 
   .mono { font-family: var(--font-mono); }
+
+  /* Tab bar used across Settings, Audience, Emails */
+  .tab {
+    @apply rounded-lg px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer;
+    color: var(--fg-muted);
+  }
+  .tab:hover { color: var(--fg); }
+  .tab[data-active="true"] {
+    background: var(--bg-hover);
+    color: var(--fg);
+  }
 }

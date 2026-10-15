@@ -5,12 +5,15 @@ import { sendEmailSchema } from "@/lib/validation/schemas";
 import { EmailLog } from "@/lib/db/models";
 import { prefixedId } from "@/lib/ids";
 import { getEmailQueue } from "@/lib/queue";
+import { logApiRequest } from "@/lib/apiLog";
+import { sentToday } from "@/lib/quota";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // POST /v1/emails — queue an email for delivery.
 export async function POST(req: Request) {
+  const startedAt = Date.now();
   const auth = await authenticateApiRequest(req);
   if (!auth.ok) return apiError(auth.status, auth.code, auth.message);
   const { workspace, apiKey } = auth;
@@ -21,9 +24,12 @@ export async function POST(req: Request) {
     return apiError(429, "rate_limited", "Too many requests. Slow down.");
   }
 
-  // Monthly quota guard.
+  // Plan quota guards (monthly + daily).
   if ((workspace.usage?.sent ?? 0) >= workspace.monthlyQuota) {
     return apiError(429, "quota_exceeded", "Monthly send quota reached for this workspace.");
+  }
+  if (sentToday(workspace) >= workspace.dailyQuota) {
+    return apiError(429, "quota_exceeded", "Daily send quota reached for this workspace.");
   }
 
   let body: unknown;
@@ -47,6 +53,7 @@ export async function POST(req: Request) {
       idempotencyKey,
     });
     if (existing) {
+      logApiRequest({ workspace, req, endpoint: "/emails", status: 202, startedAt });
       return apiJson({ id: existing.messageId, status: existing.status }, 202);
     }
   }
@@ -72,11 +79,13 @@ export async function POST(req: Request) {
     workspaceId: String(workspace._id),
   });
 
+  logApiRequest({ workspace, req, endpoint: "/emails", status: 202, startedAt });
   return apiJson({ id: log.messageId, status: "queued" }, 202);
 }
 
 // GET /v1/emails — list recent emails for the workspace.
 export async function GET(req: Request) {
+  const startedAt = Date.now();
   const auth = await authenticateApiRequest(req);
   if (!auth.ok) return apiError(auth.status, auth.code, auth.message);
 
@@ -88,6 +97,7 @@ export async function GET(req: Request) {
     .limit(limit)
     .lean();
 
+  logApiRequest({ workspace: auth.workspace, req, endpoint: "/emails", status: 200, startedAt });
   return apiJson({
     data: logs.map((l) => ({
       id: l.messageId,

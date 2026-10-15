@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CopyButton } from "@/components/CopyButton";
@@ -62,6 +63,9 @@ export function DomainCard({ domain }: { domain: DomainView }) {
           <span className="text-xs text-fg-subtle">{domain.region}</span>
         </button>
         <div className="flex items-center gap-2 shrink-0">
+          <Link href={`/domains/${domain.id}`} className="btn btn-secondary">
+            Manage
+          </Link>
           <button className="btn btn-secondary" onClick={verify} disabled={pending}>
             {pending ? "Checking…" : "Verify"}
           </button>

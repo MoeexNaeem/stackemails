@@ -24,6 +24,29 @@ const DomainSchema = new Schema(
 
     records: { type: [DnsRecordSchema], default: [] },
 
+    // Sending / receiving + tracking configuration (Resend-style).
+    returnPath: { type: String, default: "send" },
+    trackingSubdomain: { type: String, default: "" },
+    clickTracking: { type: Boolean, default: true },
+    openTracking: { type: Boolean, default: false },
+    receivingEnabled: { type: Boolean, default: false },
+    tlsMode: { type: String, enum: ["opportunistic", "enforced"], default: "opportunistic" },
+    provider: { type: String, default: "" }, // registrar, best-effort
+
+    // Verification timeline shown on the domain detail page.
+    events: {
+      type: [
+        new Schema(
+          {
+            type: { type: String, enum: ["added", "dns_verified", "verified", "failed"], required: true },
+            at: { type: Date, default: () => new Date() },
+          },
+          { _id: false },
+        ),
+      ],
+      default: [],
+    },
+
     // SES linkage (null in mock mode).
     awsIdentityArn: { type: String },
     dkimTokens: { type: [String], default: [] },

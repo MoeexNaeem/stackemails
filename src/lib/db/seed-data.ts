@@ -30,8 +30,17 @@ export async function seedDemoData(): Promise<{ apiKey: string } | null> {
   const membership = await Membership.findOne({ userId: user!._id });
   const wid = membership!.workspaceId;
 
-  const { raw, keyHash, last4 } = generateApiKey("live");
-  await ApiKey.create({ workspaceId: wid, name: "Default key", mode: "live", keyHash, last4 });
+  const { raw, keyHash, last4, keyPrefix } = generateApiKey("live");
+  await ApiKey.create({
+    workspaceId: wid,
+    name: "Default key",
+    mode: "live",
+    keyHash,
+    last4,
+    keyPrefix,
+    permission: "full_access",
+    domainScope: "all",
+  });
 
   const identity = await getEmailProvider().createDomainIdentity("acme.com", "us-east-1");
   await Domain.create({

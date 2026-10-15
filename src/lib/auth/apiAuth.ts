@@ -36,6 +36,19 @@ export async function authenticateApiRequest(req: Request): Promise<ApiAuthResul
     return { ok: false, status: 401, code: "invalid_api_key", message: "Workspace not found." };
   }
 
+  // Admin controls: a suspended or restricted workspace cannot use the API.
+  if (workspace.status === "suspended") {
+    return { ok: false, status: 403, code: "account_suspended", message: "This account has been suspended. Contact support." };
+  }
+  if (workspace.status === "restricted") {
+    return {
+      ok: false,
+      status: 403,
+      code: "account_restricted",
+      message: workspace.restrictedReason || "This account is restricted from sending.",
+    };
+  }
+
   // Fire-and-forget last-used timestamp (don't block the request path).
   ApiKey.updateOne({ _id: apiKey._id }, { $set: { lastUsedAt: new Date() } }).catch(() => {});
 

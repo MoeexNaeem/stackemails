@@ -30,7 +30,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         setLoading(false);
         return;
       }
-      router.push("/overview");
+      router.push("/emails");
       router.refresh();
     } catch {
       setError("Network error. Please try again.");

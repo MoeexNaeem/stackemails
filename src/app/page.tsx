@@ -62,7 +62,7 @@ export default async function LandingPage() {
               Docs
             </Link>
             {user ? (
-              <Link href="/overview" className="btn btn-primary">
+              <Link href="/emails" className="btn btn-primary">
                 Dashboard
               </Link>
             ) : (

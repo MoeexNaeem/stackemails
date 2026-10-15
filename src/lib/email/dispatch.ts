@@ -1,7 +1,8 @@
 import { connectToDatabase } from "@/lib/db/connect";
-import { EmailLog, Workspace } from "@/lib/db/models";
+import { EmailLog } from "@/lib/db/models";
 import { getEmailProvider } from "@/lib/email";
 import { emitEvent } from "@/lib/webhooks/dispatch";
+import { recordSend } from "@/lib/quota";
 import { env } from "@/lib/env";
 
 export interface EmailJob {
@@ -42,7 +43,7 @@ export async function processEmailJob(job: EmailJob): Promise<void> {
     log.events.push({ type: "sent", at: new Date() });
     await log.save();
 
-    await Workspace.updateOne({ _id: job.workspaceId }, { $inc: { "usage.sent": 1 } });
+    await recordSend(job.workspaceId);
     await emitEvent(job.workspaceId, "email.sent", serialize(log));
 
     // In mock mode there's no SNS callback, so simulate a delivery event so the

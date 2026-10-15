@@ -31,12 +31,18 @@ export const createDomainSchema = z.object({
     .toLowerCase()
     .regex(/^([a-z0-9-]+\.)+[a-z]{2,}$/, "Enter a valid domain, e.g. mail.acme.com"),
   region: z.string().default("us-east-1"),
+  returnPath: z.string().trim().default("send"),
+  trackingSubdomain: z.string().trim().default(""),
+  clickTracking: z.coerce.boolean().default(true),
+  openTracking: z.coerce.boolean().default(false),
 });
 
 /** Dashboard: create API key. */
 export const createApiKeySchema = z.object({
   name: z.string().trim().min(1).max(80),
   mode: z.enum(["live", "test"]).default("live"),
+  permission: z.enum(["full_access", "sending_access"]).default("full_access"),
+  domainScope: z.string().default("all"),
 });
 
 /** Dashboard: create webhook. */

@@ -4,6 +4,7 @@ import { Domain } from "@/lib/db/models";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { AddDomainForm } from "@/components/dashboard/AddDomainForm";
 import { DomainCard, type DomainView } from "@/components/dashboard/DomainCard";
+import { CodeDrawer } from "@/components/dashboard/CodeDrawer";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -33,7 +34,7 @@ export default async function DomainsPage() {
       <PageHeader
         title="Domains"
         description="Authenticate your sending domains with SPF + DKIM, delegated to Amazon SES."
-        action={<AddDomainForm />}
+        action={<div className="flex items-center gap-2"><AddDomainForm /><CodeDrawer resource="domains" /></div>}
       />
 
       {env.emailProvider === "mock" && (

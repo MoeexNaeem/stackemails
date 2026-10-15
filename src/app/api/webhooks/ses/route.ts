@@ -1,5 +1,5 @@
 import { connectToDatabase } from "@/lib/db/connect";
-import { EmailLog } from "@/lib/db/models";
+import { EmailLog, Suppression } from "@/lib/db/models";
 import { emitEvent } from "@/lib/webhooks/dispatch";
 import { apiJson } from "@/lib/api/response";
 
@@ -71,6 +71,19 @@ export async function POST(req: Request) {
   if (kind === "delivery") log.deliveredAt = new Date();
   log.events.push({ type: kind as never, at: new Date() });
   await log.save();
+
+  // Suppress recipients that hard-bounce or complain, to protect reputation.
+  if (kind === "bounce" || kind === "complaint") {
+    await Promise.all(
+      log.to.map((email) =>
+        Suppression.updateOne(
+          { workspaceId: log.workspaceId, email },
+          { $setOnInsert: { reason: kind === "bounce" ? "bounce" : "complaint" } },
+          { upsert: true },
+        ).catch(() => {}),
+      ),
+    );
+  }
 
   await emitEvent(String(log.workspaceId), mapped.event, {
     email_id: log.messageId,

@@ -14,12 +14,15 @@ export function generateApiKey(mode: "live" | "test" = "live"): {
   raw: string;
   keyHash: string;
   last4: string;
+  keyPrefix: string;
 } {
   const raw = `ns_${mode}_${randomBytes(32).toString("hex")}`;
   return {
     raw,
     keyHash: hashApiKey(raw),
     last4: raw.slice(-4),
+    // Shown in the dashboard table, e.g. "ns_live_5f3c…".
+    keyPrefix: raw.slice(0, 12),
   };
 }
 
