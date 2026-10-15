@@ -5,6 +5,7 @@
 #
 #   git clone https://github.com/MoeexNaeem/stackemails.git /www/wwwroot/stackemails
 #   bash /www/wwwroot/stackemails/scripts/server/setup.sh
+#   bash /www/wwwroot/stackemails/scripts/server/setup.sh ssl   (SSL only, no rebuild)
 #
 # Runs the app as PM2 app `stackemails` on 127.0.0.1:3600 behind aaPanel's nginx.
 # Other sites on this server are left untouched.
@@ -35,9 +36,13 @@ else
 fi
 reload_nginx() { "$NGINX" -t && "$NGINX" -s reload; }
 # A real (Let's Encrypt) certificate, not a leftover self-signed one.
-have_cert() { [ -s "$CERT_DIR/fullchain.pem" ] && openssl x509 -noout -issuer -in "$CERT_DIR/fullchain.pem" 2>/dev/null | grep -qi "let's encrypt"; }
+# (grep reads everything, no -q: with pipefail an early grep exit fails the check.)
+have_cert() { [ -s "$CERT_DIR/fullchain.pem" ] && openssl x509 -noout -issuer -in "$CERT_DIR/fullchain.pem" 2>/dev/null | grep -i "let's encrypt" >/dev/null; }
+
+ONLY_SSL=0; [ "${1:-}" = ssl ] && ONLY_SSL=1
 
 # ---------------------------------------------------------------- 1. app
+if [ "$ONLY_SSL" = 0 ]; then
 say "1/3 Building and starting the app (a few minutes)"
 command -v node >/dev/null 2>&1 || die "Node.js is not installed."
 command -v pm2 >/dev/null 2>&1 || npm install -g pm2
@@ -51,6 +56,7 @@ else
 fi
 pm2 save
 pm2 startup systemd -u root --hp /root >/dev/null 2>&1 || true
+fi
 
 # ---------------------------------------------------------------- 2. domain
 say "2/3 Connecting $DOMAIN"
@@ -107,12 +113,14 @@ write_conf
 say "3/3 Free SSL certificate (Let's Encrypt)"
 SERVER_IP=$(curl -s --max-time 5 https://api.ipify.org || true)
 DOMAIN_IP=$(getent ahostsv4 "$DOMAIN" | awk 'NR==1{print $1}' || true)
+echo "Server IP: ${SERVER_IP:-unknown} | $DOMAIN points to: ${DOMAIN_IP:-nothing}"
 if have_cert; then
   echo "Certificate already installed (renews automatically)."
 elif [ -z "$SERVER_IP" ] || [ "$DOMAIN_IP" != "$SERVER_IP" ]; then
-  warn "$DOMAIN points to ${DOMAIN_IP:-nothing}, not this server (${SERVER_IP:-unknown}). In Hostinger DNS set the A record @ to ${SERVER_IP:-this server's IP}, wait a few minutes, then run this script again for SSL. The site works on http:// meanwhile."
+  warn "$DOMAIN points to ${DOMAIN_IP:-nothing}, not this server (${SERVER_IP:-unknown}). In Hostinger DNS set the A record @ to ${SERVER_IP:-this server IP}, wait a few minutes, then run this script again for SSL. The site works on http:// meanwhile."
 else
-  [ -f ~/.acme.sh/acme.sh ] || curl -s https://get.acme.sh | sh -s >/dev/null
+  if [ ! -f ~/.acme.sh/acme.sh ]; then echo "Installing acme.sh (Let's Encrypt client)"; curl -s https://get.acme.sh | sh -s; fi
+  echo "Requesting the certificate"
   WWW=""; [ "$(getent ahostsv4 "www.$DOMAIN" | awk 'NR==1{print $1}')" = "$SERVER_IP" ] && WWW="-d www.$DOMAIN"
   # shellcheck disable=SC2086
   ~/.acme.sh/acme.sh --issue --server letsencrypt -d "$DOMAIN" $WWW -w "$ACME_ROOT" || true
