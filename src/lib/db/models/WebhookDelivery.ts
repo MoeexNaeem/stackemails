@@ -1,15 +1,19 @@
 import { Schema, model, models, type InferSchemaType, type Model } from "mongoose";
 import type { BaseFields } from "./_shared";
 
-/** Audit record of one attempt to POST an event to a customer webhook URL. */
+/** One event delivery to a customer webhook, with its retry history. */
 const WebhookDeliverySchema = new Schema(
   {
     workspaceId: { type: Schema.Types.ObjectId, ref: "Workspace", required: true, index: true },
     webhookId: { type: Schema.Types.ObjectId, ref: "Webhook", required: true, index: true },
+    eventId: { type: String, required: true, index: true }, // evt_… (stable across retries)
     eventType: { type: String, required: true },
     payload: { type: Schema.Types.Mixed, required: true },
-    status: { type: String, enum: ["success", "failed"], required: true },
+    status: { type: String, enum: ["pending", "retrying", "success", "failed"], default: "pending", index: true },
+    attempts: { type: Number, default: 0 },
+    nextRetryAt: { type: Date },
     responseStatus: { type: Number },
+    responseBody: { type: String },
     error: { type: String },
     durationMs: { type: Number },
   },

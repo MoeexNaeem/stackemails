@@ -4,8 +4,8 @@
  *
  *   npm run seed
  *
- * Tenant login:  demo@nanosend.dev  / password123
- * Admin login:   admin@nanosend.dev / admin123
+ * Tenant login:  demo@stackemails.com  / password123
+ * Admin login:   admin@stackemails.com / admin123
  */
 import "dotenv/config";
 import { seedDemoData } from "@/lib/db/seed-data";
@@ -17,13 +17,13 @@ async function main() {
 
   if (result) {
     console.log("\n✅ Demo tenant seeded.");
-    console.log("   Login:   demo@nanosend.dev / password123");
+    console.log("   Login:   demo@stackemails.com / password123");
     console.log(`   API key: ${result.apiKey}`);
   } else {
     console.log("\n✅ Demo tenant already existed.");
   }
   console.log("\n✅ Admin + plans + sample tenants seeded.");
-  console.log("   Admin:   admin@nanosend.dev / admin123 → /admin\n");
+  console.log("   Admin:   admin@stackemails.com / admin123 → /admin\n");
 }
 
 main()

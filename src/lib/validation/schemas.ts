@@ -7,14 +7,24 @@ const emailList = z.union([z.string(), z.array(z.string())]).transform((v) =>
 /** POST /v1/emails body. `from`, `to`, `subject` + at least one of html/text. */
 export const sendEmailSchema = z
   .object({
-    from: z.string().min(3),
+    from: z.string().min(3).max(320),
     to: emailList,
     cc: emailList.optional(),
     bcc: emailList.optional(),
     reply_to: emailList.optional(),
     subject: z.string().min(1).max(998),
-    html: z.string().optional(),
-    text: z.string().optional(),
+    html: z.string().max(5_000_000).optional(),
+    text: z.string().max(5_000_000).optional(),
+    headers: z.record(z.string(), z.string()).optional(),
+    attachments: z
+      .array(z.object({ filename: z.string().min(1).max(200), content: z.string(), content_type: z.string().max(200).optional() }))
+      .max(20)
+      .optional(),
+    tags: z
+      .array(z.object({ name: z.string().regex(/^[A-Za-z0-9_-]{1,256}$/, "Tag names may contain only letters, numbers, _ and -"), value: z.string().regex(/^[A-Za-z0-9_-]{1,256}$/, "Tag values may contain only letters, numbers, _ and -") }))
+      .max(10)
+      .optional(),
+    scheduled_at: z.string().datetime({ offset: true }).optional(),
   })
   .refine((d) => d.to.length > 0, { message: "`to` must contain at least one recipient" })
   .refine((d) => Boolean(d.html || d.text), {
@@ -85,4 +95,13 @@ export const signupSchema = z.object({
 export const loginSchema = z.object({
   email: z.string().email().toLowerCase(),
   password: z.string().min(1),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().email("Enter a valid email address.").toLowerCase(),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().regex(/^[0-9a-f]{64}$/, "This reset link is invalid."),
+  password: z.string().min(8, "Password must be at least 8 characters.").max(200),
 });

@@ -53,8 +53,8 @@ async function checkRedis() {
     });
     await redis.connect();
     const pong = await redis.ping();
-    await redis.set("nanosend:verify", "ok", "EX", 30);
-    const val = await redis.get("nanosend:verify");
+    await redis.set("stackemails:verify", "ok", "EX", 30);
+    const val = await redis.get("stackemails:verify");
     redis.disconnect();
     line({
       name: "Redis",
@@ -113,7 +113,7 @@ async function checkSes() {
 }
 
 async function main() {
-  console.log("\nVerifying NanoSend external services…\n");
+  console.log("\nVerifying Stack Emails external services…\n");
   await checkMongo();
   await checkRedis();
   await checkSes();

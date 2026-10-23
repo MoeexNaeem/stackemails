@@ -1,84 +1,96 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { isValidObjectId } from "mongoose";
 import { requireDashboardContext } from "@/lib/auth/context";
 import { connectToDatabase } from "@/lib/db/connect";
-import { ApiLog } from "@/lib/db/models";
-import { PageHeader } from "@/components/dashboard/PageHeader";
+import { ApiKey, ApiLog } from "@/lib/db/models";
+import { FilterBar } from "@/components/ui/FilterBar";
+import { Pagination } from "@/components/ui/Pagination";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { RANGE_OPTIONS, escapeRegex, pageOf, rangeSince, PAGE_SIZE } from "@/lib/filters";
+import { timeAgo } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Logs" };
 
 function StatusPill({ status }: { status: number }) {
-  const ok = status >= 200 && status < 300;
-  const color = ok ? "var(--success)" : status >= 500 ? "var(--danger)" : "var(--warning)";
-  return (
-    <span
-      className="badge mono"
-      style={{
-        color,
-        background: `color-mix(in srgb, ${color} 14%, transparent)`,
-        border: `1px solid color-mix(in srgb, ${color} 30%, transparent)`,
-      }}
-    >
-      {status}
-    </span>
-  );
+  const color = status < 300 ? "var(--success)" : status >= 500 ? "var(--danger)" : "var(--warning)";
+  return <span className="badge mono" style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}>{status}</span>;
 }
 
-export default async function LogsPage() {
+const UA = [
+  { value: "", label: "All user agents" },
+  { value: "stackemails", label: "Stack Emails SDK" },
+  { value: "node", label: "Node.js" },
+  { value: "python", label: "Python" },
+  { value: "curl", label: "cURL" },
+  { value: "smtp", label: "SMTP relay" },
+  { value: "mcp", label: "MCP" },
+];
+
+export default async function LogsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const sp = await searchParams;
   const { workspace } = await requireDashboardContext();
   await connectToDatabase();
 
-  const logs = await ApiLog.find({ workspaceId: workspace._id })
-    .sort({ createdAt: -1 })
-    .limit(100)
-    .lean();
+  const filter: Record<string, unknown> = { workspaceId: workspace._id, createdAt: { $gte: rangeSince(sp.range) } };
+  if (sp.status === "2xx") filter.status = { $gte: 200, $lt: 300 };
+  if (sp.status === "4xx") filter.status = { $gte: 400, $lt: 500 };
+  if (sp.status === "5xx") filter.status = { $gte: 500 };
+  if (sp.ua && UA.some((u) => u.value === sp.ua)) filter.userAgent = { $regex: escapeRegex(sp.ua), $options: "i" };
+  if (sp.key && isValidObjectId(sp.key)) filter.apiKeyId = sp.key;
+  if (sp.q) filter.endpoint = { $regex: escapeRegex(sp.q.trim()), $options: "i" };
+  const page = pageOf(sp.page);
+
+  const [total, logs, keys] = await Promise.all([
+    ApiLog.countDocuments(filter),
+    ApiLog.find(filter).sort({ createdAt: -1 }).skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE).select("endpoint method status source userAgent durationMs createdAt").lean(),
+    ApiKey.find({ workspaceId: workspace._id }).select("name").lean(),
+  ]);
 
   return (
     <div>
-      <PageHeader title="Logs" description="Every request made to the NanoSend API." />
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        <input className="input flex-1 min-w-[200px]" placeholder="Search..." />
-        <span className="btn btn-secondary">Last 15 days ▾</span>
-        <span className="btn btn-secondary">All statuses ▾</span>
-        <span className="btn btn-secondary">All sources ▾</span>
-      </div>
-
+      <h1 className="text-[28px] font-normal tracking-[-0.02em] mb-6">Logs</h1>
+      <FilterBar
+        fields={[
+          { type: "search", name: "q", placeholder: "Search endpoint…" },
+          { type: "select", name: "range", defaultValue: "15d", options: RANGE_OPTIONS.map((o) => ({ value: o.value, label: o.label })) },
+          { type: "select", name: "status", options: [{ value: "", label: "All statuses" }, { value: "2xx", label: "Success (2xx)" }, { value: "4xx", label: "Client errors (4xx)" }, { value: "5xx", label: "Server errors (5xx)" }] },
+          { type: "select", name: "ua", options: UA },
+          { type: "select", name: "key", options: [{ value: "", label: "All sources" }, ...keys.map((k) => ({ value: String(k._id), label: k.name }))] },
+        ]}
+      />
       <div className="card overflow-hidden">
         {logs.length === 0 ? (
-          <div className="px-5 py-16 text-center">
-            <p className="text-fg-muted">No API requests yet.</p>
-            <p className="text-sm text-fg-subtle mt-1">
-              Requests to <code className="mono text-accent">/v1/*</code> will appear here.
-            </p>
-          </div>
+          <EmptyState icon="M3 5h18v14H3zM3 9h18M7 13h6" title="No logs yet" description="Every request to the Stack Emails API, SMTP relay and MCP server shows up here." />
         ) : (
-          <table className="w-full text-sm">
+          <table className="table">
             <thead>
-              <tr className="text-left text-fg-subtle border-b border-border">
-                <th className="px-5 py-3 font-medium">Endpoint</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-                <th className="px-5 py-3 font-medium">Method</th>
-                <th className="px-5 py-3 font-medium">Source</th>
-                <th className="px-5 py-3 font-medium text-right">Created</th>
+              <tr>
+                <th>Endpoint</th>
+                <th>Status</th>
+                <th>Method</th>
+                <th className="hidden md:table-cell">User agent</th>
+                <th className="hidden sm:table-cell">Duration</th>
+                <th className="text-right">Created</th>
               </tr>
             </thead>
             <tbody>
               {logs.map((l) => (
-                <tr key={String(l._id)} className="border-b border-border last:border-0 hover:bg-bg-hover">
-                  <td className="px-5 py-3 mono">{l.endpoint}</td>
-                  <td className="px-5 py-3">
-                    <StatusPill status={l.status} />
-                  </td>
-                  <td className="px-5 py-3 mono text-fg-muted">{l.method}</td>
-                  <td className="px-5 py-3 text-fg-muted capitalize">{l.source}</td>
-                  <td className="px-5 py-3 text-right text-fg-subtle whitespace-nowrap">
-                    {new Date(l.createdAt).toLocaleString()}
-                  </td>
+                <tr key={String(l._id)}>
+                  <td className="mono text-[13px]"><Link href={`/logs/${l._id}`} className="hover:text-accent">{l.endpoint}</Link></td>
+                  <td><StatusPill status={l.status} /></td>
+                  <td className="mono text-fg-muted">{l.method}</td>
+                  <td className="hidden md:table-cell max-w-[220px] truncate text-xs text-fg-subtle">{l.userAgent ?? l.source}</td>
+                  <td className="hidden sm:table-cell text-fg-subtle">{l.durationMs != null ? `${l.durationMs}ms` : "—"}</td>
+                  <td className="text-right text-fg-subtle whitespace-nowrap">{timeAgo(l.createdAt)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+      <Pagination page={page} total={total} pageSize={PAGE_SIZE} />
     </div>
   );
 }

@@ -21,7 +21,7 @@ export function TestEmailComposer({ defaultFrom }: { defaultFrom: string }) {
   return (
     <>
       <button className="btn btn-primary" onClick={() => setOpen(true)}>
-        Send test email
+        + Send email
       </button>
 
       {open && (
@@ -44,15 +44,16 @@ export function TestEmailComposer({ defaultFrom }: { defaultFrom: string }) {
             <form ref={formRef} action={action} className="space-y-3">
               <div>
                 <label className="label">From</label>
-                <input name="from" className="input" defaultValue={defaultFrom} required />
+                <input name="from" className="input" defaultValue={defaultFrom} placeholder="Acme <hello@your-verified-domain.com>" required />
+                {!defaultFrom && <p className="mt-1 text-xs text-fg-subtle">Verify a domain first — you can only send from verified domains.</p>}
               </div>
               <div>
                 <label className="label">To</label>
                 <input
                   name="to"
                   className="input"
-                  placeholder="recipient@example.com"
-                  defaultValue="delivered@example.com"
+                  placeholder="you@yourcompany.com"
+                  type="email"
                   required
                 />
               </div>
@@ -61,7 +62,7 @@ export function TestEmailComposer({ defaultFrom }: { defaultFrom: string }) {
                 <input
                   name="subject"
                   className="input"
-                  defaultValue="Hello from NanoSend 👋"
+                  defaultValue="Hello from Stack Emails 👋"
                   required
                 />
               </div>
@@ -71,7 +72,7 @@ export function TestEmailComposer({ defaultFrom }: { defaultFrom: string }) {
                   name="html"
                   className="input font-mono text-xs"
                   rows={4}
-                  defaultValue={"<h1>It works!</h1>\n<p>This email was sent through NanoSend.</p>"}
+                  defaultValue={"<h1>It works!</h1>\n<p>This email was sent through Stack Emails.</p>"}
                 />
               </div>
 

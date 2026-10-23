@@ -1,27 +1,40 @@
+import { sentThisPeriod } from "@/lib/quota";
 import Link from "next/link";
+import { isValidObjectId } from "mongoose";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/admin";
 import { connectToDatabase } from "@/lib/db/connect";
 import {
   Workspace, User, Subscription, Transaction, Plan,
-  ApiKey, Domain, Contact, EmailLog,
+  ApiKey, Domain, Contact, EmailLog, Membership, SupportTicket,
 } from "@/lib/db/models";
+import { setUserDisabledAction } from "@/app/admin/ops-actions";
+import { timeAgo } from "@/lib/format";
 import { StatusBadge } from "@/components/StatusBadge";
 import { WorkspaceAdminControls } from "@/components/admin/WorkspaceAdminControls";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Team" };
 
 function money(n: number) {
   return "$" + n.toLocaleString();
 }
 
 export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { id } = await params;
+  if (!isValidObjectId(id)) notFound();
   await connectToDatabase();
 
   const ws = await Workspace.findById(id).lean();
   if (!ws) notFound();
+
+  const [members, tickets] = await Promise.all([
+    Membership.find({ workspaceId: id }).select("userId role").lean(),
+    SupportTicket.find({ workspaceId: id }).sort({ lastActivityAt: -1 }).limit(8).select("number subject status lastActivityAt").lean(),
+  ]);
+  const memberUsers = await User.find({ _id: { $in: members.map((m) => m.userId) } }).select("name email disabled mfaEnabled lastLoginAt lastLoginIp platformRole").lean();
+  const roleOf = new Map(members.map((m) => [String(m.userId), m.role]));
 
   const [owner, sub, plans, txns, keyCount, domainCount, contactCount, emailCount, revenueAgg] = await Promise.all([
     User.findById(ws.ownerId).lean(),
@@ -45,7 +58,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
     ["Workspace ID", <code key="id" className="mono text-xs">{String(ws._id)}</code>],
     ["Plan", sub?.planName ?? ws.plan],
     ["Price", sub && sub.priceMonthly > 0 ? `$${sub.priceMonthly}/mo` : "Free"],
-    ["Monthly usage", `${(ws.usage?.sent ?? 0).toLocaleString()} / ${ws.monthlyQuota.toLocaleString()}`],
+    ["Monthly usage", `${sentThisPeriod(ws).toLocaleString()} / ${ws.monthlyQuota.toLocaleString()}`],
     ["Daily limit", ws.dailyQuota.toLocaleString()],
     ["Joined", new Date(ws.createdAt).toLocaleDateString()],
     ["Billing email", ws.billingEmail || "—"],
@@ -53,10 +66,10 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
 
   return (
     <div>
-      <Link href="/admin/users" className="text-sm text-fg-muted hover:text-fg">← Users</Link>
+      <Link href="/admin/users" className="text-sm text-fg-muted hover:text-fg">← Teams &amp; users</Link>
 
       <div className="flex items-center gap-3 mt-3 mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">{ws.name}</h1>
+        <h1 className="text-[28px] font-normal tracking-[-0.02em]">{ws.name}</h1>
         <StatusBadge status={ws.status === "active" ? "verified" : ws.status === "restricted" ? "pending" : "failed"} />
       </div>
 
@@ -66,12 +79,13 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         {[
           { label: "Lifetime revenue", value: money(lifetimeRevenue) },
           { label: "Emails sent", value: emailCount.toLocaleString() },
           { label: "API keys", value: keyCount },
           { label: "Domains", value: domainCount },
+          { label: "Contacts", value: contactCount.toLocaleString() },
         ].map((s) => (
           <div key={s.label} className="card p-4">
             <p className="text-xs text-fg-subtle">{s.label}</p>
@@ -106,6 +120,57 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                 </span>
               </div>
             </div>
+          </div>
+
+          <div className="card overflow-hidden">
+            <div className="px-5 py-4 border-b border-border"><h2 className="font-semibold">Members</h2></div>
+            <div className="overflow-x-auto">
+              <table className="table min-w-[620px]">
+                <tbody>
+                  {memberUsers.map((u) => (
+                    <tr key={String(u._id)}>
+                      <td>
+                        <span className="font-medium">{u.name}</span>
+                        <span className="block text-xs text-fg-subtle">{u.email}</span>
+                      </td>
+                      <td className="capitalize text-fg-muted">{roleOf.get(String(u._id))}</td>
+                      <td className="text-xs text-fg-muted">
+                        {u.mfaEnabled ? <span className="badge" style={{ color: "var(--success)" }}>2FA on</span> : <span className="badge">2FA off</span>}
+                        {u.disabled && <span className="badge ml-1" style={{ color: "var(--danger)" }}>disabled</span>}
+                      </td>
+                      <td className="text-xs text-fg-subtle">{u.lastLoginAt ? `${timeAgo(u.lastLoginAt)}${u.lastLoginIp ? ` · ${u.lastLoginIp}` : ""}` : "never signed in"}</td>
+                      <td className="text-right">
+                        {String(u._id) !== String(admin._id) && (
+                          <form action={setUserDisabledAction.bind(null, String(u._id), !u.disabled)}>
+                            <button className={`btn btn-sm ${u.disabled ? "btn-secondary" : "btn-danger"}`}>{u.disabled ? "Enable" : "Disable"}</button>
+                          </form>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="card overflow-hidden">
+            <div className="px-5 py-4 border-b border-border"><h2 className="font-semibold">Support tickets</h2></div>
+            {tickets.length === 0 ? (
+              <p className="px-5 py-8 text-center text-fg-muted text-sm">No tickets from this team.</p>
+            ) : (
+              <ul>
+                {tickets.map((t) => (
+                  <li key={String(t._id)} className="border-b border-border last:border-0">
+                    <Link href={`/admin/support/${t._id}`} className="flex items-center gap-3 px-5 py-3 text-sm hover:bg-bg-hover">
+                      <span className="mono text-xs text-fg-subtle">#{t.number}</span>
+                      <span className="min-w-0 flex-1 truncate">{t.subject}</span>
+                      <span className="badge capitalize">{t.status}</span>
+                      <span className="text-xs text-fg-subtle">{timeAgo(t.lastActivityAt)}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="card overflow-hidden">

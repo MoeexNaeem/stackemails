@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
+import { sendReceiptEmail } from "@/lib/billing/receipts";
 import { connectToDatabase } from "@/lib/db/connect";
 import {
   Workspace, Membership, ApiKey, Domain, EmailLog, Webhook, WebhookDelivery,
@@ -94,11 +96,12 @@ export async function changeWorkspacePlanAction(workspaceId: string, planId: str
     { $set: { plan: plan.slug === "free" ? "free" : plan.slug === "pro" ? "pro" : "scale", monthlyQuota: plan.monthlyQuota, dailyQuota: plan.dailyQuota, contactsQuota: plan.contactsQuota } },
   );
   if (plan.priceMonthly > 0) {
-    await Transaction.create({
+    const tx = await Transaction.create({
       workspaceId, workspaceName: ws.name, planId: plan._id, planName: plan.name,
       amount: plan.priceMonthly, type: "upgrade", status: "paid",
       periodStart: new Date(), periodEnd,
     });
+    after(() => sendReceiptEmail(tx));
   }
   revalidatePath(`/admin/users/${workspaceId}`);
   revalidatePath("/admin/revenue");

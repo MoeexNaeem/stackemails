@@ -1,38 +1,33 @@
-import { authenticateApiRequest } from "@/lib/auth/apiAuth";
-import { apiError, apiJson } from "@/lib/api/response";
+import { z } from "zod";
+import { apiRoute, apiFail } from "@/lib/api/route";
 import { EmailLog } from "@/lib/db/models";
+import { getEmailQueue } from "@/lib/queue";
+import { serializeEmail } from "@/lib/api/serializers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// GET /v1/emails/:id — retrieve a single email by its public message id.
-export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
-  const auth = await authenticateApiRequest(req);
-  if (!auth.ok) return apiError(auth.status, auth.code, auth.message);
+// GET /v1/emails/:id — retrieve one email (tenant-scoped).
+export const GET = apiRoute<{ id: string }>({ endpoint: "/emails/:id" }, async ({ workspace, params }) => {
+  const log = await EmailLog.findOne({ workspaceId: workspace._id, messageId: params.id }).lean();
+  if (!log) apiFail(404, "not_found", "Email not found.");
+  return { data: serializeEmail(log, true) };
+});
 
-  const { id } = await ctx.params;
-  const log = await EmailLog.findOne({
-    workspaceId: auth.workspace._id, // tenant isolation
-    messageId: id,
-  }).lean();
+// PATCH /v1/emails/:id — reschedule a scheduled email. Body: { scheduled_at }
+export const PATCH = apiRoute<{ id: string }>({ endpoint: "/emails/:id" }, async ({ workspace, params, body }) => {
+  const { scheduled_at } = await body(z.object({ scheduled_at: z.string().datetime({ offset: true }) }));
+  const when = new Date(scheduled_at);
+  const delay = when.getTime() - Date.now();
+  if (delay < 0) apiFail(422, "validation_error", "`scheduled_at` must be in the future.");
+  if (delay > 30 * 86_400_000) apiFail(422, "validation_error", "Emails can be scheduled at most 30 days ahead.");
 
-  if (!log) return apiError(404, "not_found", "Email not found.");
-
-  return apiJson({
-    id: log.messageId,
-    from: log.from,
-    to: log.to,
-    cc: log.cc,
-    bcc: log.bcc,
-    reply_to: log.replyTo,
-    subject: log.subject,
-    html: log.html,
-    text: log.text,
-    status: log.status,
-    error: log.errorMessage ?? null,
-    events: log.events,
-    created_at: log.createdAt,
-    sent_at: log.sentAt ?? null,
-    delivered_at: log.deliveredAt ?? null,
-  });
-}
+  const log = await EmailLog.findOneAndUpdate(
+    { workspaceId: workspace._id, messageId: params.id, status: "scheduled" },
+    { $set: { scheduledAt: when }, $push: { events: { type: "scheduled", at: new Date(), detail: `Rescheduled for ${when.toISOString()}` } } },
+    { returnDocument: "after" },
+  );
+  if (!log) apiFail(409, "not_scheduled", "Only scheduled emails that haven't been sent can be rescheduled.");
+  await getEmailQueue().enqueue({ emailId: String(log._id), workspaceId: String(workspace._id) }, { delayMs: delay, jobKey: String(when.getTime()) });
+  return { data: { object: "email", id: log.messageId, status: log.status, scheduled_at: log.scheduledAt } };
+});

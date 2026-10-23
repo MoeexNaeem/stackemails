@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { requireDashboardContext } from "@/lib/auth/context";
+import { escapeRegex } from "@/lib/filters";
+import { FilterBar } from "@/components/ui/FilterBar";
 import { connectToDatabase } from "@/lib/db/connect";
 import { Template } from "@/lib/db/models";
 import { STARTER_TEMPLATES } from "@/lib/templates/starters";
@@ -7,10 +10,16 @@ import { MyTemplates, type TemplateView } from "@/components/dashboard/MyTemplat
 
 export const dynamic = "force-dynamic";
 
-export default async function TemplatesPage() {
+export const metadata: Metadata = { title: "Templates" };
+
+export default async function TemplatesPage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
+  const sp = await searchParams;
   const { workspace } = await requireDashboardContext();
   await connectToDatabase();
-  const templates = await Template.find({ workspaceId: workspace._id }).sort({ updatedAt: -1 }).lean();
+  const filter: Record<string, unknown> = { workspaceId: workspace._id };
+  if (sp.q) filter.$or = [{ name: { $regex: escapeRegex(sp.q.trim()), $options: "i" } }, { subject: { $regex: escapeRegex(sp.q.trim()), $options: "i" } }];
+  if (sp.category) filter.category = sp.category;
+  const templates = await Template.find(filter).sort({ updatedAt: -1 }).lean();
 
   const views: TemplateView[] = templates.map((t) => ({
     id: String(t._id),
@@ -25,7 +34,7 @@ export default async function TemplatesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Templates</h1>
+          <h1 className="text-[28px] font-normal tracking-[-0.02em]">Templates</h1>
           <p className="mt-1 text-sm text-fg-muted">Design reusable emails with React Email or HTML.</p>
         </div>
         <form action={createTemplateAction}>
@@ -34,7 +43,8 @@ export default async function TemplatesPage() {
         </form>
       </div>
 
-      <h2 className="text-sm font-semibold text-fg-muted mb-3">Your templates</h2>
+      <FilterBar fields={[{ type: "search", name: "q", placeholder: "Search templates…" }, { type: "select", name: "category", options: [{ value: "", label: "All categories" }, { value: "Transactional", label: "Transactional" }, { value: "Marketing", label: "Marketing" }, { value: "custom", label: "Custom" }] }]} />
+      <h2 className="text-sm font-medium text-fg-muted mb-3">Your templates</h2>
       <MyTemplates templates={views} />
 
       <h2 className="text-sm font-semibold text-fg-muted mt-10 mb-3">Start from a template</h2>
@@ -42,7 +52,7 @@ export default async function TemplatesPage() {
         {STARTER_TEMPLATES.filter((s) => s.id !== "blank").map((s) => (
           <div key={s.id} className="card overflow-hidden">
             <div className="h-40 overflow-hidden border-b border-border bg-white">
-              <iframe title={s.name} srcDoc={s.html} className="w-[200%] h-[320px] origin-top-left pointer-events-none" style={{ transform: "scale(0.5)" }} />
+              <iframe title={s.name} sandbox="" srcDoc={s.html} className="w-[200%] h-[320px] origin-top-left pointer-events-none" style={{ transform: "scale(0.5)" }} />
             </div>
             <div className="p-4 flex items-center justify-between">
               <div>

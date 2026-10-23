@@ -1,0 +1,8 @@
+/* TEAM */
+Stack Emails — the email API for developers
+Site: https://stackemails.com
+Contact: support@stackemails.com
+
+/* SITE */
+Built with: Next.js, React, Tailwind CSS, MongoDB, Amazon SES
+Language: English

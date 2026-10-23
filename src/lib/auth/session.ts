@@ -5,7 +5,8 @@ import { connectToDatabase } from "@/lib/db/connect";
 import { Session, User, type UserDoc } from "@/lib/db/models";
 import { sha256 } from "@/lib/crypto";
 
-const COOKIE_NAME = "nanosend_session";
+const COOKIE_NAME = "stackemails_session";
+const HINT_COOKIE = "se_signed_in";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
 
 /** Create a session row + set the httpOnly cookie. Returns the raw token. */
@@ -29,6 +30,8 @@ export async function createSession(userId: string, userAgent?: string): Promise
     path: "/",
     expires: expiresAt,
   });
+  // Non-secret UI hint so statically-rendered marketing pages can show "Dashboard".
+  store.set(HINT_COOKIE, "1", { httpOnly: false, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", expires: expiresAt });
 }
 
 /** Resolve the currently authenticated user from the session cookie. */
@@ -44,7 +47,9 @@ export async function getCurrentUser(): Promise<UserDoc | null> {
     await session.deleteOne();
     return null;
   }
-  return User.findById(session.userId);
+  const user = await User.findById(session.userId);
+  if (!user || user.disabled) return null; // admin-disabled accounts lose access immediately
+  return user;
 }
 
 export async function destroySession(): Promise<void> {
@@ -55,4 +60,5 @@ export async function destroySession(): Promise<void> {
     await Session.deleteOne({ tokenHash: sha256(raw) });
   }
   store.delete(COOKIE_NAME);
+  store.delete(HINT_COOKIE);
 }

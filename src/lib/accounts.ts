@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
+import type { Types } from "mongoose";
 import { connectToDatabase } from "@/lib/db/connect";
-import { User, Workspace, Membership } from "@/lib/db/models";
+import { User, Workspace, Membership, Audience } from "@/lib/db/models";
 import { hashPassword } from "@/lib/auth/password";
 import { randomId } from "@/lib/ids";
 
@@ -14,6 +15,19 @@ function slugify(input: string): string {
   );
 }
 
+/** Create a workspace ("team") owned by `ownerId`, with its default "General" segment. */
+export async function createWorkspaceFor(ownerId: Types.ObjectId | string, name: string) {
+  const workspace = await Workspace.create({
+    name,
+    slug: `${slugify(name)}-${randomId(6)}`,
+    ownerId,
+    webhookSecret: `whsec_${randomBytes(24).toString("hex")}`,
+  });
+  await Membership.create({ workspaceId: workspace._id, userId: ownerId, role: "owner" });
+  await Audience.create({ workspaceId: workspace._id, name: "General" });
+  return workspace;
+}
+
 /**
  * Create a new user, a workspace they own, and the linking membership.
  * Returns the created user id. Throws { code } on conflict.
@@ -23,7 +37,7 @@ export async function createAccount(input: {
   email: string;
   password: string;
   workspaceName?: string;
-}): Promise<{ userId: string }> {
+}): Promise<{ userId: string; workspaceId: string }> {
   await connectToDatabase();
 
   const existing = await User.findOne({ email: input.email });
@@ -35,19 +49,6 @@ export async function createAccount(input: {
     passwordHash: await hashPassword(input.password),
   });
 
-  const baseSlug = slugify(input.workspaceName || `${input.name}s-workspace`);
-  const workspace = await Workspace.create({
-    name: input.workspaceName || `${input.name}'s Workspace`,
-    slug: `${baseSlug}-${randomId(6)}`,
-    ownerId: user._id,
-    webhookSecret: `whsec_${randomBytes(24).toString("hex")}`,
-  });
-
-  await Membership.create({
-    workspaceId: workspace._id,
-    userId: user._id,
-    role: "owner",
-  });
-
-  return { userId: String(user._id) };
+  const workspace = await createWorkspaceFor(user._id, input.workspaceName || `${input.name}'s Team`);
+  return { userId: String(user._id), workspaceId: String(workspace._id) };
 }

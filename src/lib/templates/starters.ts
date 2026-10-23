@@ -12,7 +12,7 @@ const shell = (body: string) =>
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;padding:40px">
 ${body}
     <hr style="border:none;border-top:1px solid #eee;margin:28px 0"/>
-    <p style="color:#9a9aad;font-size:12px">Sent with NanoSend</p>
+    <p style="color:#9a9aad;font-size:12px">Sent with Stack Emails</p>
   </div>
 </div>`;
 

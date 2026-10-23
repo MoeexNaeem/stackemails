@@ -1,16 +1,16 @@
 import { Http } from "./http.js";
 import { Emails } from "./resources/emails.js";
 import { Domains } from "./resources/domains.js";
-import { Audiences } from "./resources/audiences.js";
-import { Broadcasts } from "./resources/broadcasts.js";
+import { Audiences, Contacts, Segments, Topics } from "./resources/audiences.js";
+import { Broadcasts, Events } from "./resources/broadcasts.js";
 /**
- * The NanoSend client.
+ * The Stack Emails client.
  *
  * ```ts
- * import { NanoSend } from "nanosend";
+ * import { StackEmails } from "stackemails";
  *
- * const ns = new NanoSend("ns_live_...");
- * await ns.emails.send({
+ * const stack = new StackEmails("se_live_...");
+ * await stack.emails.send({
  *   from: "Acme <hello@acme.com>",
  *   to: "user@example.com",
  *   subject: "Welcome",
@@ -18,14 +18,20 @@ import { Broadcasts } from "./resources/broadcasts.js";
  * });
  * ```
  */
-export class NanoSend {
+export class StackEmails {
     constructor(apiKey, options = {}) {
-        const http = new Http(apiKey, options);
+        const http = new Http(apiKey ?? "", options);
         this.emails = new Emails(http);
         this.domains = new Domains(http);
-        this.audiences = new Audiences(http);
+        this.contacts = new Contacts(http);
+        this.segments = new Segments(http);
+        this.topics = new Topics(http);
         this.broadcasts = new Broadcasts(http);
+        this.events = new Events(http);
+        this.audiences = new Audiences(http);
     }
 }
-export { NanoSendError } from "./error.js";
-export default NanoSend;
+export { StackEmailsError } from "./error.js";
+export { verifyWebhook } from "./webhooks.js";
+export { VERSION } from "./http.js";
+export default StackEmails;

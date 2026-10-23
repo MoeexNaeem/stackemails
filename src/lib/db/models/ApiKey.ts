@@ -2,7 +2,7 @@ import { Schema, model, models, type InferSchemaType, type Model } from "mongoos
 import type { BaseFields } from "./_shared";
 
 /**
- * API keys authenticate REST requests. Format: `ns_live_<32 hex bytes>`.
+ * API keys authenticate REST requests. Format: `se_live_<32 hex bytes>`.
  * The raw key is shown to the user exactly once; we persist only a
  * salted SHA-256 hash plus a short display suffix.
  */
@@ -14,9 +14,9 @@ const ApiKeySchema = new Schema(
 
     // SHA-256(secret + rawKey), indexed for O(1) lookup on auth.
     keyHash: { type: String, required: true, unique: true, index: true },
-    // Last 4 chars of the raw key, for display ("ns_live_…a1b2").
+    // Last 4 chars of the raw key, for display ("se_live_…a1b2").
     last4: { type: String, required: true },
-    // Leading chars shown in the table ("ns_live_5f3c…").
+    // Leading chars shown in the table ("se_live_5f3c…").
     keyPrefix: { type: String, default: "" },
 
     // Access level and optional domain restriction.

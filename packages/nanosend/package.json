@@ -1,7 +1,7 @@
 {
-  "name": "nanosend",
-  "version": "0.1.0",
-  "description": "Official TypeScript SDK for the NanoSend email API.",
+  "name": "stackemails",
+  "version": "0.2.0",
+  "description": "Official TypeScript SDK for the Stack Emails email API.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,7 +18,7 @@
     "build": "tsc -p tsconfig.json",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["nanosend", "email", "api", "ses", "transactional"],
+  "keywords": ["stackemails", "email", "api", "ses", "transactional"],
   "peerDependencies": {
     "@react-email/render": ">=1.0.0",
     "react": ">=18"

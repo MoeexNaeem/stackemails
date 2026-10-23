@@ -46,7 +46,7 @@ export function PlansManager({ plans }: { plans: PlanView[] }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Plans</h1>
+        <h1 className="text-[28px] font-normal tracking-[-0.02em]">Plans</h1>
         <button className="btn btn-primary" onClick={() => { setCreating(true); setEditing(null); }}>+ Create plan</button>
       </div>
 

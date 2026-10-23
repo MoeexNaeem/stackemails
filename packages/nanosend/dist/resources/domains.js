@@ -3,18 +3,33 @@ export class Domains {
         this.http = http;
     }
     /** Register a domain and receive the DNS records to publish. */
-    async create(options) {
+    create(options) {
         return this.http.request("POST", "/v1/domains", {
             name: options.name,
-            region: options.region ?? "us-east-1",
+            returnPath: options.returnPath,
+            clickTracking: options.clickTracking,
+            openTracking: options.openTracking,
         });
     }
-    /** List registered domains. */
-    async list() {
+    list() {
         return this.http.request("GET", "/v1/domains");
     }
-    /** Re-check verification status with the provider. */
-    async verify(id) {
+    get(id) {
+        return this.http.request("GET", `/v1/domains/${id}`);
+    }
+    update(id, params) {
+        return this.http.request("PATCH", `/v1/domains/${id}`, {
+            open_tracking: params.openTracking,
+            click_tracking: params.clickTracking,
+            tls: params.tls,
+            receiving: params.receiving,
+        });
+    }
+    /** Re-check DNS records and verification status. */
+    verify(id) {
         return this.http.request("POST", `/v1/domains/${id}/verify`);
+    }
+    remove(id) {
+        return this.http.request("DELETE", `/v1/domains/${id}`);
     }
 }

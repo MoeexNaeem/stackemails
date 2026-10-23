@@ -46,7 +46,7 @@ export function WelcomeEmail({
           </Section>
           <Hr style={hr} />
           <Text style={footer}>
-            Sent with NanoSend · You received this because you signed up for {product}.
+            Sent with Stack Emails · You received this because you signed up for {product}.
           </Text>
         </Container>
       </Body>

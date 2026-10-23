@@ -7,6 +7,7 @@ const DnsRecordSchema = new Schema(
     type: { type: String, enum: ["TXT", "CNAME", "MX"], required: true },
     name: { type: String, required: true }, // host / record name
     value: { type: String, required: true }, // record value
+    priority: { type: Number }, // MX priority
     purpose: { type: String, enum: ["SPF", "DKIM", "DMARC", "MX", "verification"], required: true },
     status: { type: String, enum: ["pending", "verified", "failed"], default: "pending" },
   },

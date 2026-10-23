@@ -3,8 +3,8 @@ import { sha256 } from "@/lib/crypto";
 import { env } from "@/lib/env";
 
 /**
- * API key format:  ns_<mode>_<32 random bytes as hex>
- * e.g.  ns_live_5f3c...   (72 chars total)
+ * API key format:  se_<mode>_<32 random bytes as hex>
+ * e.g.  se_live_5f3c...   (72 chars total)
  *
  * We never store the raw key — only sha256(secret + rawKey). The salt is the
  * app SESSION_SECRET so a leaked DB alone can't be brute-forced offline
@@ -16,12 +16,12 @@ export function generateApiKey(mode: "live" | "test" = "live"): {
   last4: string;
   keyPrefix: string;
 } {
-  const raw = `ns_${mode}_${randomBytes(32).toString("hex")}`;
+  const raw = `se_${mode}_${randomBytes(32).toString("hex")}`;
   return {
     raw,
     keyHash: hashApiKey(raw),
     last4: raw.slice(-4),
-    // Shown in the dashboard table, e.g. "ns_live_5f3c…".
+    // Shown in the dashboard table, e.g. "se_live_5f3c…".
     keyPrefix: raw.slice(0, 12),
   };
 }

@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CopyButton } from "@/components/CopyButton";
 import { CodeDrawer } from "@/components/dashboard/CodeDrawer";
+import { FilterBar } from "@/components/ui/FilterBar";
 import { createApiKeyAction, revokeApiKeyAction, type ActionState } from "@/app/(app)/actions";
 
 export type KeyView = {
@@ -56,7 +57,7 @@ export function ApiKeysManager({
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">API keys</h1>
+        <h1 className="text-[28px] font-normal tracking-[-0.02em]">API keys</h1>
         <div className="flex items-center gap-2">
           <button className="btn btn-primary" onClick={() => setCreating(true)}>
             + Create API key
@@ -65,10 +66,12 @@ export function ApiKeysManager({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        <input className="input flex-1 min-w-[200px]" placeholder="Search..." />
-        <span className="btn btn-secondary">All permissions ▾</span>
-      </div>
+      <FilterBar
+        fields={[
+          { type: "search", name: "q", placeholder: "Search keys…" },
+          { type: "select", name: "permission", options: [{ value: "", label: "All permissions" }, { value: "full_access", label: "Full access" }, { value: "sending_access", label: "Sending access" }] },
+        ]}
+      />
 
       {/* Create modal */}
       {creating && (
@@ -148,7 +151,7 @@ export function ApiKeysManager({
                   <td className="px-5 py-3 font-medium">{k.name}</td>
                   <td className="px-5 py-3">
                     <code className="mono text-xs rounded px-2 py-1" style={{ background: "var(--bg-hover)", color: "var(--fg-muted)" }}>
-                      {k.keyPrefix || `ns_${k.mode}`}…
+                      {k.keyPrefix || `se_${k.mode}`}…
                     </code>
                   </td>
                   <td className="px-5 py-3 text-fg-muted">{PERMISSION_LABEL[k.permission] ?? k.permission}</td>

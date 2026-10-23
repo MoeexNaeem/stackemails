@@ -6,32 +6,34 @@ import { useRouter } from "next/navigation";
 
 type Theme = "light" | "dark";
 
-function getInitialTheme(): Theme {
-  if (typeof document === "undefined") return "dark";
-  return (document.documentElement.getAttribute("data-theme") as Theme) || "dark";
+function initials(name: string, email: string) {
+  const parts = (name || email).trim().split(/\s+/);
+  return ((parts[0]?.[0] ?? "?") + (parts[1]?.[0] ?? "")).toUpperCase();
 }
 
+/** Top-right account pill (Monera) with the Resend account menu. */
 export function UserMenu({ email, name }: { email: string; name: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<Theme>("dark");
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setTheme(getInitialTheme()), []);
-
   useEffect(() => {
-    function onClick(e: MouseEvent) {
+    setTheme((document.documentElement.getAttribute("data-theme") as Theme) || "dark");
+  }, []);
+  useEffect(() => {
+    function onDown(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
   }, []);
 
   function applyTheme(next: Theme) {
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
     try {
-      localStorage.setItem("nanosend-theme", next);
+      localStorage.setItem("stackemails-theme", next);
     } catch {
       /* storage may be unavailable */
     }
@@ -43,87 +45,58 @@ export function UserMenu({ email, name }: { email: string; name: string }) {
     router.refresh();
   }
 
-  const initial = (name || email || "?").charAt(0).toUpperCase();
+  const item = "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-fg-muted hover:bg-bg-hover hover:text-fg";
 
   return (
     <div className="relative" ref={ref}>
-      {open && (
-        <div
-          className="absolute bottom-full left-0 mb-2 w-60 card p-1.5 shadow-2xl z-50"
-          style={{ background: "var(--bg-elevated)" }}
-        >
-          <Link
-            href="/profile"
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-bg-hover"
-            onClick={() => setOpen(false)}
-          >
-            My profile
-          </Link>
-
-          <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm">
-            <span className="text-fg-muted">Appearance</span>
-            <div className="flex items-center gap-1 rounded-md p-0.5" style={{ background: "var(--bg-hover)" }}>
-              <button
-                onClick={() => applyTheme("light")}
-                className="rounded p-1"
-                style={{ background: theme === "light" ? "var(--bg-card)" : "transparent" }}
-                aria-label="Light theme"
-                title="Light"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-                </svg>
-              </button>
-              <button
-                onClick={() => applyTheme("dark")}
-                className="rounded p-1"
-                style={{ background: theme === "dark" ? "var(--bg-card)" : "transparent" }}
-                aria-label="Dark theme"
-                title="Dark"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <Link
-            href="/"
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-bg-hover"
-            onClick={() => setOpen(false)}
-          >
-            Homepage
-          </Link>
-
-          <div className="my-1 h-px" style={{ background: "var(--border)" }} />
-
-          <button
-            onClick={logout}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-bg-hover"
-            style={{ color: "var(--danger)" }}
-          >
-            Log out
-          </button>
-        </div>
-      )}
-
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-bg-hover transition-colors"
+        className="flex items-center gap-2 rounded-full border border-border pl-1 pr-3 h-9 hover:bg-bg-hover transition-colors"
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
-        <span
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-          style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff" }}
-        >
-          {initial}
+        <span className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold" style={{ background: "var(--bg-hover)", border: "1px solid var(--border-strong)" }}>
+          {initials(name, email)}
         </span>
-        <span className="min-w-0 flex-1 truncate text-sm">{email}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fg-subtle)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M8 9l4-4 4 4M16 15l-4 4-4-4" />
-        </svg>
+        <span className="hidden md:block max-w-[140px] truncate text-[13px]">{name || email}</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fg-subtle)" strokeWidth="2.4" strokeLinecap="round"><path d="M6 9l6 6 6-6" /></svg>
       </button>
+
+      {open && (
+        <div role="menu" className="absolute right-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border-strong p-1.5 shadow-2xl" style={{ background: "var(--bg-elevated)" }}>
+          <div className="px-3 py-2">
+            <p className="text-[13px] font-medium truncate">{name}</p>
+            <p className="text-xs text-fg-subtle truncate">{email}</p>
+          </div>
+          <div className="my-1 h-px bg-border" />
+          <Link href="/profile" className={item} onClick={() => setOpen(false)}>My profile</Link>
+          <Link href="/settings/team?create=1" className={item} onClick={() => setOpen(false)}>Create team</Link>
+          <Link href="/settings/team#invite" className={item} onClick={() => setOpen(false)}>Invite members</Link>
+          <Link href="/onboarding" className={item} onClick={() => setOpen(false)}>Onboarding</Link>
+          <div className="flex items-center justify-between px-3 py-2 text-[13px] text-fg-muted">
+            <span>Appearance</span>
+            <div className="flex items-center gap-0.5 rounded-full p-0.5" style={{ background: "var(--bg-hover)" }}>
+              {(["light", "dark"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => applyTheme(t)}
+                  className="rounded-full px-2.5 py-1 text-xs capitalize"
+                  style={{ background: theme === t ? "var(--bg-card)" : "transparent", color: theme === t ? "var(--fg)" : undefined }}
+                  aria-pressed={theme === t}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+          <Link href="/" className={item} onClick={() => setOpen(false)}>
+            Homepage
+            <svg className="ml-auto" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M7 17L17 7M8 7h9v9" /></svg>
+          </Link>
+          <div className="my-1 h-px bg-border" />
+          <button onClick={logout} className={item} style={{ color: "var(--danger)" }}>Log out</button>
+        </div>
+      )}
     </div>
   );
 }

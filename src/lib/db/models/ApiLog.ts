@@ -12,6 +12,10 @@ const ApiLogSchema = new Schema(
     userAgent: { type: String },
     ip: { type: String },
     durationMs: { type: Number },
+    apiKeyId: { type: Schema.Types.ObjectId, ref: "ApiKey", index: true },
+    // Truncated, redacted JSON (attachment content and secrets stripped).
+    requestBody: { type: String },
+    responseBody: { type: String },
   },
   { timestamps: true },
 );

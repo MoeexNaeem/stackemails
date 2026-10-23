@@ -9,6 +9,15 @@ const UserSchema = new Schema(
     // Platform-level role. "admin" = the SaaS owner's superadmin panel access.
     platformRole: { type: String, enum: ["user", "admin"], default: "user", index: true },
     lastLoginAt: { type: Date },
+    lastLoginIp: { type: String },
+    // Two-factor auth (TOTP). The secret is AES-GCM encrypted at rest.
+    mfaEnabled: { type: Boolean, default: false },
+    mfaSecret: { type: String, select: false },
+    mfaPendingSecret: { type: String, select: false },
+    mfaLastCounter: { type: Number, default: -1, select: false },
+    mfaRecoveryHashes: { type: [String], default: [], select: false },
+    // Admin moderation
+    disabled: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

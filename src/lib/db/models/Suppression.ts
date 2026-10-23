@@ -2,7 +2,7 @@ import { Schema, model, models, type InferSchemaType, type Model } from "mongoos
 import type { BaseFields } from "./_shared";
 
 /**
- * A suppressed recipient — NanoSend won't send to these addresses. Populated
+ * A suppressed recipient — Stack Emails won't send to these addresses. Populated
  * from hard bounces and complaints, or added manually.
  */
 const SuppressionSchema = new Schema(

@@ -1,7 +1,12 @@
+import { createElement } from "react";
+import { after } from "next/server";
 import { apiError, apiJson } from "@/lib/api/response";
 import { signupSchema } from "@/lib/validation/schemas";
 import { createAccount } from "@/lib/accounts";
 import { createSession } from "@/lib/auth/session";
+import { sendSystemEmail } from "@/lib/email/system";
+import { SystemWelcomeEmail } from "@/emails/system";
+import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +27,17 @@ export async function POST(req: Request) {
   try {
     const { userId } = await createAccount(parsed.data);
     await createSession(userId, req.headers.get("user-agent") ?? undefined);
+
+    const { name, email } = parsed.data;
+    after(() =>
+      sendSystemEmail({
+        kind: "welcome",
+        to: email,
+        subject: "Welcome to Stack Emails",
+        react: createElement(SystemWelcomeEmail, { name, dashboardUrl: `${env.appUrl}/emails` }),
+      }),
+    );
+
     return apiJson({ ok: true }, 201);
   } catch (err) {
     if (err && typeof err === "object" && "code" in err && err.code === "email_taken") {

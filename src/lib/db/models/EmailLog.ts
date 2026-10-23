@@ -15,6 +15,10 @@ const EmailEventSchema = new Schema(
         "opened",
         "clicked",
         "failed",
+        "suppressed", // some recipients skipped because they're on the suppression list
+        "scheduled",
+        "canceled",
+        "delivery_delayed",
       ],
       required: true,
     },
@@ -43,7 +47,7 @@ const EmailLogSchema = new Schema(
 
     status: {
       type: String,
-      enum: ["queued", "sent", "delivered", "bounced", "complained", "failed"],
+      enum: ["queued", "scheduled", "sent", "delivered", "delivery_delayed", "bounced", "complained", "failed", "canceled"],
       default: "queued",
       index: true,
     },
@@ -57,11 +61,49 @@ const EmailLogSchema = new Schema(
 
     events: { type: [EmailEventSchema], default: [] },
 
+    // Extra MIME headers (List-Unsubscribe, custom X- headers).
+    headers: {
+      type: [new Schema({ name: { type: String, required: true }, value: { type: String, required: true } }, { _id: false })],
+      default: [],
+    },
+    // Attachments are sent once and not retained; only metadata is kept for the UI.
+    attachments: {
+      type: [new Schema({ filename: String, contentType: String, size: Number }, { _id: false })],
+      default: [],
+    },
+    // Raw attachment bytes, held only until the worker sends the email, then unset.
+    attachmentBlobs: {
+      type: [new Schema({ filename: String, contentType: String, data: Buffer }, { _id: false })],
+      select: false,
+      default: undefined,
+    },
+    // Tags supplied by the caller (also forwarded to SES for analytics).
+    tags: {
+      type: [new Schema({ name: String, value: String }, { _id: false })],
+      default: [],
+    },
+
+    // Where the send came from, for filtering (API key / dashboard / broadcast / automation / smtp).
+    source: { type: String, enum: ["api", "dashboard", "broadcast", "automation", "smtp", "inbox"], default: "api", index: true },
+    apiKeyId: { type: Schema.Types.ObjectId, ref: "ApiKey", index: true },
+    broadcastId: { type: Schema.Types.ObjectId, ref: "Broadcast", index: true },
+    contactId: { type: Schema.Types.ObjectId, ref: "Contact" },
+
+    // Engagement (open pixel / click redirect tracking).
+    opens: { type: Number, default: 0 },
+    clicks: { type: Number, default: 0 },
+    openedAt: { type: Date },
+    clickedAt: { type: Date },
+    // Bounce classification from SES (Permanent / Transient / Undetermined).
+    bounceType: { type: String },
+
+    scheduledAt: { type: Date },
     sentAt: { type: Date },
     deliveredAt: { type: Date },
   },
   { timestamps: true },
 );
+EmailLogSchema.index({ workspaceId: 1, createdAt: -1 });
 
 // 30-day retention (PRD §3). Mongo purges old logs automatically.
 EmailLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 });

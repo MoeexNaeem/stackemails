@@ -1,108 +1,124 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { isValidObjectId } from "mongoose";
 import { requireDashboardContext } from "@/lib/auth/context";
 import { connectToDatabase } from "@/lib/db/connect";
-import { Domain, EmailLog } from "@/lib/db/models";
+import { ApiKey, Domain, EmailLog } from "@/lib/db/models";
 import { StatusBadge } from "@/components/StatusBadge";
 import { TestEmailComposer } from "@/components/dashboard/TestEmailComposer";
 import { CodeDrawer } from "@/components/dashboard/CodeDrawer";
+import { EmailsHeader } from "@/components/emails/EmailsHeader";
+import { FilterBar } from "@/components/ui/FilterBar";
+import { Pagination } from "@/components/ui/Pagination";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { RANGE_OPTIONS, escapeRegex, pageOf, rangeSince, PAGE_SIZE } from "@/lib/filters";
+import { timeAgo } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Emails" };
 
-export default async function EmailsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
-  const { tab } = await searchParams;
-  const receiving = tab === "receiving";
+const STATUSES = ["queued", "scheduled", "sent", "delivered", "delivery_delayed", "bounced", "complained", "failed", "canceled"];
+
+export default async function EmailsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const sp = await searchParams;
   const { workspace } = await requireDashboardContext();
   await connectToDatabase();
 
-  const verifiedDomain = await Domain.findOne({ workspaceId: workspace._id, status: "verified" }).lean();
-  const logs = receiving
-    ? []
-    : await EmailLog.find({ workspaceId: workspace._id }).sort({ createdAt: -1 }).limit(100).lean();
+  const filter: Record<string, unknown> = { workspaceId: workspace._id, createdAt: { $gte: rangeSince(sp.range) } };
+  if (sp.q) {
+    const rx = { $regex: escapeRegex(sp.q.trim()), $options: "i" };
+    filter.$or = [{ to: rx }, { subject: rx }, { from: rx }, { messageId: sp.q.trim() }];
+  }
+  if (sp.status && STATUSES.includes(sp.status)) filter.status = sp.status;
+  if (sp.key) {
+    if (isValidObjectId(sp.key)) filter.apiKeyId = sp.key;
+    else if (["dashboard", "broadcast", "automation", "smtp", "inbox"].includes(sp.key)) filter.source = sp.key;
+  }
+  const page = pageOf(sp.page);
 
-  const defaultFrom = verifiedDomain
-    ? `Acme <hello@${verifiedDomain.name}>`
-    : "Acme <onboarding@resend.dev>";
+  const [total, logs, keys, verifiedDomain] = await Promise.all([
+    EmailLog.countDocuments(filter),
+    EmailLog.find(filter).sort({ createdAt: -1 }).skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE).select("messageId to subject status createdAt source scheduledAt opens clicks").lean(),
+    ApiKey.find({ workspaceId: workspace._id }).select("name").lean(),
+    Domain.findOne({ workspaceId: workspace._id, status: "verified" }).lean(),
+  ]);
+  const anyEver = total > 0 || (await EmailLog.exists({ workspaceId: workspace._id }));
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Emails</h1>
-        <div className="flex items-center gap-2">
-          <TestEmailComposer defaultFrom={defaultFrom} />
-          <CodeDrawer resource="emails" />
-        </div>
-      </div>
+      <EmailsHeader
+        tab="sending"
+        actions={
+          <>
+            <TestEmailComposer defaultFrom={verifiedDomain ? `${workspace.name} <hello@${verifiedDomain.name}>` : ""} />
+            <CodeDrawer resource="emails" />
+          </>
+        }
+      />
 
-      {/* Sending / Receiving tabs + Suppressions */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex gap-1">
-          <Link href="/emails" className="tab" data-active={!receiving}>Sending</Link>
-          <Link href="/emails?tab=receiving" className="tab" data-active={receiving}>Receiving</Link>
-        </div>
-        <Link href="/suppressions" className="btn btn-secondary">Suppressions</Link>
-      </div>
+      <FilterBar
+        exportHref="/api/dashboard/emails/export"
+        fields={[
+          { type: "search", name: "q", placeholder: "Search by recipient, subject or id…" },
+          { type: "select", name: "range", defaultValue: "15d", options: RANGE_OPTIONS.map((o) => ({ value: o.value, label: o.label })) },
+          { type: "select", name: "status", options: [{ value: "", label: "All statuses" }, ...STATUSES.map((s) => ({ value: s, label: s.replace("_", " ").replace(/^\w/, (c) => c.toUpperCase()) }))] },
+          {
+            type: "select",
+            name: "key",
+            options: [
+              { value: "", label: "All sources" },
+              ...keys.map((k) => ({ value: String(k._id), label: `API key: ${k.name}` })),
+              { value: "dashboard", label: "Dashboard" },
+              { value: "broadcast", label: "Broadcasts" },
+              { value: "automation", label: "Automations" },
+              { value: "smtp", label: "SMTP" },
+              { value: "inbox", label: "Inboxes" },
+            ],
+          },
+        ]}
+      />
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <input className="input flex-1 min-w-[200px]" placeholder="Search..." />
-        <span className="btn btn-secondary">Last 15 days ▾</span>
-        <span className="btn btn-secondary">All Statuses ▾</span>
-        <span className="btn btn-secondary">All API keys ▾</span>
-      </div>
-
-      {receiving ? (
-        <div className="card px-5 py-20 text-center">
-          <p className="font-medium">Inbound email</p>
-          <p className="text-sm text-fg-subtle mt-1 max-w-md mx-auto">
-            Receiving email to your domain (with MX records) is coming soon. Emails sent to your
-            verified domain will show up here.
-          </p>
-        </div>
-      ) : (
-        <div className="card overflow-hidden">
-          {logs.length === 0 ? (
-            <div className="px-5 py-16 text-center">
-              <p className="text-fg-muted">No sent emails yet</p>
-              <p className="text-sm text-fg-subtle mt-1">
-                Use “Send test email”, or call <code className="mono text-accent">POST /v1/emails</code>.
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-fg-subtle border-b border-border">
-                    <th className="px-5 py-3 font-medium">To</th>
-                    <th className="px-5 py-3 font-medium">Status</th>
-                    <th className="px-5 py-3 font-medium">Subject</th>
-                    <th className="px-5 py-3 font-medium text-right">Sent</th>
+      <div className="card overflow-hidden">
+        {logs.length === 0 ? (
+          <EmptyState
+            icon="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
+            title={anyEver ? "No emails match these filters" : "No sent emails yet"}
+            description={anyEver ? "Try widening the date range or clearing filters." : "Start sending emails to see insights and previews for every message."}
+          >
+            {!anyEver && <Link href="/onboarding" className="btn btn-primary">↗ Send your first email</Link>}
+          </EmptyState>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>To</th>
+                  <th>Status</th>
+                  <th>Subject</th>
+                  <th className="hidden md:table-cell">Engagement</th>
+                  <th className="text-right">Sent</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.map((e) => (
+                  <tr key={e.messageId}>
+                    <td className="max-w-[220px] truncate text-fg-muted">{e.to.join(", ")}</td>
+                    <td><StatusBadge status={e.status} /></td>
+                    <td className="max-w-[340px] truncate">
+                      <Link href={`/emails/${e.messageId}`} className="hover:text-accent">{e.subject}</Link>
+                    </td>
+                    <td className="hidden md:table-cell text-xs text-fg-subtle">{e.opens ? `${e.opens} open${e.opens > 1 ? "s" : ""}` : "—"}{e.clicks ? ` · ${e.clicks} click${e.clicks > 1 ? "s" : ""}` : ""}</td>
+                    <td className="text-right text-fg-subtle whitespace-nowrap" title={new Date(e.createdAt).toLocaleString()}>
+                      {e.status === "scheduled" && e.scheduledAt ? `⏱ ${timeAgo(e.scheduledAt)}` : timeAgo(e.createdAt)}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {logs.map((e) => (
-                    <tr key={String(e._id)} className="border-b border-border last:border-0 hover:bg-bg-hover transition-colors">
-                      <td className="px-5 py-3 text-fg-muted truncate max-w-[220px]">{e.to.join(", ")}</td>
-                      <td className="px-5 py-3">
-                        <StatusBadge status={e.status} />
-                      </td>
-                      <td className="px-5 py-3">
-                        <Link href={`/emails/${e.messageId}`} className="hover:text-accent">{e.subject}</Link>
-                      </td>
-                      <td className="px-5 py-3 text-right text-fg-subtle whitespace-nowrap">
-                        {new Date(e.createdAt).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+      <Pagination page={page} total={total} pageSize={PAGE_SIZE} />
     </div>
   );
 }

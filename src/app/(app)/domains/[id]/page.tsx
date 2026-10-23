@@ -1,20 +1,19 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { isValidObjectId } from "mongoose";
 import { requireDashboardContext } from "@/lib/auth/context";
 import { connectToDatabase } from "@/lib/db/connect";
 import { Domain } from "@/lib/db/models";
 import { DomainDetail, type DomainDetailData } from "@/components/dashboard/DomainDetail";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Domain" };
 
-export default async function DomainDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { workspace } = await requireDashboardContext();
+export default async function DomainDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  if (!isValidObjectId(id)) notFound();
+  const { workspace } = await requireDashboardContext();
   await connectToDatabase();
-
   const d = await Domain.findOne({ _id: id, workspaceId: workspace._id }).lean();
   if (!d) notFound();
 
@@ -24,18 +23,13 @@ export default async function DomainDetailPage({
     status: d.status,
     region: d.region,
     tlsMode: d.tlsMode ?? "opportunistic",
-    clickTracking: d.clickTracking ?? true,
-    openTracking: d.openTracking ?? false,
+    clickTracking: !!d.clickTracking,
+    openTracking: !!d.openTracking,
+    receiving: !!d.receivingEnabled,
     createdAt: new Date(d.createdAt).toISOString(),
-    records: (d.records ?? []).map((r) => ({
-      type: r.type,
-      name: r.name,
-      value: r.value,
-      purpose: r.purpose,
-      status: r.status,
-    })),
+    lastCheckedAt: d.lastCheckedAt ? new Date(d.lastCheckedAt).toISOString() : null,
+    records: (d.records ?? []).map((r) => ({ type: r.type, name: r.name, value: r.value, priority: r.priority ?? null, purpose: r.purpose, status: r.status })),
     events: (d.events ?? []).map((e) => ({ type: e.type, at: new Date(e.at).toISOString() })),
   };
-
   return <DomainDetail domain={data} />;
 }

@@ -27,10 +27,11 @@ const AutomationSchema = new Schema(
     status: { type: String, enum: ["draft", "active", "paused"], default: "draft", index: true },
     trigger: {
       type: String,
-      enum: ["contact.added", "contact.updated"],
+      enum: ["contact.added", "contact.updated", "event"],
       default: "contact.added",
     },
-    audienceId: { type: Schema.Types.ObjectId, ref: "Audience" },
+    audienceId: { type: Schema.Types.ObjectId, ref: "Audience" }, // optional segment filter
+    eventName: { type: String, default: "" }, // when trigger = "event"
     steps: { type: [AutomationStepSchema], default: [] },
     stats: {
       entered: { type: Number, default: 0 },

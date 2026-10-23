@@ -9,7 +9,14 @@ export const WEBHOOK_EVENTS = [
   "email.opened",
   "email.clicked",
   "email.failed",
+  "email.delivery_delayed",
+  "email.received",
+  "contact.created",
+  "contact.updated",
+  "contact.deleted",
+  "domain.created",
   "domain.verified",
+  "domain.deleted",
 ] as const;
 
 const WebhookSchema = new Schema(

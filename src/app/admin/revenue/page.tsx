@@ -45,7 +45,7 @@ export default async function AdminRevenuePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight mb-6">Revenue</h1>
+      <h1 className="text-[28px] font-normal tracking-[-0.02em] mb-6">Revenue</h1>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
         {[{ l: "MRR", v: money(mrr) }, { l: "This month", v: money(thisMonth) }, { l: "Total revenue", v: money(total) }].map((s) => (

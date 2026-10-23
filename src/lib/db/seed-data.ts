@@ -6,7 +6,7 @@ import { buildDnsRecords } from "@/lib/dns";
 import { getEmailProvider } from "@/lib/email";
 import { prefixedId } from "@/lib/ids";
 
-export const DEMO_EMAIL = "demo@nanosend.dev";
+export const DEMO_EMAIL = "demo@stackemails.com";
 export const DEMO_PASSWORD = "password123";
 
 /**

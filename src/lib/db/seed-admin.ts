@@ -4,6 +4,7 @@ import {
   Plan, Subscription, Transaction, Workspace, User, Membership,
   type PlanDoc, type WorkspaceDoc,
 } from "@/lib/db/models";
+import { syncPlatformAdmin } from "@/lib/admin-account";
 import { createAccount } from "@/lib/accounts";
 
 const PLAN_DEFS = [
@@ -106,14 +107,11 @@ export async function seedAdminData(): Promise<void> {
     plans[def.slug] = p;
   }
 
-  // 2. Platform admin account
-  if (!(await User.findOne({ email: "admin@nanosend.dev" }))) {
-    await createAccount({ name: "Platform Admin", email: "admin@nanosend.dev", password: "admin123", workspaceName: "Admin HQ" });
-    await User.updateOne({ email: "admin@nanosend.dev" }, { $set: { platformRole: "admin" } });
-  }
+  // 2. Platform admin account (from ADMIN_EMAIL / ADMIN_PASSWORD)
+  await syncPlatformAdmin();
 
   // 3. Give the existing demo (Acme) workspace a Pro subscription
-  const demo = await User.findOne({ email: "demo@nanosend.dev" });
+  const demo = await User.findOne({ email: "demo@stackemails.com" });
   if (demo) {
     const ws = await workspaceOf(demo._id);
     if (ws && !(await Subscription.findOne({ workspaceId: ws._id }))) {

@@ -16,13 +16,22 @@ export const env = {
   ),
 
   mongoUri: str("MONGODB_URI"),
-  mongoDbName: str("MONGODB_DB_NAME", "nanosend"),
+  mongoDbName: str("MONGODB_DB_NAME", "stackemails"),
 
   emailProvider: str("EMAIL_PROVIDER", "mock") as "mock" | "ses",
   queueDriver: str("QUEUE_DRIVER", "memory") as "memory" | "bullmq",
   rateLimitDriver: str("RATE_LIMIT_DRIVER", "memory") as "memory" | "redis",
 
   redisUrl: str("REDIS_URL", "redis://127.0.0.1:6379"),
+
+  // Sender for platform emails (welcome, password reset, receipts). The domain
+  // must be verified in SES, e.g. "Stack Emails <noreply@stackemails.com>".
+  systemFromEmail: str("SYSTEM_FROM_EMAIL", "Stack Emails <noreply@stackemails.com>"),
+  supportEmail: str("SUPPORT_EMAIL", "support@stackemails.com"),
+
+  // Inbound: each team receives at <anything>@<inboundKey>.<INBOUND_DOMAIN>.
+  // Point a wildcard MX (*.INBOUND_DOMAIN) at your SES receiving endpoint.
+  inboundDomain: str("INBOUND_DOMAIN", "in.stackemails.com"),
 
   aws: {
     region: str("AWS_REGION", "us-east-1"),

@@ -23,12 +23,12 @@ type Cache = {
 };
 
 const globalForMongoose = globalThis as unknown as {
-  __nanosendMongoose?: Cache;
+  __stackemailsMongoose?: Cache;
 };
 
 const cache: Cache =
-  globalForMongoose.__nanosendMongoose ??
-  (globalForMongoose.__nanosendMongoose = {
+  globalForMongoose.__stackemailsMongoose ??
+  (globalForMongoose.__stackemailsMongoose = {
     conn: null,
     promise: null,
     memoryServer: null,
@@ -42,7 +42,7 @@ async function resolveUri(): Promise<string> {
   const { MongoMemoryServer } = await import("mongodb-memory-server");
   // Keep data under node_modules/.cache so the bundler never traces it (a
   // running mongod locks files here, which breaks project-root file tracing).
-  const dbPath = path.join(process.cwd(), "node_modules", ".cache", "nanosend-mongo");
+  const dbPath = path.join(process.cwd(), "node_modules", ".cache", "stackemails-mongo");
   const fs = await import("node:fs");
   fs.mkdirSync(dbPath, { recursive: true });
 
@@ -95,7 +95,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
           await seedAdminData();
           if (result) {
             console.log(
-              `[db] seeded demo account — login: demo@nanosend.dev / password123 | api key: ${result.apiKey}`,
+              `[db] seeded demo account — login: demo@stackemails.com / password123 | api key: ${result.apiKey}`,
             );
           }
         } catch (err) {

@@ -55,7 +55,7 @@ export function TemplateEditor({
 
         <div className="card overflow-hidden h-fit sticky top-4">
           <div className="px-4 py-2.5 border-b border-border text-sm font-medium">Preview</div>
-          <iframe title="template-preview" srcDoc={html} className="w-full bg-white" style={{ height: 560 }} />
+          <iframe title="template-preview" sandbox="" srcDoc={html} className="w-full bg-white" style={{ height: 560 }} />
         </div>
       </div>
     </div>

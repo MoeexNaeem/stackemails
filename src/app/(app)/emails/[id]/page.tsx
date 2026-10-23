@@ -1,78 +1,115 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireDashboardContext } from "@/lib/auth/context";
 import { connectToDatabase } from "@/lib/db/connect";
-import { EmailLog } from "@/lib/db/models";
+import { ApiKey, EmailLog } from "@/lib/db/models";
 import { StatusBadge } from "@/components/StatusBadge";
+import { EmailPreview } from "@/components/emails/EmailPreview";
+import { CancelScheduledButton } from "@/components/emails/CancelScheduledButton";
+import { CopyButton } from "@/components/CopyButton";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Email" };
 
-export default async function EmailDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+const EVENT_COLOR: Record<string, string> = {
+  queued: "var(--fg-subtle)",
+  scheduled: "var(--info)",
+  sent: "var(--violet)",
+  delivered: "var(--success)",
+  opened: "var(--lime)",
+  clicked: "var(--lime)",
+  bounced: "var(--danger)",
+  complained: "var(--warning)",
+  failed: "var(--danger)",
+  canceled: "var(--fg-subtle)",
+  suppressed: "var(--warning)",
+  delivery_delayed: "var(--warning)",
+};
+
+export default async function EmailDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { workspace } = await requireDashboardContext();
   const { id } = await params;
   await connectToDatabase();
-
   const email = await EmailLog.findOne({ workspaceId: workspace._id, messageId: id }).lean();
   if (!email) notFound();
+  const key = email.apiKeyId ? await ApiKey.findById(email.apiKeyId).select("name").lean() : null;
 
   return (
     <div>
-      <Link href="/emails" className="text-sm text-fg-muted hover:text-fg">
-        ← Back to emails
-      </Link>
-      <h1 className="mt-3 mb-8 text-2xl font-semibold tracking-tight">{email.subject}</h1>
+      <Link href="/emails" className="text-sm text-fg-subtle hover:text-fg">← Emails</Link>
+      <div className="mt-3 mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="eyebrow">Email</p>
+          <h1 className="mt-1 text-[26px] font-normal tracking-tight break-words">{email.subject}</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <StatusBadge status={email.status} />
+          {email.status === "scheduled" && <CancelScheduledButton messageId={email.messageId} />}
+        </div>
+      </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="card p-6 space-y-3 text-sm">
-            <Row label="Message ID" value={<code className="mono text-accent">{email.messageId}</code>} />
-            <Row label="Status" value={<StatusBadge status={email.status} />} />
-            <Row label="From" value={email.from} />
-            <Row label="To" value={email.to.join(", ")} />
-            {email.cc.length > 0 && <Row label="Cc" value={email.cc.join(", ")} />}
-            {email.replyTo.length > 0 && <Row label="Reply-To" value={email.replyTo.join(", ")} />}
-            {email.awsMessageId && (
-              <Row label="Provider ID" value={<code className="mono text-xs">{email.awsMessageId}</code>} />
-            )}
-            {email.errorMessage && (
-              <Row label="Error" value={<span style={{ color: "var(--danger)" }}>{email.errorMessage}</span>} />
-            )}
-          </div>
+      <div className="card mb-6 grid gap-5 p-6 text-sm sm:grid-cols-2 lg:grid-cols-4">
+        <Meta label="From" value={email.from} />
+        <Meta label="To" value={email.to.join(", ")} />
+        <Meta label="Created" value={new Date(email.createdAt).toLocaleString()} />
+        <Meta label={email.status === "scheduled" ? "Scheduled for" : "Sent"} value={email.status === "scheduled" && email.scheduledAt ? new Date(email.scheduledAt).toLocaleString() : email.sentAt ? new Date(email.sentAt).toLocaleString() : "—"} />
+        {email.cc?.length > 0 && <Meta label="Cc" value={email.cc.join(", ")} />}
+        {email.bcc?.length > 0 && <Meta label="Bcc" value={email.bcc.join(", ")} />}
+        {email.replyTo?.length > 0 && <Meta label="Reply-To" value={email.replyTo.join(", ")} />}
+        <Meta label="Source" value={key ? `API key · ${key.name}` : email.source} />
+        <div className="min-w-0">
+          <p className="eyebrow">Email ID</p>
+          <div className="mt-1 flex items-center gap-1.5"><code className="mono truncate text-xs">{email.messageId}</code><CopyButton value={email.messageId} className="!px-1.5 !py-0.5" /></div>
+        </div>
+        <Meta label="Opens / clicks" value={`${email.opens ?? 0} / ${email.clicks ?? 0}`} />
+        {email.bounceType && <Meta label="Bounce type" value={email.bounceType} />}
+      </div>
 
-          {email.html && (
-            <div className="card overflow-hidden">
-              <div className="px-5 py-3 border-b border-border text-sm font-medium">
-                HTML preview
-              </div>
-              <iframe
-                title="email-preview"
-                srcDoc={email.html}
-                className="w-full bg-white"
-                style={{ height: 360 }}
-              />
+      {email.errorMessage && (
+        <p className="mb-6 rounded-xl px-4 py-3 text-sm" style={{ color: "var(--danger)", background: "color-mix(in srgb, var(--danger) 10%, transparent)" }}>
+          {email.errorMessage}
+        </p>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="space-y-6 min-w-0">
+          <EmailPreview html={email.html ?? null} text={email.text ?? null} />
+          {(email.attachments?.length || email.tags?.length || email.headers?.length) ? (
+            <div className="card p-5 space-y-4 text-sm">
+              {email.attachments?.length ? (
+                <div>
+                  <p className="eyebrow mb-1.5">Attachments</p>
+                  {email.attachments.map((a, i) => <p key={i} className="text-fg-muted">📎 {a.filename} <span className="text-fg-subtle">({Math.max(1, Math.round((a.size ?? 0) / 1024))} KB)</span></p>)}
+                </div>
+              ) : null}
+              {email.tags?.length ? (
+                <div>
+                  <p className="eyebrow mb-1.5">Tags</p>
+                  <div className="flex flex-wrap gap-1.5">{email.tags.map((t, i) => <span key={i} className="badge mono" style={{ background: "var(--bg-hover)" }}>{t.name}: {t.value}</span>)}</div>
+                </div>
+              ) : null}
+              {email.headers?.length ? (
+                <div>
+                  <p className="eyebrow mb-1.5">Headers</p>
+                  {email.headers.map((h, i) => <p key={i} className="mono text-xs text-fg-muted break-all">{h.name}: {h.value}</p>)}
+                </div>
+              ) : null}
             </div>
-          )}
+          ) : null}
         </div>
 
-        <div className="card p-6">
-          <h3 className="font-semibold mb-4">Timeline</h3>
-          <ol className="space-y-4">
+        <div className="card p-6 h-fit">
+          <p className="card-title mb-5">Email events</p>
+          <ol>
             {email.events.map((ev, i) => (
-              <li key={i} className="flex gap-3">
-                <div className="flex flex-col items-center">
-                  <span className="w-2.5 h-2.5 rounded-full mt-1" style={{ background: "var(--accent)" }} />
-                  {i < email.events.length - 1 && (
-                    <span className="w-px flex-1 mt-1" style={{ background: "var(--border-strong)" }} />
-                  )}
-                </div>
-                <div className="pb-1">
-                  <p className="text-sm font-medium capitalize">{ev.type}</p>
+              <li key={i} className="relative flex gap-3 pb-5 last:pb-0">
+                {i < email.events.length - 1 && <span className="absolute left-[5px] top-4 bottom-0 w-px" style={{ background: "var(--border-strong)" }} />}
+                <span className="relative mt-1 h-[11px] w-[11px] shrink-0 rounded-full" style={{ background: EVENT_COLOR[ev.type] ?? "var(--fg-subtle)", boxShadow: `0 0 0 3px color-mix(in srgb, ${EVENT_COLOR[ev.type] ?? "var(--fg-subtle)"} 18%, transparent)` }} />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium capitalize">{ev.type.replace("_", " ")}</p>
                   <p className="text-xs text-fg-subtle">{new Date(ev.at).toLocaleString()}</p>
-                  {ev.detail && <p className="text-xs text-fg-muted mt-0.5">{ev.detail}</p>}
+                  {ev.detail && <p className="mt-0.5 text-xs text-fg-muted break-words">{ev.detail}</p>}
                 </div>
               </li>
             ))}
@@ -83,11 +120,11 @@ export default async function EmailDetailPage({
   );
 }
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
+function Meta({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start gap-4">
-      <span className="text-fg-subtle w-28 shrink-0">{label}</span>
-      <span className="min-w-0 break-words">{value}</span>
+    <div className="min-w-0">
+      <p className="eyebrow">{label}</p>
+      <p className="mt-1 truncate" title={value}>{value}</p>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-# NanoSend
+# Stack Emails
 
 A developer-first **email delivery platform** — a Resend-style transactional & marketing email API built on **Next.js + MongoDB**, designed to sit on top of **Amazon SES** in production.
 
@@ -17,7 +17,7 @@ npm run dev
 
 Open **http://localhost:3000**. On first boot a demo workspace is seeded automatically:
 
-- **Login:** `demo@nanosend.dev` / `password123`
+- **Login:** `demo@stackemails.com` / `password123`
 - A verified domain (`acme.com`), an API key, and sample emails are created for you.
 - The demo API key is printed to the server console on first boot.
 
@@ -30,7 +30,7 @@ That's it — no database, Redis, or AWS account required to explore the whole p
 | Feature | Status |
 | --- | --- |
 | REST API (`/v1/emails`, `/v1/domains`) | ✅ |
-| API-key auth (`ns_live_…`, SHA-256 hashed, shown once) | ✅ |
+| API-key auth (`se_live_…`, SHA-256 hashed, shown once) | ✅ |
 | Idempotency keys | ✅ |
 | Sliding-window rate limiting | ✅ |
 | Queue-based async delivery + retries | ✅ |
@@ -76,13 +76,13 @@ See [`.env.example`](.env.example) for all options.
 
 ## API
 
-Base URL: `/v1`. Authenticate with `Authorization: Bearer ns_live_…`.
+Base URL: `/v1`. Authenticate with `Authorization: Bearer se_live_…`.
 
 **Send an email**
 
 ```bash
 curl -X POST http://localhost:3000/v1/emails \
-  -H "Authorization: Bearer ns_live_..." \
+  -H "Authorization: Bearer se_live_..." \
   -H "Content-Type: application/json" \
   -H "Idempotency-Key: $(uuidgen)" \
   -d '{
@@ -112,13 +112,13 @@ Full reference: **http://localhost:3000/docs**
 
 ## Typed SDK
 
-A publishable TypeScript client lives in [`packages/nanosend`](packages/nanosend) (`npm run build` there emits `dist/`). It wraps every endpoint with full types and supports **React Email** natively — pass a component and it renders to HTML before sending:
+A publishable TypeScript client lives in [`packages/stackemails`](packages/stackemails) (`npm run build` there emits `dist/`). It wraps every endpoint with full types and supports **React Email** natively — pass a component and it renders to HTML before sending:
 
 ```ts
-import { NanoSend } from "nanosend";
+import { StackEmails } from "stackemails";
 import { WelcomeEmail } from "./emails/WelcomeEmail";
 
-const ns = new NanoSend("ns_live_...");
+const ns = new StackEmails("se_live_...");
 
 await ns.emails.send({
   from: "Acme <hello@acme.com>",
@@ -133,7 +133,7 @@ await ns.audiences.addContact(audience.id, { email: "a@example.com" });
 await ns.broadcasts.send({ audienceId: audience.id, from: "...", subject: "...", html: "..." });
 ```
 
-Resources: `ns.emails`, `ns.domains`, `ns.audiences`, `ns.broadcasts`. Errors throw a typed `NanoSendError` with `.status` and `.code`.
+Resources: `ns.emails`, `ns.domains`, `ns.audiences`, `ns.broadcasts`. Errors throw a typed `StackEmailsError` with `.status` and `.code`.
 
 ## React Email
 
@@ -143,9 +143,9 @@ Author templates as React components in [`src/emails/`](src/emails) using `@reac
 
 ## Security
 
-- **API keys** are `ns_live_<32 random bytes>`; only a salted SHA-256 hash is stored, and the raw
+- **API keys** are `se_live_<32 random bytes>`; only a salted SHA-256 hash is stored, and the raw
   key is shown exactly once.
-- **Webhooks** are signed: `X-NanoSend-Signature: sha256=HMAC-SHA256(body, workspace_secret)`.
+- **Webhooks** are signed: `X-StackEmails-Signature: sha256=HMAC-SHA256(body, workspace_secret)`.
 - **Tenant isolation**: every query is scoped by `workspaceId`.
 - Passwords are hashed with bcrypt; sessions are opaque, httpOnly, hashed at rest.
 

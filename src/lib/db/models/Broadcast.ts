@@ -12,7 +12,8 @@ const BroadcastSchema = new Schema(
       default: "draft",
       index: true,
     },
-    audienceId: { type: Schema.Types.ObjectId, ref: "Audience" },
+    audienceId: { type: Schema.Types.ObjectId, ref: "Audience" }, // target segment
+    topicId: { type: Schema.Types.ObjectId, ref: "Topic" }, // only contacts subscribed to this topic
 
     from: { type: String, default: "" },
     replyTo: { type: String, default: "" },

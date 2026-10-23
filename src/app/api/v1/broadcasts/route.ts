@@ -1,42 +1,63 @@
-import { authenticateApiRequest } from "@/lib/auth/apiAuth";
-import { apiError, apiJson } from "@/lib/api/response";
-import { createBroadcastSchema } from "@/lib/validation/schemas";
-import { Audience } from "@/lib/db/models";
+import { z } from "zod";
+import { isValidObjectId } from "mongoose";
+import { apiRoute, apiFail } from "@/lib/api/route";
+import { Broadcast, Segment, Topic } from "@/lib/db/models";
 import { sendBroadcast } from "@/lib/broadcast";
+import { serializeBroadcast } from "@/lib/api/serializers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// POST /v1/broadcasts — queue an email to every contact in an audience.
-export async function POST(req: Request) {
-  const auth = await authenticateApiRequest(req);
-  if (!auth.ok) return apiError(auth.status, auth.code, auth.message);
+const createSchema = z.object({
+  name: z.string().max(120).optional(),
+  segment_id: z.string().optional(),
+  audience_id: z.string().optional(), // legacy alias of segment_id (sends immediately)
+  topic_id: z.string().optional(),
+  from: z.string().min(3),
+  reply_to: z.string().email().optional(),
+  subject: z.string().min(1).max(998),
+  preview_text: z.string().max(200).optional(),
+  html: z.string().min(1),
+  send: z.boolean().optional(),
+  scheduled_at: z.string().datetime({ offset: true }).optional(),
+});
 
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return apiError(400, "invalid_json", "Request body must be valid JSON.");
+// POST /v1/broadcasts — create a broadcast; with send:true (or scheduled_at) it goes out right away.
+export const POST = apiRoute({ endpoint: "/broadcasts" }, async ({ workspace, body }) => {
+  const input = await body(createSchema);
+  const segmentId = input.segment_id ?? input.audience_id;
+  if (!segmentId || !isValidObjectId(segmentId)) apiFail(422, "validation_error", "`segment_id` is required.");
+  const segment = await Segment.findOne({ _id: segmentId, workspaceId: workspace._id }).lean();
+  if (!segment) apiFail(404, "not_found", "Segment not found.");
+  if (input.topic_id) {
+    if (!isValidObjectId(input.topic_id) || !(await Topic.exists({ _id: input.topic_id, workspaceId: workspace._id }))) apiFail(404, "not_found", "Topic not found.");
   }
-  const parsed = createBroadcastSchema.safeParse(body);
-  if (!parsed.success) {
-    return apiError(422, "validation_error", parsed.error.issues[0]?.message ?? "Invalid payload.");
+  const scheduledAt = input.scheduled_at ? new Date(input.scheduled_at) : undefined;
+  if (scheduledAt && scheduledAt.getTime() - Date.now() > 30 * 86_400_000) apiFail(422, "validation_error", "Broadcasts can be scheduled at most 30 days ahead.");
+
+  const bc = await Broadcast.create({
+    workspaceId: workspace._id,
+    name: input.name || input.subject,
+    audienceId: segment._id,
+    topicId: input.topic_id,
+    from: input.from,
+    replyTo: input.reply_to ?? "",
+    subject: input.subject,
+    previewText: input.preview_text ?? "",
+    html: input.html,
+    scheduledAt,
+  });
+
+  const shouldSend = input.send || !!scheduledAt || (!!input.audience_id && input.send !== false);
+  if (shouldSend) {
+    const res = await sendBroadcast(bc);
+    if (!res.ok) apiFail(422, "broadcast_not_sent", res.error);
+    return { status: 202, data: { ...serializeBroadcast(bc), queued: res.queued, skipped: res.skipped } };
   }
+  return { status: 201, data: serializeBroadcast(bc) };
+});
 
-  const audience = await Audience.findOne({
-    _id: parsed.data.audience_id,
-    workspaceId: auth.workspace._id,
-  });
-  if (!audience) return apiError(404, "not_found", "Audience not found.");
-
-  const { queued } = await sendBroadcast({
-    workspaceId: auth.workspace._id,
-    audienceId: parsed.data.audience_id,
-    from: parsed.data.from,
-    subject: parsed.data.subject,
-    html: parsed.data.html,
-    text: parsed.data.text,
-  });
-
-  return apiJson({ audience_id: parsed.data.audience_id, queued, status: "queued" }, 202);
-}
+export const GET = apiRoute({ endpoint: "/broadcasts" }, async ({ workspace }) => {
+  const rows = await Broadcast.find({ workspaceId: workspace._id }).sort({ createdAt: -1 }).limit(100).lean();
+  return { data: { object: "list", data: rows.map(serializeBroadcast) } };
+});

@@ -33,6 +33,24 @@ const WorkspaceSchema = new Schema(
     plan: { type: String, enum: ["free", "pro", "scale"], default: "free" },
     contactsQuota: { type: Number, default: 1000 },
     billingEmail: { type: String, default: "" },
+    // Inbound: receiving address <anything>@<inboundKey>.<INBOUND_DOMAIN>
+    inboundKey: { type: String, unique: true, sparse: true, lowercase: true },
+
+    // Hosted unsubscribe / preference page branding.
+    unsubscribePage: {
+      heading: { type: String, default: "Do you want to unsubscribe?" },
+      message: { type: String, default: "Confirm your email preferences below." },
+      confirmation: { type: String, default: "You've been unsubscribed. You won't receive these emails anymore." },
+      brandColor: { type: String, default: "#15171a" },
+      showTopics: { type: Boolean, default: true },
+    },
+
+    // Labs (beta) feature flags.
+    labs: {
+      inboxes: { type: Boolean, default: true },
+      assistant: { type: Boolean, default: true },
+    },
+
     billing: {
       fullName: { type: String, default: "" },
       country: { type: String, default: "United States" },

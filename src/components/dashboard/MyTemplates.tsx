@@ -41,7 +41,7 @@ export function MyTemplates({ templates }: { templates: TemplateView[] }) {
         <div key={t.id} className="card overflow-hidden group">
           <Link href={`/templates/${t.id}`} className="block">
             <div className="h-40 overflow-hidden border-b border-border bg-white">
-              <iframe title={t.name} srcDoc={t.html} className="w-[200%] h-[320px] origin-top-left pointer-events-none" style={{ transform: "scale(0.5)" }} />
+              <iframe title={t.name} sandbox="" srcDoc={t.html} className="w-[200%] h-[320px] origin-top-left pointer-events-none" style={{ transform: "scale(0.5)" }} />
             </div>
           </Link>
           <div className="p-4 flex items-start justify-between">

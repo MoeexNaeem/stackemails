@@ -1,65 +1,52 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { requireDashboardContext } from "@/lib/auth/context";
 import { connectToDatabase } from "@/lib/db/connect";
-import { Contact, Domain, Audience, Broadcast, Automation } from "@/lib/db/models";
+import { Automation, Contact, Domain, Inbox, Membership, Segment, Webhook } from "@/lib/db/models";
+import { sentThisPeriod, sentToday } from "@/lib/quota";
+import { fmtLimit, limitsFor } from "@/lib/plans";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Usage" };
 
 function Ring({ value, max }: { value: number; max: number }) {
-  const pct = max > 0 ? Math.min(1, value / max) : 0;
+  const pct = Number.isFinite(max) && max > 0 ? Math.min(1, value / max) : 0;
   const r = 7;
   const c = 2 * Math.PI * r;
+  const color = pct >= 1 ? "var(--danger)" : pct >= 0.8 ? "var(--warning)" : "var(--lime)";
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" className="shrink-0">
+    <svg width="18" height="18" viewBox="0 0 18 18" className="shrink-0" aria-hidden>
       <circle cx="9" cy="9" r={r} fill="none" stroke="var(--border-strong)" strokeWidth="2" />
-      <circle
-        cx="9"
-        cy="9"
-        r={r}
-        fill="none"
-        stroke={pct >= 1 ? "var(--danger)" : "var(--success)"}
-        strokeWidth="2"
-        strokeDasharray={c}
-        strokeDashoffset={c * (1 - pct)}
-        strokeLinecap="round"
-        transform="rotate(-90 9 9)"
-      />
+      <circle cx="9" cy="9" r={r} fill="none" stroke={color} strokeWidth="2" strokeDasharray={c} strokeDashoffset={c * (1 - pct)} strokeLinecap="round" transform="rotate(-90 9 9)" />
     </svg>
   );
 }
 
-function Row({ label, value, max, display }: { label: string; value: number; max: number; display: string }) {
+function Row({ label, value, max }: { label: string; value: number; max: number }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
+    <div className="flex items-center justify-between border-b border-border py-3 last:border-0">
       <div className="flex items-center gap-2.5">
         <Ring value={value} max={max} />
         <span className="text-sm">{label}</span>
       </div>
-      <span className="text-sm text-fg-muted">{display}</span>
+      <span className="text-sm text-fg-muted">{value.toLocaleString()} / {fmtLimit(max)}</span>
     </div>
   );
 }
 
-function Section({
-  title,
-  desc,
-  children,
-}: {
-  title: string;
-  desc: string;
-  children: React.ReactNode;
-}) {
+function Block({ title, desc, plan, children }: { title: string; desc: string; plan: string; children: React.ReactNode }) {
   return (
-    <div className="grid md:grid-cols-2 gap-8 py-8 border-t border-border first:border-0 first:pt-0">
+    <section className="grid gap-8 border-t border-border py-8 first:border-0 first:pt-0 md:grid-cols-2">
       <div>
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="mt-1 text-sm text-fg-muted max-w-xs">{desc}</p>
-        <button className="btn btn-secondary mt-4">Upgrade</button>
+        <h2 className="text-lg font-normal">{title}</h2>
+        <p className="mt-1 max-w-xs text-sm text-fg-muted">{desc}</p>
+        <Link href="/settings/billing" className="btn btn-secondary btn-sm mt-4">Upgrade</Link>
       </div>
       <div>
-        <p className="text-sm text-fg-subtle mb-1">Free</p>
+        <p className="mb-1 text-sm capitalize text-fg-subtle">{plan}</p>
         {children}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -67,87 +54,48 @@ export default async function UsagePage() {
   const { workspace } = await requireDashboardContext();
   await connectToDatabase();
   const wid = workspace._id;
-
-  const [contacts, domains, segments, broadcasts, automations] = await Promise.all([
+  const limits = limitsFor(workspace.plan);
+  const [contacts, domains, segments, automations, inboxes, members, webhooks] = await Promise.all([
     Contact.countDocuments({ workspaceId: wid }),
     Domain.countDocuments({ workspaceId: wid }),
-    Audience.countDocuments({ workspaceId: wid }),
-    Broadcast.countDocuments({ workspaceId: wid }),
-    Automation.countDocuments({ workspaceId: wid }),
+    Segment.countDocuments({ workspaceId: wid }),
+    Automation.countDocuments({ workspaceId: wid, status: "active" }),
+    Inbox.countDocuments({ workspaceId: wid }),
+    Membership.countDocuments({ workspaceId: wid }),
+    Webhook.countDocuments({ workspaceId: wid }),
   ]);
-
-  const sent = workspace.usage?.sent ?? 0;
-  const daily = Math.min(sent, 100);
+  const plan = workspace.plan ?? "free";
 
   return (
     <div>
-      <Section title="Transactional" desc="Integrate email into your app using the NanoSend API or SMTP interface.">
-        <Row label="Monthly limit" value={sent} max={workspace.monthlyQuota} display={`${sent.toLocaleString()} / ${workspace.monthlyQuota.toLocaleString()}`} />
-        <Row label="Daily limit" value={daily} max={100} display={`${daily} / 100`} />
-      </Section>
-
-      <Section title="Marketing" desc="Design and send marketing emails using Broadcasts and Audiences.">
-        <Row label="Contacts limit" value={contacts} max={workspace.contactsQuota} display={`${contacts} / ${workspace.contactsQuota.toLocaleString()}`} />
-        <Row label="Segments limit" value={segments} max={3} display={`${segments} / 3`} />
-        <Row label="Broadcasts limit" value={broadcasts} max={Infinity} display="Unlimited" />
-      </Section>
-
-      <Section title="Team" desc="Understand the quotas and limits for your team.">
-        <Row label="AI credits" value={0} max={5} display="0 / 5" />
-        <Row label="Automations" value={automations} max={10000} display={`${automations} / 10,000`} />
-        <Row label="Domains" value={domains} max={3} display={`${domains} / 3`} />
-        <Row label="Rate limit" value={0} max={1} display="10 req/s" />
-      </Section>
-
-      {/* Extras */}
-      <div className="pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-4">Extras</h2>
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <p className="font-semibold flex items-center gap-2">
-              Pay-as-you-go
-              <span className="badge" style={{ background: "color-mix(in srgb, var(--warning) 18%, transparent)", color: "var(--warning)" }}>
-                Paid feature
-              </span>
-            </p>
-            <p className="mt-1 text-sm text-fg-muted max-w-xs">Continue using NanoSend beyond your quota.</p>
-          </div>
-          <div className="space-y-6">
-            <div>
-              <p className="font-medium text-sm">Transactional · $0.90 / Per 1,000 Emails</p>
-              <p className="text-sm text-fg-muted mt-1">
-                When enabled, you continue sending beyond your quota. We automatically charge $0.90 for each additional bucket of 1,000 emails.
-              </p>
-            </div>
-            <div>
-              <p className="font-medium text-sm">Automations · $0.0015 / Per Run</p>
-              <p className="text-sm text-fg-muted mt-1">
-                Start with 10,000 Automation Runs for free, and scale as you need.
-              </p>
-            </div>
-          </div>
+      <Block title="Transactional" desc="Integrate email into your app using the Stack Emails API or SMTP interface." plan={plan}>
+        <Row label="Monthly limit" value={sentThisPeriod(workspace)} max={workspace.monthlyQuota} />
+        <Row label="Daily limit" value={sentToday(workspace)} max={workspace.dailyQuota} />
+      </Block>
+      <Block title="Marketing" desc="Design and send marketing emails using Broadcasts and your Audience." plan={plan}>
+        <Row label="Contacts" value={contacts} max={workspace.contactsQuota} />
+        <Row label="Segments" value={segments} max={limits.segments} />
+        <div className="flex items-center justify-between py-3 text-sm"><span className="pl-7">Broadcasts</span><span className="text-fg-muted">Unlimited</span></div>
+      </Block>
+      <Block title="Team" desc="Quotas and limits for your team." plan={plan}>
+        <Row label="Domains" value={domains} max={limits.domains} />
+        <Row label="Team members" value={members} max={limits.members} />
+        <Row label="Inboxes" value={inboxes} max={limits.inboxes} />
+        <Row label="Webhook endpoints" value={webhooks} max={limits.webhooks} />
+        <div className="flex items-center justify-between border-b border-border py-3 text-sm"><span className="pl-7">Active automations</span><span className="text-fg-muted">{automations.toLocaleString()}</span></div>
+        <div className="flex items-center justify-between py-3 text-sm"><span className="pl-7">API rate limit</span><span className="text-fg-muted">10 req/s · 100 req/s for sending</span></div>
+      </Block>
+      <section className="grid gap-8 border-t border-border pt-8 md:grid-cols-2">
+        <div>
+          <h2 className="text-lg font-normal">Need more?</h2>
+          <p className="mt-1 max-w-xs text-sm text-fg-muted">Dedicated IPs, higher volume, SSO and custom limits are available on request.</p>
         </div>
-
-        <div className="grid md:grid-cols-2 gap-8 mt-8 pt-8 border-t border-border">
-          <div>
-            <p className="font-semibold">Add-ons</p>
-            <p className="mt-1 text-sm text-fg-muted max-w-xs">Get even more of NanoSend with special add-ons.</p>
-          </div>
-          <div className="space-y-6">
-            {[
-              { title: "Domains – $20 / Mo", desc: "Adds 100 domains on top of the number included in your plan." },
-              { title: "Dedicated IPs – $30 / Mo", desc: "We provision, warm up, monitor and auto-scale a dedicated IP for consistent deliverability." },
-              { title: "Single Sign-On – $150 / Mo", desc: "Let your team sign in with your identity provider. Available on Scale plans." },
-            ].map((a) => (
-              <div key={a.title}>
-                <p className="font-medium text-sm">{a.title}</p>
-                <p className="text-sm text-fg-muted mt-1">{a.desc}</p>
-                <button className="btn btn-secondary mt-2 !py-1.5">View pricing</button>
-              </div>
-            ))}
-          </div>
+        <div className="space-y-4 text-sm">
+          <p><span className="font-medium">Higher volume</span><br /><span className="text-fg-muted">Plans scale to millions of emails a month with volume pricing.</span></p>
+          <p><span className="font-medium">Dedicated IPs</span><br /><span className="text-fg-muted">Isolate your sending reputation once you send 100k+ emails a month.</span></p>
+          <Link href="/contact?topic=sales" className="btn btn-secondary btn-sm">Talk to sales</Link>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

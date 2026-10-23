@@ -1,29 +1,25 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  updateBillingEmailAction,
-  updateBillingAddressAction,
-  updateTaxIdAction,
-  type ActionState,
-} from "@/app/(app)/actions";
+import { updateBillingAddressAction, updateTaxIdAction, type ActionState } from "@/app/(app)/actions";
+import { setBillingEmailAction } from "@/app/(app)/settings-actions";
 
 const initial: ActionState = { ok: false };
 
-function Saved({ state }: { state: ActionState }) {
+function Saved({ state }: { state: { ok: boolean; error?: string } }) {
   if (state.error) return <span className="text-sm" style={{ color: "var(--danger)" }}>{state.error}</span>;
   if (state.ok) return <span className="text-sm" style={{ color: "var(--success)" }}>Saved.</span>;
   return null;
 }
 
 export function BillingEmailForm({ email }: { email: string }) {
-  const [state, action, pending] = useActionState(updateBillingEmailAction, initial);
+  const [state, action, pending] = useActionState(setBillingEmailAction, { ok: false } as { ok: boolean; error?: string });
   return (
     <div className="card p-5">
       <h2 className="font-semibold">Billing email</h2>
       <p className="text-sm text-fg-muted mt-1">Invoices will be sent to the following email address.</p>
       <form action={action} className="mt-3 flex items-center gap-3">
-        <input name="billingEmail" type="email" className="input max-w-sm" defaultValue={email} placeholder="you@company.com" />
+        <input name="email" type="email" className="input max-w-sm" defaultValue={email} placeholder="you@company.com" />
         <button className="btn btn-secondary" disabled={pending}>{pending ? "Saving…" : "Save"}</button>
         <Saved state={state} />
       </form>

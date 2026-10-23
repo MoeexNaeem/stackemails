@@ -60,7 +60,7 @@ export default async function AdminApiHealthPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight mb-6">API Health</h1>
+      <h1 className="text-[28px] font-normal tracking-[-0.02em] mb-6">API Health</h1>
 
       {/* Service status */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">

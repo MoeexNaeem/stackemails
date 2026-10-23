@@ -29,7 +29,7 @@ export default async function AdminCodeFlowPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight mb-2">Code Flow</h1>
+      <h1 className="text-[28px] font-normal tracking-[-0.02em] mb-2">Code Flow</h1>
       <p className="text-sm text-fg-muted mb-6">How a request moves through the system, and the layers behind it.</p>
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-6">

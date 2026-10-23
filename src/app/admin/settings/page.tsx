@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/auth/admin";
 import { env } from "@/lib/env";
-import { ProfileEmailForm } from "@/components/dashboard/ProfileEmailForm";
+import { EmailForm, MfaCard, PasswordForm, Section } from "@/components/settings/AccountForms";
 
 export const dynamic = "force-dynamic";
 
@@ -17,15 +17,17 @@ export default async function AdminSettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight mb-6">Admin settings</h1>
+      <h1 className="text-[28px] font-normal tracking-[-0.02em] mb-6">Admin settings</h1>
 
-      <div className="space-y-6 max-w-2xl">
+      <div className="space-y-6 max-w-4xl">
         <div className="card p-5">
           <h2 className="font-semibold">Admin account</h2>
           <p className="text-sm text-fg-muted mt-1">Signed in as <strong>{admin.name}</strong> ({admin.email}).</p>
         </div>
 
-        <ProfileEmailForm email={admin.email} />
+        <Section title="Email"><EmailForm email={admin.email} /></Section>
+        <Section title="Password"><PasswordForm /></Section>
+        <Section title="Two-factor authentication" desc="Strongly recommended for the platform admin."><MfaCard enabled={!!admin.mfaEnabled} /></Section>
 
         <div className="card p-5">
           <h2 className="font-semibold mb-3">Platform configuration</h2>

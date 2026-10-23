@@ -1,3 +1,10 @@
+export interface EmailAttachment {
+  filename: string;
+  /** Raw bytes. */
+  content: Buffer;
+  contentType?: string;
+}
+
 export interface SendEmailParams {
   from: string;
   to: string[];
@@ -7,6 +14,9 @@ export interface SendEmailParams {
   subject: string;
   html?: string;
   text?: string;
+  /** Extra MIME headers (e.g. List-Unsubscribe). */
+  headers?: { name: string; value: string }[];
+  attachments?: EmailAttachment[];
   /** Provider tags (SES: mapped to EmailTags for SNS correlation). */
   tags?: { name: string; value: string }[];
 }
@@ -26,6 +36,7 @@ export type DomainVerificationStatus = "pending" | "verified" | "failed";
 export interface EmailProvider {
   readonly name: string;
   send(params: SendEmailParams): Promise<SendEmailResult>;
-  createDomainIdentity(domain: string, region: string): Promise<DomainIdentity>;
+  createDomainIdentity(domain: string, region: string, opts?: { mailFrom?: string }): Promise<DomainIdentity>;
+  deleteDomainIdentity?(domain: string, region: string): Promise<void>;
   getDomainStatus(domain: string, region: string): Promise<DomainVerificationStatus>;
 }

@@ -41,7 +41,7 @@ export default async function AdminAnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight mb-6">Analytics</h1>
+      <h1 className="text-[28px] font-normal tracking-[-0.02em] mb-6">Analytics</h1>
 
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         <div className="card p-6">
