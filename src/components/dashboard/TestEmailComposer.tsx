@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { sendTestEmailAction, type ActionState } from "@/app/(app)/actions";
+import { Icon } from "@/components/ui/Icon";
 
 const initial: ActionState = { ok: false };
 
@@ -37,7 +38,7 @@ export function TestEmailComposer({ defaultFrom }: { defaultFrom: string }) {
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-lg">Send a test email</h2>
               <button className="btn btn-ghost px-2" onClick={() => setOpen(false)}>
-                ✕
+                <Icon name="x" size={16} />
               </button>
             </div>
 
@@ -45,7 +46,7 @@ export function TestEmailComposer({ defaultFrom }: { defaultFrom: string }) {
               <div>
                 <label className="label">From</label>
                 <input name="from" className="input" defaultValue={defaultFrom} placeholder="Acme <hello@your-verified-domain.com>" required />
-                {!defaultFrom && <p className="mt-1 text-xs text-fg-subtle">Verify a domain first — you can only send from verified domains.</p>}
+                {!defaultFrom && <p className="mt-1 text-xs text-fg-subtle">Verify a domain first. You can only send from verified domains.</p>}
               </div>
               <div>
                 <label className="label">To</label>
@@ -62,7 +63,7 @@ export function TestEmailComposer({ defaultFrom }: { defaultFrom: string }) {
                 <input
                   name="subject"
                   className="input"
-                  defaultValue="Hello from Stack Emails 👋"
+                  defaultValue="Hello from Stack Emails"
                   required
                 />
               </div>

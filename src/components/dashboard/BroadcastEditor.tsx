@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -14,6 +14,9 @@ import { EmailBuilder } from "@/components/dashboard/EmailBuilder";
 import { StatusBadge } from "@/components/StatusBadge";
 import { StatCard } from "@/components/ui/StatCard";
 import { pct } from "@/lib/format";
+import { Icon } from "@/components/ui/Icon";
+import { confirmDialog } from "@/components/ui/Confirm";
+import { toastResult } from "@/lib/toast";
 
 export type BroadcastEditorData = {
   id: string;
@@ -53,6 +56,10 @@ export function BroadcastEditor({
   const [saveState, save, saving] = useActionState(saveBroadcastAction, initial);
   const [sendState, send, sending] = useActionState(sendBroadcastEntityAction, initial);
   const [testState, test, testing] = useActionState(sendBroadcastTestAction, initial);
+  const confirmedSend = useRef(false);
+  useEffect(() => { if (saveState !== initial) toastResult(saveState, "Draft saved."); }, [saveState]);
+  useEffect(() => { if (sendState !== initial) toastResult(sendState, "Broadcast queued."); }, [sendState]);
+  useEffect(() => { if (testState !== initial) toastResult(testState, "Test email sent."); }, [testState]);
   const [mode, setMode] = useState<"now" | "schedule">("now");
   const [segment, setSegment] = useState(data.audienceId);
   const [when, setWhen] = useState("");
@@ -66,7 +73,7 @@ export function BroadcastEditor({
   if (!editable) {
     return (
       <div>
-        <Link href="/broadcasts" className="text-sm text-fg-subtle hover:text-fg">← Broadcasts</Link>
+        <Link href="/broadcasts" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Broadcasts</Link>
         <div className="mt-3 mb-6 flex flex-wrap items-center gap-3">
           <h1 className="text-[26px] font-normal tracking-tight">{data.name}</h1>
           <StatusBadge status={data.status} />
@@ -81,8 +88,8 @@ export function BroadcastEditor({
         <div className="card p-6 text-sm space-y-2">
           <p><span className="text-fg-subtle">From:</span> {data.from}</p>
           <p><span className="text-fg-subtle">Subject:</span> {data.subject}</p>
-          <p><span className="text-fg-subtle">Segment:</span> {audiences.find((a) => a.id === data.audienceId)?.name ?? "—"}{data.topicId ? ` · Topic: ${topics.find((t) => t.id === data.topicId)?.name ?? ""}` : ""}</p>
-          <Link href={`/emails?q=&key=broadcast`} className="inline-block text-accent hover:underline">View individual emails →</Link>
+          <p><span className="text-fg-subtle">Segment:</span> {audiences.find((a) => a.id === data.audienceId)?.name ?? "-"}{data.topicId ? ` · Topic: ${topics.find((t) => t.id === data.topicId)?.name ?? ""}` : ""}</p>
+          <Link href={`/emails?q=&key=broadcast`} className="inline-block text-accent hover:underline">View individual emails <Icon name="arrow-right" size={14} /></Link>
         </div>
         <div className="card mt-6 overflow-hidden">
           <iframe title="Broadcast content" sandbox="" srcDoc={data.html} className="w-full bg-white" style={{ height: 560, border: 0 }} />
@@ -98,7 +105,7 @@ export function BroadcastEditor({
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Link href="/broadcasts" className="text-sm text-fg-subtle hover:text-fg">← Broadcasts</Link>
+          <Link href="/broadcasts" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Broadcasts</Link>
           <StatusBadge status="draft" />
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -112,7 +119,20 @@ export function BroadcastEditor({
             className="btn btn-primary"
             disabled={sending || !hasVerifiedDomain}
             onClick={(e) => {
-              if (!confirm(mode === "schedule" ? "Schedule this broadcast?" : `Send to ${seg ? seg.contactCount.toLocaleString() : "0"} subscribed contacts now?`)) e.preventDefault();
+              // Confirm first; on "yes", click again with the flag set so the form action runs.
+              if (confirmedSend.current) {
+                confirmedSend.current = false;
+                return;
+              }
+              e.preventDefault();
+              const btn = e.currentTarget;
+              confirmDialog(mode === "schedule" ? "Schedule this broadcast?" : `Send to ${seg ? seg.contactCount.toLocaleString() : "0"} subscribed contacts now?`, {
+                confirmLabel: mode === "schedule" ? "Schedule" : "Send now",
+              }).then((ok) => {
+                if (!ok) return;
+                confirmedSend.current = true;
+                btn.click();
+              });
             }}
           >
             {sending ? "Sending…" : mode === "schedule" ? "Schedule" : "Send now"}
@@ -145,7 +165,7 @@ export function BroadcastEditor({
         <div>
           <label className="label" htmlFor="b-topic">Topic <span className="text-fg-subtle">(optional)</span></label>
           <select id="b-topic" name="topicId" className="input" defaultValue={data.topicId}>
-            <option value="">No topic — everyone subscribed</option>
+            <option value="">No topic: everyone subscribed</option>
             {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
         </div>
@@ -190,7 +210,7 @@ export function BroadcastEditor({
           type="button"
           className="btn btn-ghost ml-auto text-danger"
           onClick={async () => {
-            if (!confirm("Delete this draft?")) return;
+            if (!(await confirmDialog("Delete this draft?"))) return;
             await deleteBroadcastAction(data.id);
             router.push("/broadcasts");
           }}

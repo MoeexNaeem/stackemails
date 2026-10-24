@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { CopyButton } from "@/components/CopyButton";
 import { createEventAction, deleteEventAction, sendTestEventAction, type AutoState } from "@/app/(app)/automation-actions";
 import { timeAgo } from "@/lib/format";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 type Row = { id: string; name: string; description: string; received: number; lastReceivedAt: string | null; automations: number };
 const initial: AutoState = { ok: false };
@@ -62,8 +63,8 @@ export function EventsManager({ rows }: { rows: Row[] }) {
                     <button className="btn btn-ghost btn-sm" onClick={() => setTesting(r.name)}>Send test</button>
                     <button
                       className="btn btn-danger btn-sm ml-1"
-                      onClick={() => {
-                        if (!confirm(`Delete event "${r.name}"? Automations using it will stop triggering.`)) return;
+                      onClick={async () => {
+                        if (!(await confirmDialog(`Delete event "${r.name}"? Automations using it will stop triggering.`))) return;
                         start(async () => {
                           await deleteEventAction(r.id);
                           router.refresh();

@@ -6,6 +6,8 @@ import { CopyButton } from "@/components/CopyButton";
 import { CodeDrawer } from "@/components/dashboard/CodeDrawer";
 import { FilterBar } from "@/components/ui/FilterBar";
 import { createApiKeyAction, revokeApiKeyAction, type ActionState } from "@/app/(app)/actions";
+import { Icon } from "@/components/ui/Icon";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 export type KeyView = {
   id: string;
@@ -46,8 +48,8 @@ export function ApiKeysManager({
     }
   }, [state, router]);
 
-  function revoke(id: string) {
-    if (!confirm("Revoke this API key? Requests using it will immediately fail.")) return;
+  async function revoke(id: string) {
+    if (!(await confirmDialog("Revoke this API key? Requests using it will immediately fail."))) return;
     startRevoke(async () => {
       await revokeApiKeyAction(id);
       router.refresh();
@@ -79,7 +81,7 @@ export function ApiKeysManager({
           <form action={action} className="card w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-lg">Add API Key</h2>
-              <button type="button" className="btn btn-ghost px-2" onClick={() => setCreating(false)}>✕</button>
+              <button type="button" className="btn btn-ghost px-2" onClick={() => setCreating(false)}><Icon name="x" size={16} /></button>
             </div>
             <div className="space-y-4">
               <div>

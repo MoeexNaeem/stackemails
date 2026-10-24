@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { env } from "@/lib/env";
 
-/** RFC 6238 TOTP (SHA-1, 30s, 6 digits) — compatible with Google Authenticator, 1Password, Authy. */
+/** RFC 6238 TOTP (SHA-1, 30s, 6 digits) - compatible with Google Authenticator, 1Password, Authy. */
 const B32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 export function base32Encode(buf: Buffer): string {

@@ -26,7 +26,7 @@ function domainAndParents(domain: string): string[] {
 /**
  * A workspace may only send from a domain (or subdomain of a domain) that it
  * has verified. Without this, any tenant could send as any domain verified in
- * the shared SES account — including stackemails.com or another customer's.
+ * the shared SES account - including stackemails.com or another customer's.
  */
 export async function assertSenderAllowed(workspaceId: Id, from: string): Promise<GuardResult> {
   const domain = senderDomain(from);
@@ -70,7 +70,7 @@ export async function partitionSuppressed(
 /**
  * Can this workspace register `name`? SES verification is account-wide, so a
  * domain already claimed by another workspace (or the platform's own sending
- * domain) must not be registrable — it would inherit "verified" without the
+ * domain) must not be registrable - it would inherit "verified" without the
  * tenant proving DNS control.
  */
 export async function checkDomainAvailable(workspaceId: Id, name: string): Promise<GuardResult> {

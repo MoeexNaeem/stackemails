@@ -61,7 +61,7 @@ export async function createContactAction(_prev: AudienceState, formData: FormDa
   emitEvent(String(workspace._id), created ? "contact.created" : "contact.updated", serializeContact(contact)).catch(() => {});
   if (created) runAutomationsForContact(workspace._id, contact, segmentIds).catch(() => {});
   refresh();
-  return { ok: true, message: created ? "Contact added." : "Contact already existed — details merged." };
+  return { ok: true, message: created ? "Contact added." : "Contact already existed, so the details were merged." };
 }
 
 export async function updateContactAction(_prev: AudienceState, formData: FormData): Promise<AudienceState> {

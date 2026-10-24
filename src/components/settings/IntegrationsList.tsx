@@ -44,17 +44,17 @@ export function IntegrationsList({ base }: { base: string }) {
       <Modal open={open === "supabase"} onClose={() => setOpen(null)} title="Use Stack Emails with Supabase Auth" width="max-w-xl">
         <ol className="list-decimal space-y-2 pl-5 text-sm text-fg-muted">
           <li>Verify your sending domain under Domains.</li>
-          <li>In Supabase: Authentication → Emails → SMTP Settings → enable custom SMTP.</li>
+          <li>In Supabase: Authentication &gt; Emails &gt; SMTP Settings &gt; enable custom SMTP.</li>
           <li>Host <code className="mono">smtp.stackemails.com</code>, port <code className="mono">465</code>, username <code className="mono">stackemails</code>, password = a Stack Emails API key.</li>
           <li>Sender email: an address on your verified domain (e.g. <code className="mono">auth@yourdomain.com</code>).</li>
-          <li>Save, then send a magic link to yourself — it shows up in Emails with source “SMTP”.</li>
+          <li>Save, then send a magic link to yourself. It shows up in Emails with source “SMTP”.</li>
         </ol>
       </Modal>
 
       <Modal open={open === "vercel"} onClose={() => setOpen(null)} title="Use Stack Emails on Vercel" width="max-w-xl">
         <ol className="list-decimal space-y-2 pl-5 text-sm text-fg-muted">
           <li>Create an API key under API keys (sending access is enough for most apps).</li>
-          <li>In Vercel: Project → Settings → Environment Variables → add <code className="mono">STACKEMAILS_API_KEY</code>.</li>
+          <li>In Vercel: Project &gt; Settings &gt; Environment Variables &gt; add <code className="mono">STACKEMAILS_API_KEY</code>.</li>
           <li>Install the SDK: <code className="mono">npm install stackemails</code>.</li>
           <li><code className="mono">new StackEmails()</code> reads <code className="mono">STACKEMAILS_API_KEY</code> automatically.</li>
         </ol>

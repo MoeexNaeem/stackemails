@@ -13,6 +13,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { RANGE_OPTIONS, escapeRegex, pageOf, rangeSince, PAGE_SIZE } from "@/lib/filters";
 import { timeAgo } from "@/lib/format";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Emails" };
@@ -85,7 +86,7 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
             title={anyEver ? "No emails match these filters" : "No sent emails yet"}
             description={anyEver ? "Try widening the date range or clearing filters." : "Start sending emails to see insights and previews for every message."}
           >
-            {!anyEver && <Link href="/onboarding" className="btn btn-primary">↗ Send your first email</Link>}
+            {!anyEver && <Link href="/onboarding" className="btn btn-primary"><Icon name="send" size={15} /> Send your first email</Link>}
           </EmptyState>
         ) : (
           <div className="overflow-x-auto">
@@ -107,9 +108,9 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
                     <td className="max-w-[340px] truncate">
                       <Link href={`/emails/${e.messageId}`} className="hover:text-accent">{e.subject}</Link>
                     </td>
-                    <td className="hidden md:table-cell text-xs text-fg-subtle">{e.opens ? `${e.opens} open${e.opens > 1 ? "s" : ""}` : "—"}{e.clicks ? ` · ${e.clicks} click${e.clicks > 1 ? "s" : ""}` : ""}</td>
+                    <td className="hidden md:table-cell text-xs text-fg-subtle">{e.opens ? `${e.opens} open${e.opens > 1 ? "s" : ""}` : "-"}{e.clicks ? ` · ${e.clicks} click${e.clicks > 1 ? "s" : ""}` : ""}</td>
                     <td className="text-right text-fg-subtle whitespace-nowrap" title={new Date(e.createdAt).toLocaleString()}>
-                      {e.status === "scheduled" && e.scheduledAt ? `⏱ ${timeAgo(e.scheduledAt)}` : timeAgo(e.createdAt)}
+                      {e.status === "scheduled" && e.scheduledAt ? <><Icon name="clock" size={13} className="mr-1" />{timeAgo(e.scheduledAt)}</> : timeAgo(e.createdAt)}
                     </td>
                   </tr>
                 ))}

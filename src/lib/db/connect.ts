@@ -82,7 +82,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
 
   // In zero-infra dev mode (no external Mongo), auto-seed the demo data once so
   // the dashboard is never empty. A single shared promise guarantees that EVERY
-  // caller — including concurrent first requests — waits for seeding to finish
+  // caller - including concurrent first requests - waits for seeding to finish
   // before returning, so the very first login can't race the seed.
   // Never touches a user-provided database.
   if (!env.mongoUri) {
@@ -95,7 +95,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
           await seedAdminData();
           if (result) {
             console.log(
-              `[db] seeded demo account — login: demo@stackemails.com / password123 | api key: ${result.apiKey}`,
+              `[db] seeded demo account, login: demo@stackemails.com / password123 | api key: ${result.apiKey}`,
             );
           }
         } catch (err) {

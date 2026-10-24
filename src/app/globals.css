@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
-   Product (dashboard) tokens — "Monera" dark: charcoal surfaces,
+   Product (dashboard) tokens, "Monera" dark: charcoal surfaces,
    hairline borders, violet + lime accents. Dark is the default.
    ───────────────────────────────────────────────────────────── */
 :root {
@@ -19,10 +19,10 @@
   --primary-hover: #ffffff;
   --primary-fg: #141415;
 
-  --accent: #b77fe0;        /* violet — active states, links, charts */
+  --accent: #b77fe0;        /* violet - active states, links, charts */
   --accent-hover: #c99bea;
   --accent-fg: #ffffff;
-  --lime: #b9e34a;          /* lime — positive / highlight */
+  --lime: #b9e34a;          /* lime - positive / highlight */
   --violet: #b77fe0;
 
   --success: #34d399;
@@ -193,7 +193,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Marketing site tokens — Ghost × Ready: white editorial canvas,
+   Marketing site tokens, Ghost × Ready: white editorial canvas,
    warm linen bands, monumental Inter display type, one periwinkle
    accent, ink pill CTAs. Light by default; dark follows the system
    preference unless the visitor picked a theme (data-theme on <html>).
@@ -405,11 +405,12 @@ body {
 .m-dot-live::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: inherit; animation: m-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite; }
 @keyframes m-ping { 75%, 100% { transform: scale(2.4); opacity: 0; } }
 
-/* Scroll reveal (enabled by a class set before first paint) */
-.m-reveal-on [data-reveal] { opacity: 0; transform: translate3d(0, 28px, 0); transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1); transition-delay: var(--d, 0ms); }
+/* Scroll reveal: start states (the html class is set before first paint);
+   Motion.tsx plays the reveal with element.animate(), which never touches
+   attributes, so it can't cause hydration mismatches. */
+.m-reveal-on [data-reveal] { opacity: 0; transform: translate3d(0, 28px, 0); }
 .m-reveal-on [data-reveal="fade"] { transform: none; }
 .m-reveal-on [data-reveal="zoom"] { transform: scale(0.96); }
-.m-reveal-on [data-reveal].is-in { opacity: 1; transform: none; }
 
 /* Above-the-fold entrance: pure CSS, starts on first paint (no JS needed) */
 .m-enter { animation: m-enter 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
@@ -424,8 +425,7 @@ body {
   @keyframes m-untilt { from { transform: perspective(1400px) rotateX(16deg) scale(0.93); } to { transform: perspective(1400px) rotateX(0deg) scale(1); } }
 }
 /* Bars grow once their container is revealed */
-.m-reveal-on [data-reveal] .m-grow { transform: scaleY(0.05); transform-origin: bottom; transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1); transition-delay: calc(var(--i, 0) * 90ms + 250ms); }
-.m-reveal-on [data-reveal].is-in .m-grow { transform: scaleY(1); }
+.m-reveal-on [data-reveal] .m-grow { transform: scaleY(0.05); transform-origin: bottom; }
 
 /* Infinite marquee */
 .m-marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
@@ -475,9 +475,73 @@ body {
 .m-pipe-dot { position: absolute; top: -4px; left: 0; width: 9px; height: 9px; border-radius: 9999px; background: var(--m-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--m-accent) 22%, transparent), 0 0 18px var(--m-accent); animation: m-packet 4.5s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
 @keyframes m-packet { 0% { left: 0; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
 /* Auth-result badges pop in one by one */
-.m-reveal-on [data-reveal] .m-check { opacity: 0; transform: scale(0.6); transition: opacity 0.4s, transform 0.5s cubic-bezier(0.3, 1.6, 0.5, 1); transition-delay: calc(var(--i, 0) * 180ms + 450ms); }
-.m-reveal-on [data-reveal].is-in .m-check { opacity: 1; transform: none; }
+.m-reveal-on [data-reveal] .m-check { opacity: 0; transform: scale(0.6); }
 @media (prefers-reduced-motion: reduce) { .m-pipe-dot { animation: none !important; display: none; } .m-reveal-on [data-reveal] .m-check { opacity: 1 !important; transform: none !important; } }
+
+/* ─────────────────────────────────────────────────────────────
+   Shared UI: confirm dialog, skeletons, route progress, select
+   ───────────────────────────────────────────────────────────── */
+.se-confirm-backdrop { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(3px); animation: se-fade 0.15s ease-out; }
+.se-confirm { width: 100%; max-width: 440px; border-radius: 22px; padding: 22px; background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border-strong); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.55); animation: se-pop 0.18s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.se-confirm-icon { display: flex; height: 38px; width: 38px; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 12px; background: color-mix(in srgb, var(--violet, #b77fe0) 16%, transparent); color: var(--violet, #b77fe0); }
+.se-confirm-icon[data-danger] { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger); }
+.se-confirm-btn { height: 38px; padding: 0 18px; border-radius: 9999px; font-size: 14px; font-weight: 500; border: 1px solid var(--border-strong); background: transparent; color: var(--fg); transition: background 0.15s, transform 0.15s; }
+.se-confirm-btn:hover { background: var(--bg-hover); }
+.se-confirm-btn[data-primary] { background: var(--primary); color: var(--primary-fg); border-color: transparent; }
+.se-confirm-btn[data-primary][data-danger] { background: var(--danger); color: #fff; }
+.se-confirm-btn:active { transform: scale(0.97); }
+@keyframes se-fade { from { opacity: 0; } }
+@keyframes se-pop { from { opacity: 0; transform: translateY(8px) scale(0.97); } }
+
+/* Code-flow connectors: a short dash travels along each path */
+.flow-packet { animation: flow-move 2.4s linear infinite; }
+@keyframes flow-move { from { stroke-dashoffset: 124; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .flow-packet { animation: none; display: none; } }
+
+/* Skeleton shimmer (dashboard + admin tokens; the public site overrides below) */
+.skel { position: relative; overflow: hidden; border-radius: 10px; background: color-mix(in srgb, var(--fg) 7%, transparent); }
+.skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--fg) 7%, transparent), transparent); animation: se-shimmer 1.3s ease-in-out infinite; }
+.mkt .skel { background: color-mix(in srgb, var(--m-head) 7%, transparent); }
+.mkt .skel::after { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--m-head) 6%, transparent), transparent); }
+@keyframes se-shimmer { to { transform: translateX(100%); } }
+
+/* Top route-change progress bar */
+.se-progress { position: fixed; top: 0; left: 0; z-index: 100; height: 2.5px; width: 100%; pointer-events: none; transform-origin: 0 50%; background: linear-gradient(90deg, #7366fe, #b77fe0 60%, #c6f04f); box-shadow: 0 0 10px rgba(183, 127, 224, 0.6); transition: transform 0.25s ease, opacity 0.3s ease; }
+
+/* Custom select (listbox) */
+.se-select { position: relative; }
+.se-select-btn { display: inline-flex; width: 100%; align-items: center; justify-content: space-between; gap: 10px; text-align: left; cursor: pointer; }
+.se-select-btn[aria-expanded="true"] { border-color: var(--violet, #b77fe0); box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet, #b77fe0) 18%, transparent); }
+.se-select-list { position: absolute; z-index: 60; left: 0; top: calc(100% + 6px); min-width: 100%; max-height: 300px; overflow-y: auto; padding: 6px; border-radius: 16px; background: var(--bg-elevated); border: 1px solid var(--border-strong); box-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.55); animation: se-pop 0.14s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.se-select-list[data-align="right"] { left: auto; right: 0; }
+.se-select-opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 8px 10px; border-radius: 10px; font-size: 14px; color: var(--fg-muted); white-space: nowrap; cursor: pointer; }
+.se-select-opt[data-active="true"] { background: var(--bg-hover); color: var(--fg); }
+.se-select-opt[aria-selected="true"] { color: var(--fg); font-weight: 500; }
+.mkt .se-select-list { background: var(--m-surface); border-color: var(--m-line); box-shadow: 0 18px 40px -16px rgba(17, 34, 32, 0.3); }
+.mkt .se-select-opt { color: var(--m-text); }
+.mkt .se-select-opt[data-active="true"] { background: var(--m-linen); color: var(--m-head); }
+.mkt .se-select-opt[aria-selected="true"] { color: var(--m-head); }
+
+/* Native <select>: styled dropdown where the browser supports it (Chrome/Edge 135+) */
+@supports (appearance: base-select) {
+  select.input, select.m-input, select.input-pill { appearance: base-select; background-image: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  select.input::picker(select), select.m-input::picker(select), select.input-pill::picker(select) {
+    appearance: base-select; margin-top: 6px; padding: 6px; border-radius: 16px; background: var(--bg-elevated); color: var(--fg);
+    border: 1px solid var(--border-strong); box-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.55);
+  }
+  select.input option, select.input-pill option, select.m-input option { padding: 8px 10px; border-radius: 10px; font-size: 14px; }
+  select.input option:hover, select.input-pill option:hover, select.input option:focus-visible { background: var(--bg-hover); }
+  select.input option:checked, select.input-pill option:checked { font-weight: 500; background: transparent; }
+  select.input option::checkmark, select.input-pill option::checkmark, select.m-input option::checkmark { order: 1; margin-left: auto; color: var(--violet, #b77fe0); }
+  select.input::picker-icon, select.input-pill::picker-icon, select.m-input::picker-icon { color: var(--fg-subtle); transition: rotate 0.2s; }
+  select.input:open::picker-icon, select.input-pill:open::picker-icon, select.m-input:open::picker-icon { rotate: 180deg; }
+  .mkt select.m-input::picker(select) { background: var(--m-surface); color: var(--m-text); border-color: var(--m-line); box-shadow: 0 18px 40px -16px rgba(17, 34, 32, 0.3); }
+  .mkt select.m-input option:hover { background: var(--m-linen); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skel::after { animation: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

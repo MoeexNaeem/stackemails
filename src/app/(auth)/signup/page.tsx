@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   title: "Create your free account",
-  description: "Start sending transactional and marketing email with Stack Emails. Free plan includes 3,000 emails a month — no credit card required.",
+  description: "Start sending transactional and marketing email with Stack Emails. Free plan includes 3,000 emails a month. No credit card required.",
   alternates: { canonical: "/signup" },
 };
 

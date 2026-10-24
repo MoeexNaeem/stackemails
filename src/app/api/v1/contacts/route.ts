@@ -20,7 +20,7 @@ const createSchema = z.object({
   segment_ids: z.array(z.string()).max(50).optional(),
 });
 
-// POST /v1/contacts — create (or merge into) a contact.
+// POST /v1/contacts - create (or merge into) a contact.
 export const POST = apiRoute({ endpoint: "/contacts" }, async ({ workspace, body }) => {
   const input = await body(createSchema);
   const segmentIds = (input.segment_ids ?? []).filter(isValidObjectId);
@@ -42,7 +42,7 @@ export const POST = apiRoute({ endpoint: "/contacts" }, async ({ workspace, body
   return { status: created ? 201 : 200, data: serializeContact(contact) };
 });
 
-// GET /v1/contacts — ?limit&after&segment_id&q&unsubscribed=true|false
+// GET /v1/contacts - ?limit&after&segment_id&q&unsubscribed=true|false
 export const GET = apiRoute({ endpoint: "/contacts" }, async ({ workspace, url }) => {
   const { limit, after } = pageParams(url);
   const filter: Record<string, unknown> = { workspaceId: workspace._id };

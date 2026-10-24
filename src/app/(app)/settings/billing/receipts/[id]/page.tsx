@@ -7,6 +7,7 @@ import { connectToDatabase } from "@/lib/db/connect";
 import { Transaction } from "@/lib/db/models";
 import { receiptNumber } from "@/lib/billing/receipt-number";
 import { PrintButton } from "@/components/ui/PrintButton";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Receipt" };
@@ -23,7 +24,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-4 flex items-center justify-between print:hidden">
-        <Link href="/settings/billing" className="text-sm text-fg-subtle hover:text-fg">← Billing</Link>
+        <Link href="/settings/billing" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Billing</Link>
         <PrintButton />
       </div>
       <div className="rounded-2xl bg-white p-10 text-[#15171a] shadow-xl">

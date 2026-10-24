@@ -12,6 +12,7 @@ import { setUserDisabledAction } from "@/app/admin/ops-actions";
 import { timeAgo } from "@/lib/format";
 import { StatusBadge } from "@/components/StatusBadge";
 import { WorkspaceAdminControls } from "@/components/admin/WorkspaceAdminControls";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Team" };
@@ -53,20 +54,20 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
   const renewed = renewal ? renewal.getTime() > Date.now() : false;
 
   const info: [string, React.ReactNode][] = [
-    ["Owner", owner?.email ?? "—"],
-    ["Owner name", owner?.name ?? "—"],
+    ["Owner", owner?.email ?? "-"],
+    ["Owner name", owner?.name ?? "-"],
     ["Workspace ID", <code key="id" className="mono text-xs">{String(ws._id)}</code>],
     ["Plan", sub?.planName ?? ws.plan],
     ["Price", sub && sub.priceMonthly > 0 ? `$${sub.priceMonthly}/mo` : "Free"],
     ["Monthly usage", `${sentThisPeriod(ws).toLocaleString()} / ${ws.monthlyQuota.toLocaleString()}`],
     ["Daily limit", ws.dailyQuota.toLocaleString()],
     ["Joined", new Date(ws.createdAt).toLocaleDateString()],
-    ["Billing email", ws.billingEmail || "—"],
+    ["Billing email", ws.billingEmail || "-"],
   ];
 
   return (
     <div>
-      <Link href="/admin/users" className="text-sm text-fg-muted hover:text-fg">← Teams &amp; users</Link>
+      <Link href="/admin/users" className="text-sm text-fg-muted hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Teams &amp; users</Link>
 
       <div className="flex items-center gap-3 mt-3 mb-6">
         <h1 className="text-[28px] font-normal tracking-[-0.02em]">{ws.name}</h1>
@@ -116,7 +117,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                       </span>
                       {sub?.autoRenew === false && <span className="text-fg-subtle"> · auto-renew off</span>}
                     </>
-                  ) : "—"}
+                  ) : "-"}
                 </span>
               </div>
             </div>

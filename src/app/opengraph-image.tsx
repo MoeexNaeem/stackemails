@@ -1,6 +1,6 @@
 import { ogCard, OG_SIZE } from "@/lib/og";
 
-export const alt = "Stack Emails — the email API for developers";
+export const alt = "Stack Emails, the email API for developers";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 

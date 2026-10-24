@@ -8,7 +8,7 @@ import { serializeBroadcast } from "@/lib/api/serializers";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// POST /v1/broadcasts/:id/send — send (or schedule) a draft broadcast. Body: { scheduled_at? }
+// POST /v1/broadcasts/:id/send - send (or schedule) a draft broadcast. Body: { scheduled_at? }
 export const POST = apiRoute<{ id: string }>({ endpoint: "/broadcasts/:id/send" }, async ({ workspace, params, req, body }) => {
   if (!isValidObjectId(params.id)) apiFail(404, "not_found", "Broadcast not found.");
   const hasBody = Number(req.headers.get("content-length") ?? 0) > 0;

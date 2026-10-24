@@ -27,12 +27,12 @@ export async function requestPlanChangeAction(planId: string): Promise<{ ok: boo
   if (!plan) return { ok: false, error: "Plan not found." };
   if (plan.slug === workspace.plan) return { ok: false, error: `You're already on ${plan.name}.` };
   const rl = await getRateLimiter().check(`plan-request:${workspace._id}`, 3, 86_400_000);
-  if (!rl.allowed) return { ok: false, error: "You've already requested a change today — we'll be in touch shortly." };
+  if (!rl.allowed) return { ok: false, error: "You've already requested a change today. We'll be in touch shortly." };
 
   const number = await nextSequence("ticket", 1000);
   const body = `Please move team "${workspace.name}" (${workspace._id}) from ${workspace.plan} to ${plan.name} ($${plan.priceMonthly}/mo).`;
-  await SupportTicket.create({ number, workspaceId: workspace._id, userId: user._id, email: user.email, subject: `Plan change → ${plan.name}`, category: "billing", priority: "high", messages: [{ author: "customer", name: user.name, body }] });
-  await sendSystemEmail({ kind: "ticket_alert", to: env.supportEmail, subject: `Plan change request #${number}: ${workspace.name} → ${plan.name}`, react: createElement(TicketEmail, { heading: "Plan change requested", name: "team", number, subject: `Plan change → ${plan.name}`, body, footer: "Approve it in Admin → Users → the team → Plan." }) });
+  await SupportTicket.create({ number, workspaceId: workspace._id, userId: user._id, email: user.email, subject: `Plan change to ${plan.name}`, category: "billing", priority: "high", messages: [{ author: "customer", name: user.name, body }] });
+  await sendSystemEmail({ kind: "ticket_alert", to: env.supportEmail, subject: `Plan change request #${number}: ${workspace.name} to ${plan.name}`, react: createElement(TicketEmail, { heading: "Plan change requested", name: "team", number, subject: `Plan change to ${plan.name}`, body, footer: "Approve it in Admin > Users > the team > Plan." }) });
   revalidatePath("/help");
-  return { ok: true, message: `Request sent (#${number}). We'll confirm by email and switch your plan — usually within a few hours.` };
+  return { ok: true, message: `Request sent (#${number}). We'll confirm by email and switch your plan, usually within a few hours.` };
 }

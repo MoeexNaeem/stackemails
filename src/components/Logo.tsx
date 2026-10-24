@@ -1,17 +1,25 @@
 /**
- * Stack Emails mark: three stacked envelopes, the front one in lime.
- * `tone="ink"` uses the public-site tile (near-black; lifted in dark mode via --m-logo-tile);
+ * Stack Emails monogram: a geometric "S" and "E" joined by one lime stroke
+ * that runs from the S's spine into the E's middle bar.
+ * `tone="ink"` uses the public-site tile (lifted in dark mode via --m-logo-tile);
  * the default follows the dashboard theme via --logo-bg.
  */
+export const LOGO_PATHS = {
+  s: "M15 9.5H10a3.25 3.25 0 0 0 0 6.5h2a3.25 3.25 0 0 1 0 6.5H6.5",
+  e: "M25.5 9.5H19v13h6.5",
+  link: "M10 16h14",
+};
+
 export function LogoMark({ size = 28, tone = "theme" }: { size?: number; tone?: "theme" | "ink" }) {
-  const bg = tone === "ink" ? "var(--m-logo-tile, #15171a)" : "var(--logo-bg)";
+  const bg = tone === "ink" ? "var(--m-logo-tile, #111214)" : "var(--logo-bg)";
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden style={{ display: "block", flexShrink: 0 }}>
-      <rect width="32" height="32" rx="9" fill={bg} />
-      <rect x="10" y="6.5" width="12" height="8" rx="2" fill="#b77fe0" opacity="0.55" />
-      <rect x="8" y="9.5" width="16" height="10" rx="2.5" fill="#b77fe0" opacity="0.85" />
-      <rect x="6" y="13" width="20" height="13" rx="3" fill="#c6f04f" />
-      <path d="M7.2 14.6 16 20.4l8.8-5.8" stroke="#15171a" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <rect width="32" height="32" rx="8.5" fill={bg} />
+      <g strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d={LOGO_PATHS.s} stroke="#fafafa" />
+        <path d={LOGO_PATHS.e} stroke="#fafafa" />
+        <path d={LOGO_PATHS.link} stroke="#c6f04f" />
+      </g>
     </svg>
   );
 }

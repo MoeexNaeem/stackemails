@@ -78,7 +78,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                       {owner?.platformRole === "admin" && <span className="badge ml-2" style={{ color: "var(--lime)" }}>admin</span>}
                     </td>
                     <td className="text-fg-muted">
-                      {owner?.email ?? "—"}
+                      {owner?.email ?? "-"}
                       {owner?.disabled && <span className="badge ml-2" style={{ color: "var(--danger)" }}>disabled</span>}
                       {owner?.lastLoginAt && <span className="block text-xs text-fg-subtle">seen {timeAgo(owner.lastLoginAt)}</span>}
                     </td>

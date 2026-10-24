@@ -24,7 +24,7 @@ export function ContactForm() {
   if (state?.ok) {
     return (
       <div className="m-card text-center" role="status">
-        <p className="m-h3">Thanks — message received.</p>
+        <p className="m-h3">Thanks, message received.</p>
         <p className="m-body mt-2" style={{ color: "var(--m-muted)" }}>We usually reply within one business day.</p>
       </div>
     );

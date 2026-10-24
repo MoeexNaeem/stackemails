@@ -9,7 +9,7 @@ export function StaffReplyForm({ id, status }: { id: string; status: string }) {
     <form action={action} className="card space-y-3 p-5">
       <input type="hidden" name="id" value={id} />
       <label className="label" htmlFor="reply">Reply to customer</label>
-      <textarea id="reply" name="body" rows={6} required className="input min-h-[140px]" placeholder="Write your reply — it's emailed to the customer and shown in their Help page." />
+      <textarea id="reply" name="body" rows={6} required className="input min-h-[140px]" placeholder="Write your reply. It's emailed to the customer and shown in their Help page." />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <label className="flex items-center gap-2 text-sm text-fg-muted">
           Then set status

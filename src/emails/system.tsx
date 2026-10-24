@@ -14,7 +14,7 @@ import {
 } from "@react-email/components";
 
 /**
- * Platform ("system") emails that Stack Emails itself sends to its own users —
+ * Platform ("system") emails that Stack Emails itself sends to its own users  - 
  * welcome, password reset and payment receipts. Sent from SYSTEM_FROM_EMAIL
  * via src/lib/email/system.ts.
  */

@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
   title: "Privacy policy",
-  description: "How Stack Emails collects, uses and protects personal data — for our customers and for the recipients of email sent through our platform.",
+  description: "How Stack Emails collects, uses and protects personal data, for our customers and for the recipients of email sent through our platform.",
   path: "/privacy",
 });
 
@@ -15,8 +15,8 @@ ${site.name} ("we", "us") provides an email sending and receiving platform for b
 
 This policy covers two kinds of personal data:
 
-1. **Customer data** — information about people who create an account and use ${site.name}. We are the *controller* of this data.
-2. **Recipient data** — email addresses, message content and engagement data our customers process through the platform. Our customers are the controllers; we act as their *processor* under our [Data Processing Addendum](/legal/dpa).
+1. **Customer data**: information about people who create an account and use ${site.name}. We are the *controller* of this data.
+2. **Recipient data**: email addresses, message content and engagement data our customers process through the platform. Our customers are the controllers; we act as their *processor* under our [Data Processing Addendum](/legal/dpa).
 
 ## Data we collect about customers
 
@@ -33,7 +33,7 @@ We do **not** sell personal data, and we do not use recipient data for our own m
 
 ## Recipient data
 
-When customers send email through ${site.name} we process the recipient's address, the message content, delivery events and — if the customer enables tracking — open and click events. We process this data only on our customers' documented instructions, to deliver email and provide analytics, suppression and webhooks to that customer.
+When customers send email through ${site.name} we process the recipient's address, the message content, delivery events and, if the customer enables tracking. Open and click events. We process this data only on our customers' documented instructions, to deliver email and provide analytics, suppression and webhooks to that customer.
 
 Recipients who want to exercise their rights should contact the sender directly; we will assist our customers in responding.
 

@@ -82,7 +82,7 @@ export default async function LogsPage({ searchParams }: { searchParams: Promise
                   <td><StatusPill status={l.status} /></td>
                   <td className="mono text-fg-muted">{l.method}</td>
                   <td className="hidden md:table-cell max-w-[220px] truncate text-xs text-fg-subtle">{l.userAgent ?? l.source}</td>
-                  <td className="hidden sm:table-cell text-fg-subtle">{l.durationMs != null ? `${l.durationMs}ms` : "—"}</td>
+                  <td className="hidden sm:table-cell text-fg-subtle">{l.durationMs != null ? `${l.durationMs}ms` : "-"}</td>
                   <td className="text-right text-fg-subtle whitespace-nowrap">{timeAgo(l.createdAt)}</td>
                 </tr>
               ))}

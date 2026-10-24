@@ -10,6 +10,7 @@ import {
   renderBlockHtml,
   serializeBlocks,
 } from "@/lib/email-builder/blocks";
+import { Icon } from "@/components/ui/Icon";
 
 const BLOCK_TYPES: BlockType[] = ["heading", "text", "button", "image", "divider", "spacer"];
 
@@ -104,9 +105,9 @@ export function EmailBuilder({ initialDesign }: { initialDesign: string }) {
               >
                 <div dangerouslySetInnerHTML={{ __html: renderBlockHtml(b) }} />
                 <div className="absolute -top-2 right-0 hidden group-hover:flex gap-1">
-                  <Ctrl onClick={(e) => { e.stopPropagation(); move(b.id, -1); }}>↑</Ctrl>
-                  <Ctrl onClick={(e) => { e.stopPropagation(); move(b.id, 1); }}>↓</Ctrl>
-                  <Ctrl onClick={(e) => { e.stopPropagation(); remove(b.id); }}>✕</Ctrl>
+                  <Ctrl onClick={(e) => { e.stopPropagation(); move(b.id, -1); }}><Icon name="arrow-up" size={14} /></Ctrl>
+                  <Ctrl onClick={(e) => { e.stopPropagation(); move(b.id, 1); }}><Icon name="arrow-down" size={14} /></Ctrl>
+                  <Ctrl onClick={(e) => { e.stopPropagation(); remove(b.id); }}><Icon name="x" size={16} /></Ctrl>
                 </div>
               </div>
             ))}

@@ -32,7 +32,7 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
       </div>
       <FilterBar fields={[{ type: "search", name: "q", placeholder: "Search titles…" }, { type: "select", name: "status", options: [{ value: "", label: "All" }, { value: "published", label: "Published" }, { value: "draft", label: "Drafts" }] }]} />
       {posts.length === 0 ? (
-        <div className="card"><EmptyState title="No articles" description="Write your first article — it's server-rendered and indexed automatically."><Link href="/admin/blog/new" className="btn btn-primary btn-sm">New article</Link></EmptyState></div>
+        <div className="card"><EmptyState title="No articles" description="Write your first article. It's server-rendered and indexed automatically."><Link href="/admin/blog/new" className="btn btn-primary btn-sm">New article</Link></EmptyState></div>
       ) : (
         <div className="card overflow-x-auto">
           <table className="table min-w-[760px]">
@@ -49,7 +49,7 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
                     </td>
                     <td className="text-fg-muted">{p.category}</td>
                     <td><span className="badge capitalize" style={{ color: p.status === "published" ? (scheduled ? "#f59e0b" : "var(--success)") : "var(--fg-muted)" }}>{scheduled ? "scheduled" : p.status}</span></td>
-                    <td className="text-fg-muted">{p.publishedAt ? new Date(p.publishedAt).toLocaleDateString() : "—"}</td>
+                    <td className="text-fg-muted">{p.publishedAt ? new Date(p.publishedAt).toLocaleDateString() : "-"}</td>
                     <td className="text-right text-fg-subtle">{timeAgo(p.updatedAt)}</td>
                   </tr>
                 );

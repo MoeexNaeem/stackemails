@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { bulkContactsAction } from "@/app/(app)/audience-actions";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 type Row = { id: string; email: string; name: string; unsubscribed: boolean; segments: string[]; createdAt: string };
 
@@ -25,8 +26,8 @@ export function ContactsTable({ rows, segments, filtered }: { rows: Row[]; segme
     });
   }
 
-  function run(op: Parameters<typeof bulkContactsAction>[1]) {
-    if (op === "delete" && !confirm(`Delete ${selected.size} contact(s)? This can't be undone.`)) return;
+  async function run(op: Parameters<typeof bulkContactsAction>[1]) {
+    if (op === "delete" && !(await confirmDialog(`Delete ${selected.size} contact(s)? This can't be undone.`))) return;
     start(async () => {
       const res = await bulkContactsAction([...selected], op, segment);
       setNote(res.error ?? res.message ?? null);
@@ -91,7 +92,7 @@ export function ContactsTable({ rows, segments, filtered }: { rows: Row[]; segme
                 <td className="max-w-[260px] truncate">
                   <Link href={`/audience/contacts/${r.id}`} className="hover:text-accent">{r.email}</Link>
                 </td>
-                <td className="text-fg-muted">{r.name || "—"}</td>
+                <td className="text-fg-muted">{r.name || "-"}</td>
                 <td>
                   <div className="flex flex-wrap gap-1">
                     {r.segments.slice(0, 3).map((s) => <span key={s} className="badge" style={{ background: "var(--bg-hover)", color: "var(--fg-muted)" }}>{s}</span>)}

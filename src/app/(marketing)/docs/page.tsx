@@ -6,7 +6,7 @@ import { CodeShowcase } from "@/components/marketing/CodeShowcase";
 import { absUrl, jsonLd } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
-  title: "Documentation — Stack Emails API reference",
+  title: "Documentation: Stack Emails API reference",
   description: "Stack Emails API documentation: quickstart, authentication, sending emails, domains, contacts, broadcasts, webhooks, inbound email, SMTP, MCP and the Node.js SDK.",
   path: "/docs",
 });

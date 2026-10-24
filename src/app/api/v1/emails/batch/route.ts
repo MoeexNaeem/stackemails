@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 const batchSchema = z.array(sendEmailSchema).min(1).max(100);
 
-// POST /v1/emails/batch — send up to 100 emails in one request.
+// POST /v1/emails/batch - send up to 100 emails in one request.
 // Validation is all-or-nothing; each item is then queued independently.
 export const POST = apiRoute({ endpoint: "/emails/batch", sending: true, limit: 20 }, async ({ req, workspace, apiKey, body }) => {
   const items = await body(batchSchema);

@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { cancelScheduledEmailAction } from "@/app/(app)/emails-actions";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 export function CancelScheduledButton({ messageId }: { messageId: string }) {
   const router = useRouter();
@@ -11,8 +12,8 @@ export function CancelScheduledButton({ messageId }: { messageId: string }) {
     <button
       className="btn btn-danger btn-sm"
       disabled={pending}
-      onClick={() => {
-        if (!confirm("Cancel this scheduled email? It won't be sent.")) return;
+      onClick={async () => {
+        if (!(await confirmDialog("Cancel this scheduled email? It won't be sent."))) return;
         start(async () => {
           await cancelScheduledEmailAction(messageId);
           router.refresh();

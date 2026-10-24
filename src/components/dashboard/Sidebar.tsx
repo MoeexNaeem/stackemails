@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LogoMark } from "@/components/Logo";
 import { TeamSwitcher, type TeamOption } from "@/components/dashboard/TeamSwitcher";
+import { CollapseButton } from "@/components/ui/CollapseButton";
 
 type NavChild = { href: string; label: string; exact?: boolean };
 type NavItem = { href: string; label: string; icon: string; children?: NavChild[] };
@@ -93,66 +94,76 @@ export function Sidebar({
   activeTeamId,
   isAdmin = false,
   onNavigate,
+  collapsed = false,
+  onToggle,
 }: {
   teams: TeamOption[];
   activeTeamId: string;
   isAdmin?: boolean;
   onNavigate?: () => void;
+  collapsed?: boolean;
+  onToggle?: () => void;
 }) {
   const pathname = usePathname();
 
   return (
-    <aside className="h-full w-[248px] shrink-0 flex flex-col bg-bg-elevated border-r border-border">
-      <div className="h-16 flex items-center justify-between gap-2 px-4">
-        <Link href="/overview" className="flex items-center gap-2.5" onClick={onNavigate}>
+    <aside className="h-full shrink-0 flex flex-col bg-bg-elevated border-r border-border transition-[width] duration-200 ease-out" style={{ width: collapsed ? 72 : 248 }}>
+      <div className={`h-16 shrink-0 flex items-center gap-2 ${collapsed ? "justify-center px-2" : "justify-between px-4"}`}>
+        <Link href="/overview" className="flex min-w-0 items-center gap-2.5" onClick={onNavigate} title="Overview">
           <LogoMark size={26} />
-          <span className="text-[16px] font-medium tracking-[-0.02em]">Stack Emails</span>
+          {!collapsed && <span className="truncate text-[16px] font-medium tracking-[-0.02em]">Stack Emails</span>}
         </Link>
+        {onToggle && !collapsed && <CollapseButton collapsed={collapsed} onClick={onToggle} />}
       </div>
 
-      <div className="px-3 pb-2">
-        <TeamSwitcher teams={teams} activeId={activeTeamId} />
-      </div>
+      {collapsed ? (
+        onToggle && <div className="flex justify-center pb-2"><CollapseButton collapsed={collapsed} onClick={onToggle} /></div>
+      ) : (
+        <div className="px-3 pb-2">
+          <TeamSwitcher teams={teams} activeId={activeTeamId} />
+        </div>
+      )}
 
-      <nav className="flex-1 overflow-y-auto px-3 py-2" aria-label="Dashboard">
+      <nav className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-2" aria-label="Dashboard">
         {GROUPS.map((group, gi) => (
           <div key={gi} className={gi > 0 ? "mt-3 pt-3 border-t border-border" : ""}>
             {group.map((item) => (
-              <NavRow key={item.href} item={item} pathname={pathname} onNavigate={onNavigate} />
+              <NavRow key={item.href} item={item} pathname={pathname} onNavigate={onNavigate} collapsed={collapsed} />
             ))}
           </div>
         ))}
       </nav>
 
-      <div className="px-3 pb-3 space-y-0.5">
-        <NavRow item={{ href: "/settings", label: "Settings", icon: I.settings }} pathname={pathname} onNavigate={onNavigate} />
-        <NavRow item={{ href: "/help", label: "Help", icon: I.help }} pathname={pathname} onNavigate={onNavigate} />
+      <div className="shrink-0 px-3 pb-3 space-y-0.5">
+        <NavRow item={{ href: "/settings", label: "Settings", icon: I.settings }} pathname={pathname} onNavigate={onNavigate} collapsed={collapsed} />
+        <NavRow item={{ href: "/help", label: "Help", icon: I.help }} pathname={pathname} onNavigate={onNavigate} collapsed={collapsed} />
         {isAdmin && (
           <Link
             href="/admin"
             onClick={onNavigate}
-            className="flex items-center gap-3 rounded-xl px-3 py-2 text-[13.5px] font-medium transition-colors"
+            title="Admin panel"
+            className={`flex items-center gap-3 rounded-xl py-2 text-[13.5px] font-medium transition-colors ${collapsed ? "justify-center px-0" : "px-3"}`}
             style={{ color: "var(--lime)", background: "color-mix(in srgb, var(--lime) 8%, transparent)" }}
           >
             <Icon d={I.shield} />
-            Admin panel
+            {!collapsed && "Admin panel"}
           </Link>
         )}
 
-        <div className="mt-3 rounded-2xl p-4 text-center border border-border [@media(max-height:820px)]:hidden" style={{ background: "linear-gradient(180deg, var(--bg-card), var(--bg-elevated))" }}>
+        {!collapsed && <div className="mt-3 rounded-2xl p-4 text-center border border-border [@media(max-height:820px)]:hidden" style={{ background: "linear-gradient(180deg, var(--bg-card), var(--bg-elevated))" }}>
           <p className="text-[15px] font-normal">Need help?</p>
           <p className="mt-1 text-xs leading-relaxed text-fg-subtle">Our support team is ready to help with sending, domains and deliverability.</p>
           <Link href="/help" onClick={onNavigate} className="btn btn-secondary btn-sm mt-3">
             Contact us
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M9 6l6 6-6 6" /></svg>
           </Link>
-        </div>
+        </div>}
       </div>
     </aside>
   );
 }
 
-function NavRow({ item, pathname, onNavigate }: { item: NavItem; pathname: string; onNavigate?: () => void }) {
+function NavRow({ item, pathname, onNavigate, collapsed = false }: { item: NavItem; pathname: string; onNavigate?: () => void; collapsed?: boolean }) {
   const groupActive = isActive(pathname, item.href);
   const [open, setOpen] = useState(groupActive);
   const expanded = item.children ? open || groupActive : false;
@@ -168,16 +179,18 @@ function NavRow({ item, pathname, onNavigate }: { item: NavItem; pathname: strin
             if (item.children) setOpen(true);
             onNavigate?.();
           }}
-          className="flex flex-1 items-center gap-3 rounded-xl px-3 py-2 text-[13.5px] transition-colors"
+          title={collapsed ? item.label : undefined}
+          aria-label={collapsed ? item.label : undefined}
+          className={`flex flex-1 items-center gap-3 rounded-xl py-2 text-[13.5px] transition-colors ${collapsed ? "justify-center px-0" : "px-3"}`}
           style={{
             background: selfActive ? "var(--bg-hover)" : "transparent",
             color: selfActive || (item.children && groupActive) ? "var(--fg)" : "var(--fg-muted)",
           }}
         >
           <Icon d={item.icon} />
-          {item.label}
+          {!collapsed && item.label}
         </Link>
-        {item.children && (
+        {item.children && !collapsed && (
           <button
             type="button"
             onClick={() => setOpen((o) => !(o || groupActive))}
@@ -192,7 +205,7 @@ function NavRow({ item, pathname, onNavigate }: { item: NavItem; pathname: strin
         )}
       </div>
 
-      {item.children && expanded && (
+      {item.children && expanded && !collapsed && (
         <div className="relative ml-[21px] mb-1 pl-4">
           <span className="absolute left-0 top-0 bottom-[14px] w-px" style={{ background: "var(--border-strong)" }} />
           {item.children.map((c) => {

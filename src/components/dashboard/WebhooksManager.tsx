@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Modal, FormNote } from "@/components/ui/Modal";
 import { CopyButton } from "@/components/CopyButton";
 import { createWebhookAction, rotateWebhookSecretAction, type WebhookState } from "@/app/(app)/webhook-actions";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 const initial: WebhookState = { ok: false };
 
@@ -71,8 +72,8 @@ export function SigningSecret({ secret }: { secret: string }) {
         <button
           className="btn btn-secondary btn-sm"
           disabled={pending}
-          onClick={() => {
-            if (!confirm("Rotate the signing secret? Your endpoints must use the new secret immediately.")) return;
+          onClick={async () => {
+            if (!(await confirmDialog("Rotate the signing secret? Your endpoints must use the new secret immediately."))) return;
             start(async () => {
               const r = await rotateWebhookSecretAction();
               setNote(r.message ?? null);

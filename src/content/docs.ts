@@ -14,7 +14,7 @@ export const DOCS: DocPage[] = [
     description: "Send your first email with Stack Emails in under five minutes.",
     content: `## 1. Create an API key
 
-Sign up, open **API Keys** in the dashboard and create a key. Keys start with \`se_live_\` (or \`se_test_\` for test mode). Store it as an environment variable — you'll only see it once.
+Sign up, open **API Keys** in the dashboard and create a key. Keys start with \`se_live_\` (or \`se_test_\` for test mode). Store it as an environment variable. You'll only see it once.
 
 \`\`\`bash
 export STACKEMAILS_API_KEY=se_live_xxxxxxxxxxxx
@@ -22,7 +22,7 @@ export STACKEMAILS_API_KEY=se_live_xxxxxxxxxxxx
 
 ## 2. Verify a domain
 
-Open **Domains → Add domain**, enter a domain you own (we recommend a subdomain such as \`mail.acme.com\`) and add the DNS records shown at your DNS provider. Verification usually takes a few minutes. See [Domains](/docs/domains) for details.
+Open **Domains > Add domain**, enter a domain you own (we recommend a subdomain such as \`mail.acme.com\`) and add the DNS records shown at your DNS provider. Verification usually takes a few minutes. See [Domains](/docs/domains) for details.
 
 Until your domain is verified you can only send from addresses on domains you have verified.
 
@@ -65,7 +65,7 @@ const { id } = await stack.emails.send({
 });
 \`\`\`
 
-Snippets for Python, PHP, Go, Ruby, Java, .NET, Rust and Elixir are in the dashboard under **API Keys → Code**.
+Snippets for Python, PHP, Go, Ruby, Java, .NET, Rust and Elixir are in the dashboard under **API Keys > Code**.
 
 ## Next steps
 
@@ -93,7 +93,7 @@ The base URL is \`${BASE}\`. All requests must use HTTPS and JSON bodies (\`Cont
 | \`full_access\` | Every endpoint: emails, domains, contacts, broadcasts and more |
 | \`sending_access\` | Only send endpoints: \`POST /emails\`, \`POST /emails/batch\`, \`POST /events\` |
 
-Sending-access keys can also be **restricted to one domain**. A key restricted to \`mail.acme.com\` is rejected if it tries to send from any other domain — ideal for production services, SMTP integrations and AI agents.
+Sending-access keys can also be **restricted to one domain**. A key restricted to \`mail.acme.com\` is rejected if it tries to send from any other domain, ideal for production services, SMTP integrations and AI agents.
 
 ## Test mode
 
@@ -116,7 +116,7 @@ Keys created in test mode (\`se_test_\`) behave like live keys but are labelled 
 { "error": { "code": "validation_error", "message": "\`to\` must contain at least one recipient" } }
 \`\`\`
 
-Every response also carries an \`x-request-id\` header — include it when contacting support.
+Every response also carries an \`x-request-id\` header. Include it when contacting support.
 
 ## Status codes
 
@@ -247,7 +247,7 @@ Emails to addresses on your [suppression list](/docs/emails#suppressions) are sk
 
 ## Send a batch
 
-\`POST /v1/emails/batch\` — an array of up to 100 email objects (attachments and \`scheduled_at\` aren't supported in batches). Validation is all-or-nothing; each email is then queued independently.
+\`POST /v1/emails/batch\`: an array of up to 100 email objects (attachments and \`scheduled_at\` aren't supported in batches). Validation is all-or-nothing; each email is then queued independently.
 
 \`\`\`json
 {
@@ -272,7 +272,7 @@ The email's status is \`scheduled\` until it sends.
 
 ### Cancel
 
-\`POST /v1/emails/:id/cancel\` → \`{ "id": "msg_...", "status": "canceled" }\`.
+\`POST /v1/emails/:id/cancel\` returns \`{ "id": "msg_...", "status": "canceled" }\`.
 
 ## Retrieve an email
 
@@ -308,11 +308,11 @@ Returns \`{ "object": "list", "has_more": true, "data": [...] }\`, newest first.
 
 ## Statuses
 
-\`queued\` → \`sent\` → \`delivered\`, with \`scheduled\`, \`canceled\`, \`delivery_delayed\`, \`bounced\`, \`complained\`, \`opened\`, \`clicked\` and \`failed\` along the way.
+\`queued\`, then \`sent\`, then \`delivered\`, with \`scheduled\`, \`canceled\`, \`delivery_delayed\`, \`bounced\`, \`complained\`, \`opened\`, \`clicked\` and \`failed\` along the way.
 
 ## Suppressions
 
-Addresses that hard-bounce or file a spam complaint are added to your team's suppression list, and later sends to them are skipped. Manage the list in **Emails → Suppressions**.`,
+Addresses that hard-bounce or file a spam complaint are added to your team's suppression list, and later sends to them are skipped. Manage the list in **Emails > Suppressions**.`,
   },
   {
     slug: "domains",
@@ -366,7 +366,7 @@ See the [SPF, DKIM and DMARC guide](/blog/spf-dkim-dmarc-setup-guide) for provid
 
 ## Create or update a contact
 
-\`POST /v1/contacts\` — creates the contact, or updates it if the email already exists (\`201\` created, \`200\` updated).
+\`POST /v1/contacts\`: creates the contact, or updates it if the email already exists (\`201\` created, \`200\` updated).
 
 \`\`\`json
 {
@@ -382,9 +382,9 @@ See the [SPF, DKIM and DMARC guide](/blog/spf-dkim-dmarc-setup-guide) for provid
 
 \`/v1/contacts/:id\` accepts a contact id **or** an email address.
 
-- \`GET\` — returns the contact.
-- \`PATCH\` — any of \`first_name\`, \`last_name\`, \`unsubscribed\`, \`properties\`, \`segment_ids\`, and \`topics: [{ topic_id, subscription: "opt_in" | "opt_out" }]\`.
-- \`DELETE\` — permanently removes the contact.
+- \`GET\`: returns the contact.
+- \`PATCH\`: any of \`first_name\`, \`last_name\`, \`unsubscribed\`, \`properties\`, \`segment_ids\`, and \`topics: [{ topic_id, subscription: "opt_in" | "opt_out" }]\`.
+- \`DELETE\`: permanently removes the contact.
 
 \`\`\`json
 {
@@ -409,7 +409,7 @@ See the [SPF, DKIM and DMARC guide](/blog/spf-dkim-dmarc-setup-guide) for provid
 
 Define custom fields once and use them in merge tags like \`{{contact.plan}}\`.
 
-- \`POST /v1/contact-properties\` — \`{ "key": "plan", "label": "Plan", "type": "string", "fallback_value": "free" }\`. Keys are snake_case; \`type\` is \`string\`, \`number\`, \`boolean\` or \`date\`.
+- \`POST /v1/contact-properties\`: \`{ "key": "plan", "label": "Plan", "type": "string", "fallback_value": "free" }\`. Keys are snake_case; \`type\` is \`string\`, \`number\`, \`boolean\` or \`date\`.
 - \`GET /v1/contact-properties\``,
   },
   {
@@ -421,16 +421,16 @@ Define custom fields once and use them in merge tags like \`{{contact.plan}}\`.
 
 Segments are named groups of contacts used as broadcast targets.
 
-- \`POST /v1/segments\` — \`{ "name": "Beta users", "description": "..." }\`
-- \`GET /v1/segments\` — includes \`contacts\` and \`unsubscribed\` counts
+- \`POST /v1/segments\`: \`{ "name": "Beta users", "description": "..." }\`
+- \`GET /v1/segments\`: includes \`contacts\` and \`unsubscribed\` counts
 - \`GET /v1/segments/:id\`
-- \`DELETE /v1/segments/:id\` — contacts are kept; they're just removed from the segment
+- \`DELETE /v1/segments/:id\`: contacts are kept; they're just removed from the segment
 
 ## Topics
 
-Topics let contacts choose *what* they receive — for example "Product updates" vs "Security notices" — instead of unsubscribing from everything.
+Topics let contacts choose *what* they receive, for example "Product updates" vs "Security notices", instead of unsubscribing from everything.
 
-- \`POST /v1/topics\` — \`{ "name": "Product updates", "default_subscription": "opt_in" | "opt_out", "visibility": "public" | "private" }\`
+- \`POST /v1/topics\`: \`{ "name": "Product updates", "default_subscription": "opt_in" | "opt_out", "visibility": "public" | "private" }\`
 - \`GET /v1/topics\`
 - \`PATCH /v1/topics/:id\`, \`DELETE /v1/topics/:id\`
 
@@ -461,7 +461,7 @@ The HTML can use merge tags: \`{{first_name}}\`, \`{{last_name}}\`, \`{{email}}\
 
 ## Send a draft
 
-\`POST /v1/broadcasts/:id/send\` — optionally with \`{ "scheduled_at": "..." }\`. Returns the broadcast with \`queued\` and \`skipped\` counts.
+\`POST /v1/broadcasts/:id/send\`: optionally with \`{ "scheduled_at": "..." }\`. Returns the broadcast with \`queued\` and \`skipped\` counts.
 
 ## List broadcasts
 
@@ -476,7 +476,7 @@ The HTML can use merge tags: \`{{first_name}}\`, \`{{last_name}}\`, \`{{email}}\
 
 ## Send an event
 
-First create the event under **Automations → Events**, then:
+First create the event under **Automations > Events**, then:
 
 \`POST /v1/events\` (works with sending-access keys)
 
@@ -519,7 +519,7 @@ Event names may contain letters, numbers, \`.\`, \`_\`, \`:\` and \`-\` (max 80 
 | Header | Value |
 | --- | --- |
 | \`x-stackemails-event\` | Event type |
-| \`x-stackemails-event-id\` | Unique event id — use it to deduplicate |
+| \`x-stackemails-event-id\` | Unique event id. Use it to deduplicate |
 | \`x-stackemails-delivery-attempt\` | 1–6 |
 | \`x-stackemails-timestamp\` | Unix seconds |
 | \`x-stackemails-signature-v2\` | \`t=<unix>,v1=<hex hmac>\` |
@@ -561,7 +561,7 @@ Endpoints must be public HTTPS URLs; private network addresses are rejected.`,
     description: "Receive inbound email on a free address or your own domain.",
     content: `## Receiving addresses
 
-Every team has a free receiving domain shown under **Emails → Receiving** — any address at it (for example \`support@<your-key>.in.stackemails.com\`) is delivered to your team.
+Every team has a free receiving domain shown under **Emails > Receiving**: any address at it (for example \`support@<your-key>.in.stackemails.com\`) is delivered to your team.
 
 To receive on your own domain, enable receiving on a verified domain (\`PATCH /v1/domains/:id\` with \`{ "receiving": true }\`) and add the MX record it shows.
 

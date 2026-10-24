@@ -11,6 +11,7 @@ import { ReceivingAddress } from "@/components/emails/ReceivingAddress";
 import { RANGE_OPTIONS, escapeRegex, pageOf, rangeSince, PAGE_SIZE } from "@/lib/filters";
 import { receivingDomain } from "@/lib/inbound";
 import { timeAgo } from "@/lib/format";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Received emails" };
@@ -74,8 +75,8 @@ export default async function ReceivingPage({ searchParams }: { searchParams: Pr
                     </td>
                     <td className="max-w-[360px] truncate">
                       <Link href={`/emails/receiving/${e.messageId}`} className="hover:text-accent">{e.subject}</Link>
-                      <span className="text-fg-subtle"> — {e.snippet}</span>
-                      {e.attachments?.length ? <span className="ml-2 text-xs text-fg-subtle">📎 {e.attachments.length}</span> : null}
+                      <span className="text-fg-subtle"> {e.snippet}</span>
+                      {e.attachments?.length ? <span className="ml-2 text-xs text-fg-subtle"><Icon name="paperclip" size={14} className="mr-1" />{e.attachments.length}</span> : null}
                     </td>
                     <td className="hidden md:table-cell max-w-[200px] truncate text-fg-subtle">{e.to.join(", ")}</td>
                     <td className="text-right text-fg-subtle whitespace-nowrap">{timeAgo(e.createdAt)}</td>

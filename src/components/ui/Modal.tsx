@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Icon } from "@/components/ui/Icon";
+import { toastResult } from "@/lib/toast";
 
 /** Accessible modal: focus moves in on open, Esc / backdrop closes, scroll is locked. */
 export function Modal({
@@ -51,7 +53,7 @@ export function Modal({
             <h2 className="text-lg font-medium">{title}</h2>
             {description && <p className="mt-1 text-sm text-fg-muted">{description}</p>}
           </div>
-          <button type="button" className="btn btn-ghost w-8 h-8 px-0 -mr-2" onClick={onClose} aria-label="Close">✕</button>
+          <button type="button" className="btn btn-ghost w-8 h-8 px-0 -mr-2" onClick={onClose} aria-label="Close"><Icon name="x" size={16} /></button>
         </div>
         {children}
       </div>
@@ -61,7 +63,13 @@ export function Modal({
 
 /** Success / error line under forms. */
 export function FormNote({ state }: { state: { ok: boolean; error?: string; message?: string } }) {
-  if (state.error) return <p className="text-sm rounded-xl px-3 py-2" style={{ color: "var(--danger)", background: "color-mix(in srgb, var(--danger) 10%, transparent)" }}>{state.error}</p>;
-  if (state.ok && state.message) return <p className="text-sm rounded-xl px-3 py-2" style={{ color: "var(--success)", background: "color-mix(in srgb, var(--success) 10%, transparent)" }}>{state.message}</p>;
+  // Every new action result also raises a toast; errors stay inline next to the form.
+  const last = useRef(state);
+  useEffect(() => {
+    if (state === last.current) return;
+    last.current = state;
+    toastResult(state);
+  }, [state]);
+  if (state.error) return <p role="alert" className="flex items-start gap-2 text-sm rounded-xl px-3 py-2" style={{ color: "var(--danger)", background: "color-mix(in srgb, var(--danger) 10%, transparent)" }}><Icon name="alert" size={15} className="mt-0.5" />{state.error}</p>;
   return null;
 }

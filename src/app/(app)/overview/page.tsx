@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { RangeToggle } from "@/components/ui/RangeToggle";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { timeAgo } from "@/lib/format";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Overview" };
@@ -90,7 +91,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
         <div className="card p-6">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="card-title text-[19px]">Outcomes</h2>
-            <Link href="/metrics" className="text-fg-subtle hover:text-fg" aria-label="Open metrics">→</Link>
+            <Link href="/metrics" className="text-fg-subtle hover:text-fg" aria-label="Open metrics"><Icon name="arrow-right" size={16} /></Link>
           </div>
           <DonutChart
             centerLabel="emails"
@@ -152,12 +153,16 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
             </div>
             <ul className="mt-5 space-y-3">
               {steps.map((s) => (
-                <li key={s.label} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="flex items-center gap-2.5">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full text-[11px]" style={{ background: s.done ? "var(--lime)" : "var(--bg-hover)", color: s.done ? "#15171a" : "var(--fg-subtle)" }}>{s.done ? "✓" : ""}</span>
-                    <span className={s.done ? "text-fg-subtle line-through" : ""}>{s.label}</span>
-                  </span>
-                  {!s.done && <Link href={s.href} className="text-xs text-accent hover:underline">{s.cta}</Link>}
+                <li key={s.label} className="grid grid-cols-[20px_minmax(0,1fr)_auto] items-center gap-x-3 text-sm">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full text-[11px]" style={{ background: s.done ? "var(--lime)" : "var(--bg-hover)", color: s.done ? "#15171a" : "var(--fg-subtle)" }}>{s.done ? <Icon name="check" size={12} strokeWidth={2.6} /> : null}</span>
+                  <span className={`leading-snug ${s.done ? "text-fg-subtle line-through" : ""}`}>{s.label}</span>
+                  {s.done ? (
+                    <span className="w-[104px]" />
+                  ) : (
+                    <Link href={s.href} className="inline-flex w-[104px] items-center justify-end gap-1 whitespace-nowrap text-xs text-accent hover:underline">
+                      {s.cta} <Icon name="arrow-right" size={12} />
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

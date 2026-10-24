@@ -4,24 +4,18 @@ import Link from "next/link";
 import { DashboardMock } from "@/components/marketing/DashboardMock";
 import { CodeShowcase } from "@/components/marketing/CodeShowcase";
 import { CountUp } from "@/components/marketing/Motion";
+import { WhyBento } from "@/components/marketing/WhyBento";
 import { FAQS } from "@/lib/knowledge";
 import { absUrl, jsonLd, site } from "@/lib/site";
+import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = pageMeta({
-  title: "Stack Emails — The email API for developers",
-  description: "Send transactional and marketing email with one clean API. Verified domains, real-time webhooks, broadcasts, inbound inboxes and an MCP server for AI agents — built on Amazon SES. Free up to 3,000 emails a month.",
+  title: "Stack Emails | The email API for developers",
+  description: "Send transactional and marketing email with one clean API. Verified domains, real-time webhooks, broadcasts, inbound inboxes and an MCP server for AI agents, built on Amazon SES. Free up to 3,000 emails a month.",
   path: "/",
   absoluteTitle: true,
 });
 
-const FEATURES = [
-  { title: "Email API & SDKs", body: "One REST endpoint, idempotent sends, batch and scheduled delivery, attachments and tags. Typed Node.js SDK plus snippets for 10 languages.", href: "/features/transactional-email", icon: "M4 7h16M4 12h10M4 17h7" },
-  { title: "Deliverability built in", body: "DKIM, SPF and DMARC records generated for you, automatic suppression of bounces and complaints, and one-click unsubscribe headers Gmail requires.", href: "/blog/email-deliverability-guide", icon: "M9 12l2 2 4-4M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z" },
-  { title: "Broadcasts & audiences", body: "Contacts, segments, custom properties and subscription topics. Personalise with merge tags and schedule campaigns to the minute.", href: "/features/marketing-email", icon: "M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16M6 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" },
-  { title: "Inbound & shared inboxes", body: "Receive email on your domain or a free address, thread conversations, and reply from shared team inboxes.", href: "/features/inbound-email", icon: "M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" },
-  { title: "Webhooks that don't drop", body: "Signed, timestamped events for every delivery, open, click, bounce and inbound message — retried with backoff for up to six attempts.", href: "/features/email-webhooks", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
-  { title: "Built for AI agents", body: "A native MCP server lets Claude, Cursor and other agents send email, check delivery and manage contacts with your API key.", href: "/features/mcp-server", icon: "M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" },
-];
 
 const FACTS = [
   { value: "3,000", label: "free emails every month, no card required" },
@@ -37,7 +31,7 @@ const PIPELINE = [
   { title: "Checks", body: "Verified sender, quota, suppression list and idempotency.", icon: "M9 12l2 2 4-4M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z" },
   { title: "Queue", body: "Durable queue with retries and scheduled delivery.", icon: "M4 6h16M4 12h16M4 18h10" },
   { title: "Delivery", body: "DKIM-signed and sent through Amazon SES.", icon: "M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" },
-  { title: "Events", body: "Delivered, opened or bounced — pushed to your webhook.", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
+  { title: "Events", body: "Delivered, opened and bounced events are pushed to your webhook.", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
 ];
 
 const HOME_FAQ = FAQS.filter((f) => ["How do I send my first email?", "How do I keep my emails out of spam?", "What plans do you offer?", "Can I receive emails?", "Can I use Stack Emails with AI agents (MCP)?", "How do webhooks work and how do I verify them?"].includes(f.q));
@@ -83,14 +77,14 @@ export default function HomePage() {
         <div className="relative z-[1] m-container pt-32 pb-14 text-center sm:pt-40">
           <div className="m-enter">
             <Link href="/changelog" className="m-pill">
-              New · Inboxes &amp; an MCP server for AI agents <span aria-hidden>→</span>
+              New · Inboxes &amp; an MCP server for AI agents <Icon name="arrow-right" size={13} />
             </Link>
           </div>
           <h1 className="m-enter m-display m-h1 mx-auto mt-8 max-w-[15ch]" style={{ "--d": "80ms" } as React.CSSProperties}>
             Email for developers, <span className="m-highlight">done right.</span>
           </h1>
           <p className="m-enter m-lead mx-auto mt-7 max-w-[600px]" style={{ "--d": "160ms" } as React.CSSProperties}>
-            Send transactional and marketing email with one clean API. Verified domains, real-time webhooks and deliverability tooling — so your emails land in the inbox, not the spam folder.
+            Send transactional and marketing email with one clean API. Verified domains, real-time webhooks and deliverability tooling, so your emails land in the inbox, not the spam folder.
           </p>
           <div className="m-enter mt-9 flex flex-wrap items-center justify-center gap-3" style={{ "--d": "240ms" } as React.CSSProperties}>
             <Link href="/signup" className="m-btn m-btn-ink">Start for free</Link>
@@ -122,30 +116,7 @@ export default function HomePage() {
 
       <div className="m-container"><div className="m-divider" /></div>
 
-      {/* Statement */}
-      <section className="m-container py-20">
-        <p data-reveal className="m-eyebrow">Why Stack Emails</p>
-        <h2 data-reveal className="m-h2 mt-4 max-w-[22ch]" style={{ "--d": "80ms" } as React.CSSProperties}>Everything between your code and the <span className="m-shimmer">inbox</span> — in one place.</h2>
-        <p data-reveal className="m-lead mt-6 max-w-[680px]" style={{ "--d": "160ms" } as React.CSSProperties}>
-          Most email APIs stop at “accepted”. Stack Emails takes care of what happens next: authentication, bounce handling, suppression, unsubscribes, analytics and the webhooks your product needs to react in real time.
-        </p>
-      </section>
-
-      {/* Features */}
-      <section className="m-container pb-24">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f, i) => (
-            <Link key={f.title} href={f.href} data-reveal className="m-card m-card-hover m-spot group block" style={{ "--d": `${(i % 3) * 90}ms` } as React.CSSProperties}>
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110" style={{ background: "var(--m-highlight)" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--m-accent-ink)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={f.icon} /></svg>
-              </span>
-              <h3 className="m-h3 mt-5">{f.title}</h3>
-              <p className="m-body mt-2" style={{ color: "var(--m-muted)" }}>{f.body}</p>
-              <p className="mt-4 text-sm font-medium transition-transform group-hover:translate-x-1" style={{ color: "var(--m-ink)" }}>Learn more →</p>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <WhyBento />
 
       {/* Pipeline: request → inbox */}
       <section className="relative overflow-hidden" style={{ background: "var(--m-linen)" }}>
@@ -224,7 +195,7 @@ export default function HomePage() {
       <section className="m-container grid items-center gap-14 py-24 lg:grid-cols-2">
         <div>
           <p data-reveal className="m-eyebrow">Deliverability</p>
-          <h2 data-reveal className="m-h2 mt-4" style={{ "--d": "80ms" } as React.CSSProperties}>Land in the inbox — and stay there.</h2>
+          <h2 data-reveal className="m-h2 mt-4" style={{ "--d": "80ms" } as React.CSSProperties}>Land in the inbox and stay there.</h2>
           <p data-reveal className="m-lead mt-6" style={{ "--d": "160ms" } as React.CSSProperties}>Your sender reputation is your product&apos;s reputation. Stack Emails enforces the practices inbox providers reward, automatically.</p>
           <div data-reveal className="m-card mt-8 max-w-md !p-5" style={{ "--d": "240ms" } as React.CSSProperties} aria-label="Example authentication results">
             <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: "var(--m-faint)" }}>Authentication-Results</p>

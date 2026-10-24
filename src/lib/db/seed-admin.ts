@@ -127,14 +127,14 @@ export async function seedAdminData(): Promise<void> {
       const createdAt = monthsAgo(c.months);
       await createAccount({ name: `${c.name} Owner`, email, password: "password123", workspaceName: c.name });
       const user = await User.findOne({ email });
-      // createdAt is immutable to Mongoose updates — backdate via the raw driver.
+      // createdAt is immutable to Mongoose updates - backdate via the raw driver.
       await User.collection.updateOne({ _id: user!._id }, { $set: { createdAt } });
       const ws = await workspaceOf(user!._id);
       if (ws) {
         await Workspace.collection.updateOne({ _id: ws._id }, { $set: { createdAt } });
         await subscribe(ws, plans[c.plan], c.months, c.status);
         if (c.status === "restricted") {
-          await Workspace.updateOne({ _id: ws._id }, { $set: { restrictedReason: "High bounce rate — under review" } });
+          await Workspace.updateOne({ _id: ws._id }, { $set: { restrictedReason: "High bounce rate, under review" } });
         }
       }
     }

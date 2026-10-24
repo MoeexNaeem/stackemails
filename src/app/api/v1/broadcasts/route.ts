@@ -22,7 +22,7 @@ const createSchema = z.object({
   scheduled_at: z.string().datetime({ offset: true }).optional(),
 });
 
-// POST /v1/broadcasts — create a broadcast; with send:true (or scheduled_at) it goes out right away.
+// POST /v1/broadcasts - create a broadcast; with send:true (or scheduled_at) it goes out right away.
 export const POST = apiRoute({ endpoint: "/broadcasts" }, async ({ workspace, body }) => {
   const input = await body(createSchema);
   const segmentId = input.segment_id ?? input.audience_id;

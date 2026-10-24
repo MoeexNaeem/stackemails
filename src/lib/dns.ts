@@ -12,7 +12,7 @@ export interface DnsRecordSpec {
  * sending (same model Resend uses):
  *  - DKIM: 3 CNAMEs → *.dkim.amazonses.com (Easy DKIM, 2048-bit)
  *  - SPF on a dedicated MAIL FROM subdomain ("send.<domain>"): an MX for
- *    bounce feedback + a TXT include — so it never clashes with the root SPF
+ *    bounce feedback + a TXT include - so it never clashes with the root SPF
  *  - DMARC: starter monitoring policy (customers can tighten to quarantine/reject)
  *  - Receiving (optional): root MX → SES inbound endpoint
  */

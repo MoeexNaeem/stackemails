@@ -25,7 +25,7 @@ export function isPrivateIp(ip: string): boolean {
 /**
  * Validate an outbound URL we will call on a customer's behalf (webhooks).
  * HTTPS only in production, no credentials in the URL, and every resolved
- * address must be public — blocks SSRF into internal networks and metadata.
+ * address must be public - blocks SSRF into internal networks and metadata.
  */
 export async function assertPublicUrl(raw: string): Promise<{ ok: true; url: URL } | { ok: false; reason: string }> {
   let url: URL;

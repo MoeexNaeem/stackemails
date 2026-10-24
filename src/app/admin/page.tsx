@@ -8,6 +8,7 @@ import { StatCard, pctChange } from "@/components/ui/StatCard";
 import { AreaChart, DonutChart, PillBarChart } from "@/components/ui/Charts";
 import { RangeToggle } from "@/components/ui/RangeToggle";
 import { timeAgo } from "@/lib/format";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Overview" };
@@ -63,16 +64,16 @@ export default async function AdminOverviewPage({ searchParams }: { searchParams
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[28px] font-normal tracking-[-0.02em]">Platform overview</h1>
-          <p className="mt-1 text-sm text-fg-muted">Every team, every email — across Stack Emails.</p>
+          <p className="mt-1 text-sm text-fg-muted">Every team and every email across Stack Emails.</p>
         </div>
         <RangeToggle value={range} options={[{ value: "7d", label: "7 days" }, { value: "1m", label: "1 month" }, { value: "3m", label: "3 months" }]} />
       </div>
 
       {(openTickets > 0 || newMessages > 0 || failedSystem > 0) && (
         <div className="flex flex-wrap gap-2">
-          {openTickets > 0 && <Link href="/admin/support?status=open" className="btn btn-secondary btn-sm">{openTickets} open ticket{openTickets === 1 ? "" : "s"} →</Link>}
-          {newMessages > 0 && <Link href="/admin/messages?status=new" className="btn btn-secondary btn-sm">{newMessages} new message{newMessages === 1 ? "" : "s"} →</Link>}
-          {failedSystem > 0 && <Link href="/admin/system-emails?status=failed" className="btn btn-secondary btn-sm" style={{ color: "var(--danger)" }}>{failedSystem} failed system email{failedSystem === 1 ? "" : "s"} →</Link>}
+          {openTickets > 0 && <Link href="/admin/support?status=open" className="btn btn-secondary btn-sm">{openTickets} open ticket{openTickets === 1 ? "" : "s"} <Icon name="arrow-right" size={14} /></Link>}
+          {newMessages > 0 && <Link href="/admin/messages?status=new" className="btn btn-secondary btn-sm">{newMessages} new message{newMessages === 1 ? "" : "s"} <Icon name="arrow-right" size={14} /></Link>}
+          {failedSystem > 0 && <Link href="/admin/system-emails?status=failed" className="btn btn-secondary btn-sm" style={{ color: "var(--danger)" }}>{failedSystem} failed system email{failedSystem === 1 ? "" : "s"} <Icon name="arrow-right" size={14} /></Link>}
         </div>
       )}
 
@@ -113,10 +114,10 @@ export default async function AdminOverviewPage({ searchParams }: { searchParams
         <div className="card overflow-hidden">
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
             <h2 className="card-title">Needs attention</h2>
-            <Link href="/admin/support" className="text-sm text-fg-muted hover:text-fg">All tickets →</Link>
+            <Link href="/admin/support" className="text-sm text-fg-muted hover:text-fg">All tickets <Icon name="arrow-right" size={14} /></Link>
           </div>
           {recentTickets.length === 0 ? (
-            <p className="px-5 pb-6 text-sm text-fg-muted">Inbox zero — no open tickets. 🎉</p>
+            <p className="px-5 pb-6 text-sm text-fg-muted">Inbox zero. No open tickets right now.</p>
           ) : (
             <ul>
               {recentTickets.map((t) => (
@@ -137,7 +138,7 @@ export default async function AdminOverviewPage({ searchParams }: { searchParams
       <div className="card overflow-hidden">
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <h2 className="card-title">Recent teams</h2>
-          <Link href="/admin/users" className="text-sm text-fg-muted hover:text-fg">View all →</Link>
+          <Link href="/admin/users" className="text-sm text-fg-muted hover:text-fg">View all <Icon name="arrow-right" size={14} /></Link>
         </div>
         <table className="table">
           <tbody>

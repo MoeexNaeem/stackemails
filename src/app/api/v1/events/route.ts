@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * POST /v1/events — record a custom event for a contact and run every active
+ * POST /v1/events - record a custom event for a contact and run every active
  * automation triggered by it. Body: { name, email, data? }
  * The contact is created if it doesn't exist yet.
  */
@@ -25,7 +25,7 @@ export const POST = apiRoute({ endpoint: "/events", sending: true, limit: 50 }, 
     { $inc: { received: 1 }, $set: { lastReceivedAt: new Date() } },
     { returnDocument: "after" },
   );
-  if (!def) apiFail(404, "event_not_found", `Unknown event "${input.name}". Create it under Automations → Events first.`);
+  if (!def) apiFail(404, "event_not_found", `Unknown event "${input.name}". Create it under Automations > Events first.`);
 
   const { contact } = await upsertContact(workspace._id, { email: input.email, source: "api" });
   const scheduled = await runAutomations(workspace._id, contact, { type: "event", name: input.name, data: input.data });

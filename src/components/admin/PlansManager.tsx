@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { savePlanAction, deletePlanAction, type AdminState } from "@/app/admin/actions";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 export type PlanView = {
   id: string;
@@ -33,8 +34,8 @@ export function PlansManager({ plans }: { plans: PlanView[] }) {
     }
   }, [state, router]);
 
-  function remove(id: string) {
-    if (!confirm("Delete this plan? Existing subscribers keep their current quotas.")) return;
+  async function remove(id: string) {
+    if (!(await confirmDialog("Delete this plan? Existing subscribers keep their current quotas."))) return;
     start(async () => {
       await deletePlanAction(id);
       router.refresh();

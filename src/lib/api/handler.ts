@@ -19,7 +19,7 @@ export function withApi<C = unknown>(handler: RouteHandler<C>): RouteHandler<C> 
           { status: err.status },
         );
       }
-      console.error(`[api] ${req.method} ${new URL(req.url).pathname} — unhandled error:`, err);
+      console.error(`[api] ${req.method} ${new URL(req.url).pathname}, unhandled error:`, err);
       return NextResponse.json(
         { error: { code: "server_error", message: "Something went wrong on our end." } },
         { status: 500 },

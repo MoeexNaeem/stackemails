@@ -8,6 +8,7 @@ import { Contact, ContactProperty, EmailLog, Segment, Topic } from "@/lib/db/mod
 import { isSubscribedToTopic, unsubscribeUrls } from "@/lib/contacts";
 import { ContactEditor } from "@/components/audience/ContactEditor";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Contact" };
@@ -30,7 +31,7 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
 
   return (
     <div>
-      <Link href="/audience" className="text-sm text-fg-subtle hover:text-fg">← Contacts</Link>
+      <Link href="/audience" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Contacts</Link>
       <div className="mt-3 mb-6 flex flex-wrap items-center gap-3">
         <h2 className="text-xl font-normal">{contact.email}</h2>
         <span className={`badge ${contact.unsubscribed ? "delta-down" : "delta-up"}`}>{contact.unsubscribed ? "Unsubscribed" : "Subscribed"}</span>
@@ -57,7 +58,7 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
           <div className="card p-5">
             <p className="card-title mb-3">Preference page</p>
             <p className="text-xs text-fg-subtle mb-2">The hosted page this contact sees from the unsubscribe link.</p>
-            <a href={unsubscribeUrls(contact._id).page} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">Open preference page ↗</a>
+            <a href={unsubscribeUrls(contact._id).page} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">Open preference page <Icon name="arrow-up-right" size={14} /></a>
           </div>
           <div className="card overflow-hidden">
             <p className="card-title px-5 pt-4 pb-2">Recent emails</p>

@@ -6,6 +6,7 @@ import { Modal, FormNote } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/StatusBadge";
 import { createTicketAction, replyTicketAction, type SupportState } from "@/app/(app)/support-actions";
 import { timeAgo } from "@/lib/format";
+import { Icon } from "@/components/ui/Icon";
 
 type Ticket = { id: string; number: number; subject: string; status: string; category: string; lastActivityAt: string; messages: { author: string; name: string; body: string; at: string }[] };
 const initial: SupportState = { ok: false };
@@ -33,7 +34,7 @@ export function HelpCenter({ tickets, faqs }: { tickets: Ticket[]; faqs: { q: st
       <div className="card flex flex-wrap items-center justify-between gap-4 p-6">
         <div>
           <p className="text-lg font-normal">Need help with something?</p>
-          <p className="text-sm text-fg-muted">Human support team available — we usually reply within one business day.</p>
+          <p className="text-sm text-fg-muted">Human support team available. We usually reply within one business day.</p>
         </div>
         <button className="btn btn-primary" onClick={() => setCreating(true)}>+ New ticket</button>
       </div>
@@ -46,7 +47,7 @@ export function HelpCenter({ tickets, faqs }: { tickets: Ticket[]; faqs: { q: st
           <input className="input input-pill mt-4" placeholder="Search the knowledge base…" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search the knowledge base" />
           <div className="mt-3 divide-y divide-[var(--border)]">
             {results.length === 0 ? (
-              <p className="py-3 text-sm text-fg-subtle">No answers found — open a ticket and we&apos;ll help.</p>
+              <p className="py-3 text-sm text-fg-subtle">No answers found. Open a ticket and we&apos;ll help.</p>
             ) : (
               results.map((f) => (
                 <details key={f.q} className="group py-2.5">
@@ -59,15 +60,15 @@ export function HelpCenter({ tickets, faqs }: { tickets: Ticket[]; faqs: { q: st
               ))
             )}
           </div>
-          <Link href="/blog" className="mt-3 inline-block text-sm text-accent hover:underline">Read guides ↗</Link>
+          <Link href="/blog" className="mt-3 inline-block text-sm text-accent hover:underline">Read guides <Icon name="arrow-up-right" size={14} /></Link>
         </div>
         <div className="card p-6">
           <p className="text-lg font-normal">Stack Emails for agents</p>
           <p className="text-sm text-fg-muted">Connect Claude, Cursor and other agents with the MCP server, SDK and API.</p>
           <div className="mt-4 space-y-2 text-sm">
-            <Link href="/settings/integrations" className="block rounded-xl border border-border px-4 py-3 hover:bg-bg-hover">MCP server setup →</Link>
-            <Link href="/docs" className="block rounded-xl border border-border px-4 py-3 hover:bg-bg-hover">API reference →</Link>
-            <Link href="/onboarding" className="block rounded-xl border border-border px-4 py-3 hover:bg-bg-hover">Onboarding & code snippets →</Link>
+            <Link href="/settings/integrations" className="block rounded-xl border border-border px-4 py-3 hover:bg-bg-hover">MCP server setup <Icon name="arrow-right" size={14} /></Link>
+            <Link href="/docs" className="block rounded-xl border border-border px-4 py-3 hover:bg-bg-hover">API reference <Icon name="arrow-right" size={14} /></Link>
+            <Link href="/onboarding" className="block rounded-xl border border-border px-4 py-3 hover:bg-bg-hover">Onboarding & code snippets <Icon name="arrow-right" size={14} /></Link>
           </div>
         </div>
       </div>
@@ -118,7 +119,7 @@ export function HelpCenter({ tickets, faqs }: { tickets: Ticket[]; faqs: { q: st
                 <option value="low">Low</option>
                 <option value="normal">Normal</option>
                 <option value="high">High</option>
-                <option value="urgent">Urgent — production is down</option>
+                <option value="urgent">Urgent: production is down</option>
               </select>
             </div>
           </div>

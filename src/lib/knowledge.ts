@@ -1,7 +1,7 @@
 /**
  * Single source of truth for product knowledge. Feeds the in-app assistant
  * (system prompt + offline answers), the Help page knowledge base, the public
- * FAQ (with FAQPage JSON-LD) and llms-full.txt — so every surface says the same thing.
+ * FAQ (with FAQPage JSON-LD) and llms-full.txt - so every surface says the same thing.
  */
 export type Faq = { q: string; a: string; tags: string[]; category: "Getting started" | "Sending" | "Domains" | "Deliverability" | "Audience" | "Billing" | "Developers" | "Account" };
 
@@ -15,7 +15,7 @@ export const FAQS: Faq[] = [
   {
     category: "Domains",
     q: "How do I verify my sending domain?",
-    a: "Go to Domains → Add domain and enter the domain (a subdomain like mail.yourco.com is recommended). Add the DKIM CNAME records, the SPF TXT record on the MAIL FROM subdomain, and a DMARC TXT record at your DNS provider. Verification usually completes in minutes; DNS can take up to 48 hours. Click Verify on the domain page to re-check.",
+    a: "Go to Domains > Add domain and enter the domain (a subdomain like mail.yourco.com is recommended). Add the DKIM CNAME records, the SPF TXT record on the MAIL FROM subdomain, and a DMARC TXT record at your DNS provider. Verification usually completes in minutes; DNS can take up to 48 hours. Click Verify on the domain page to re-check.",
     tags: ["domain", "verify", "dkim", "spf", "dmarc", "dns", "cname"],
   },
   {
@@ -45,31 +45,31 @@ export const FAQS: Faq[] = [
   {
     category: "Sending",
     q: "How do idempotency keys work?",
-    a: "Send an `Idempotency-Key` header with POST /v1/emails. If the same key is seen again, the original email id is returned instead of sending twice — safe for retries after network errors.",
+    a: "Send an `Idempotency-Key` header with POST /v1/emails. If the same key is seen again, the original email id is returned instead of sending twice, so it's safe for retries after network errors.",
     tags: ["idempotency", "retry", "duplicate"],
   },
   {
     category: "Sending",
     q: "Can I receive emails?",
-    a: "Yes. Every team gets a receiving address, and you can enable receiving on your verified domain by adding an MX record. Received emails appear under Emails → Receiving and in Inboxes, and trigger the email.received webhook.",
+    a: "Yes. Every team gets a receiving address, and you can enable receiving on your verified domain by adding an MX record. Received emails appear under Emails > Receiving and in Inboxes, and trigger the email.received webhook.",
     tags: ["receive", "inbound", "mx", "inbox", "receiving"],
   },
   {
     category: "Developers",
     q: "How do webhooks work and how do I verify them?",
-    a: "Add an endpoint on the Webhooks page and choose events (email.sent, email.delivered, email.bounced, email.complained, email.opened, email.clicked, email.received, contact.created and more). Every request is signed with HMAC-SHA256 in the X-StackEmails-Signature header using your team's webhook secret — recompute the HMAC over the raw body and compare in constant time.",
+    a: "Add an endpoint on the Webhooks page and choose events (email.sent, email.delivered, email.bounced, email.complained, email.opened, email.clicked, email.received, contact.created and more). Every request is signed with HMAC-SHA256 in the X-StackEmails-Signature header using your team's webhook secret, recompute the HMAC over the raw body and compare in constant time.",
     tags: ["webhook", "signature", "hmac", "events"],
   },
   {
     category: "Developers",
     q: "Is there an SDK?",
-    a: "Yes — `npm install stackemails`, then `new StackEmails('se_live_...')` and `await client.emails.send({...})`. You can also use any HTTP client against the REST API, or SMTP (smtp.stackemails.com, ports 465/587, user `stackemails`, password = your API key).",
+    a: "Yes, `npm install stackemails`, then `new StackEmails('se_live_...')` and `await client.emails.send({...})`. You can also use any HTTP client against the REST API, or SMTP (smtp.stackemails.com, ports 465/587, user `stackemails`, password = your API key).",
     tags: ["sdk", "npm", "node", "typescript", "smtp"],
   },
   {
     category: "Developers",
     q: "Can I use Stack Emails with AI agents (MCP)?",
-    a: "Yes. Stack Emails exposes an MCP server so AI tools like Claude can send emails, list emails and manage contacts on your behalf. See Settings → Integrations → MCP server for the endpoint and configuration.",
+    a: "Yes. Stack Emails exposes an MCP server so AI tools like Claude can send emails, list emails and manage contacts on your behalf. See Settings > Integrations > MCP server for the endpoint and configuration.",
     tags: ["mcp", "agents", "ai", "claude"],
   },
   {
@@ -81,7 +81,7 @@ export const FAQS: Faq[] = [
   {
     category: "Audience",
     q: "How do I import contacts?",
-    a: "Go to Audience → Contacts → Import contacts and upload a CSV with an email column (first_name, last_name and any property columns are optional). Duplicates are merged, invalid addresses are skipped, and you'll see a summary when the import completes.",
+    a: "Go to Audience > Contacts > Import contacts and upload a CSV with an email column (first_name, last_name and any property columns are optional). Duplicates are merged, invalid addresses are skipped, and you'll see a summary when the import completes.",
     tags: ["import", "csv", "contacts", "upload"],
   },
   {
@@ -93,19 +93,19 @@ export const FAQS: Faq[] = [
   {
     category: "Billing",
     q: "What happens if I hit my quota?",
-    a: "Sends beyond your daily or monthly allowance return 429 quota_exceeded until the window resets. Upgrade on Settings → Billing for more volume — upgrades take effect immediately.",
+    a: "Sends beyond your daily or monthly allowance return 429 quota_exceeded until the window resets. Upgrade on Settings > Billing for more volume. Upgrades take effect immediately.",
     tags: ["quota", "limit", "upgrade", "exceeded"],
   },
   {
     category: "Account",
     q: "How do I invite teammates?",
-    a: "Go to Settings → Team → Invite, enter their email and pick a role (Admin or Member). They'll receive an invitation email; once accepted they can access the team's emails, domains and settings according to their role.",
+    a: "Go to Settings > Team > Invite, enter their email and pick a role (Admin or Member). They'll receive an invitation email; once accepted they can access the team's emails, domains and settings according to their role.",
     tags: ["team", "invite", "members", "roles"],
   },
   {
     category: "Account",
     q: "How do I contact support?",
-    a: "Open Help → New ticket in the dashboard and describe the issue. Our team replies by email, usually within one business day. You can also email support@stackemails.com.",
+    a: "Open Help > New ticket in the dashboard and describe the issue. Our team replies by email, usually within one business day. You can also email support@stackemails.com.",
     tags: ["support", "help", "ticket", "contact"],
   },
 ];
@@ -115,10 +115,10 @@ export const PRODUCT_BRIEF = `Stack Emails (stackemails.com) is an email API for
 
 Dashboard sections: Overview (KPIs and charts), Emails (Sending, Receiving, Suppressions), Templates, Audience (Contacts, Properties, Segments, Topics), Inboxes, Broadcasts, Automations (Automations, Events), Metrics, Domains, Logs, API keys, Webhooks, Settings (Usage, Billing, Team, SMTP, Integrations, Unsubscribe page, Documents, Labs), Help, Onboarding.
 
-REST API base: https://stackemails.com/v1 — auth with "Authorization: Bearer se_live_<64 hex>".
+REST API base: https://stackemails.com/v1, auth with "Authorization: Bearer se_live_<64 hex>".
 Key endpoints: POST /v1/emails (from, to, subject, html|text, cc, bcc, reply_to; optional Idempotency-Key header), GET /v1/emails, GET /v1/emails/:id, POST /v1/domains, GET /v1/domains, POST /v1/domains/:id/verify, GET/POST /v1/contacts, GET/POST /v1/segments, POST /v1/broadcasts, POST /v1/events (trigger automations).
 Error envelope: {"error":{"code","message"}} with codes like missing_api_key (401), invalid_api_key (401), domain_not_verified (403), validation_error (422), rate_limited (429), quota_exceeded (429).
-SDK: npm install stackemails → new StackEmails(key).emails.send({...}). SMTP: smtp.stackemails.com:465/587, user "stackemails", password = API key.
+SDK: npm install stackemails, then new StackEmails(key).emails.send({...}). SMTP: smtp.stackemails.com:465/587, user "stackemails", password = API key.
 
 FAQ:
 ${FAQS.map((f) => `Q: ${f.q}\nA: ${f.a}`).join("\n\n")}`;

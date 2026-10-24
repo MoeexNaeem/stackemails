@@ -81,7 +81,7 @@ export async function emailSeries(workspaceId: Types.ObjectId | null, from: Date
   return out;
 }
 
-/** UTC midnight `days-1` days ago — the first bucket of a `days`-long window ending today. */
+/** UTC midnight `days-1` days ago - the first bucket of a `days`-long window ending today. */
 export function utcWindowStart(days: number): Date {
   const d = new Date();
   d.setUTCHours(0, 0, 0, 0);

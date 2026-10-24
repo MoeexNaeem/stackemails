@@ -8,7 +8,7 @@ const PALETTES: Record<string, [string, string, string]> = {
   Guides: ["#dff1ee", "#11786a", "#15171a"],
 };
 
-/** Typographic cover used when a post has no image — consistent, fast, no CLS. */
+/** Typographic cover used when a post has no image - consistent, fast, no CLS. */
 export function PostCover({ post, size = "md" }: { post: Pick<Post, "title" | "category" | "coverImage" | "coverAlt">; size?: "md" | "lg" }) {
   if (post.coverImage) {
     return (

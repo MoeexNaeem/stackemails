@@ -66,7 +66,7 @@ export async function sendTestWebhookAction(id: string): Promise<WebhookState> {
   const done = await WebhookDelivery.findById(d._id).lean();
   revalidatePath(`/webhooks/${id}`);
   return done?.status === "success"
-    ? { ok: true, message: `Delivered — HTTP ${done.responseStatus} in ${done.durationMs}ms.` }
+    ? { ok: true, message: `Delivered: HTTP ${done.responseStatus} in ${done.durationMs}ms.` }
     : { ok: false, error: `Failed: ${done?.error ?? "unknown error"}${done?.status === "retrying" ? " (will retry)" : ""}` };
 }
 

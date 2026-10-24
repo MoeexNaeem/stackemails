@@ -25,7 +25,7 @@ export default function ChangelogPage() {
                 <span className="rounded-full px-2.5 py-1 text-[12px] font-medium" style={{ background: TAG[e.tag], color: "var(--m-head)" }}>{e.tag}</span>
                 <h2 className="m-h3 mt-3 text-[24px]">{e.title}</h2>
                 <ul className="mt-4 space-y-2.5 text-[15.5px] leading-relaxed" style={{ color: "var(--m-text)" }}>
-                  {e.items.map((i) => <li key={i} className="flex gap-3"><span style={{ color: "var(--m-faint)" }}>—</span>{i}</li>)}
+                  {e.items.map((i) => <li key={i} className="flex gap-3"><span className="mt-[10px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--m-faint)" }} />{i}</li>)}
                 </ul>
               </div>
             </li>

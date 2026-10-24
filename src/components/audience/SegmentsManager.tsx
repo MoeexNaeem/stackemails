@@ -7,6 +7,7 @@ import { Modal, FormNote } from "@/components/ui/Modal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { createSegmentAction, deleteSegmentAction, renameSegmentAction, type AudienceState } from "@/app/(app)/audience-actions";
 import { timeAgo } from "@/lib/format";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 type Row = { id: string; name: string; description: string; contacts: number; unsubscribed: number; createdAt: string };
 const initial: AudienceState = { ok: false };
@@ -66,8 +67,8 @@ export function SegmentsManager({ rows }: { rows: Row[] }) {
                     </button>
                     <button
                       className="btn btn-danger btn-sm ml-1"
-                      onClick={() => {
-                        if (!confirm(`Delete segment "${r.name}"? Contacts are kept; only the grouping is removed.`)) return;
+                      onClick={async () => {
+                        if (!(await confirmDialog(`Delete segment "${r.name}"? Contacts are kept; only the grouping is removed.`))) return;
                         start(async () => {
                           await deleteSegmentAction(r.id);
                           router.refresh();

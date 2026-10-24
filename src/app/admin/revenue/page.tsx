@@ -54,7 +54,7 @@ export default async function AdminRevenuePage() {
       </div>
 
       <div className="card p-6 mb-8">
-        <h2 className="font-semibold mb-5">Revenue — last 6 months</h2>
+        <h2 className="font-semibold mb-5">Revenue over the last 6 months</h2>
         <div className="flex items-end gap-4 h-48">
           {months.map((m) => (
             <div key={m.label} className="flex-1 flex flex-col items-center justify-end gap-2">
@@ -72,7 +72,7 @@ export default async function AdminRevenuePage() {
           <div className="space-y-3">
             {byPlan.map((p) => (
               <div key={p._id} className="flex items-center justify-between text-sm">
-                <span>{p._id || "—"}</span>
+                <span>{p._id || "-"}</span>
                 <span className="text-fg-muted">{money(p.sum)} · {p.n} txns</span>
               </div>
             ))}
@@ -85,7 +85,7 @@ export default async function AdminRevenuePage() {
             <tbody>
               {txns.map((t) => (
                 <tr key={String(t._id)} className="border-b border-border last:border-0 hover:bg-bg-hover">
-                  <td className="px-5 py-3"><Link href={`/admin/users/${t.workspaceId}`} className="font-medium hover:text-accent">{t.workspaceName || "—"}</Link></td>
+                  <td className="px-5 py-3"><Link href={`/admin/users/${t.workspaceId}`} className="font-medium hover:text-accent">{t.workspaceName || "-"}</Link></td>
                   <td className="px-5 py-3 text-fg-muted capitalize">{t.type} · {t.planName}</td>
                   <td className="px-5 py-3">{money(t.amount)}</td>
                   <td className="px-5 py-3"><StatusBadge status={t.status === "paid" ? "delivered" : "failed"} /></td>

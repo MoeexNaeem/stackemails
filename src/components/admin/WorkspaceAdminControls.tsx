@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setWorkspaceStatusAction, changeWorkspacePlanAction, deleteWorkspaceAction } from "@/app/admin/actions";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 export function WorkspaceAdminControls({
   workspaceId,
@@ -19,12 +20,12 @@ export function WorkspaceAdminControls({
   const [pending, start] = useTransition();
   const [plan, setPlan] = useState(currentPlanId);
 
-  function setStatus(s: "active" | "restricted" | "suspended") {
+  async function setStatus(s: "active" | "restricted" | "suspended") {
     let reason = "";
     if (s === "restricted") {
       reason = prompt("Reason for restricting this tenant?") || "Restricted by admin";
     } else if (s === "suspended") {
-      if (!confirm("Suspend this tenant? Their API and dashboard will be locked.")) return;
+      if (!(await confirmDialog("Suspend this tenant? Their API and dashboard will be locked."))) return;
     }
     start(async () => {
       await setWorkspaceStatusAction(workspaceId, s, reason);
@@ -40,8 +41,8 @@ export function WorkspaceAdminControls({
     });
   }
 
-  function remove() {
-    if (!confirm("Permanently DELETE this tenant and all of its data? This cannot be undone.")) return;
+  async function remove() {
+    if (!(await confirmDialog("Permanently DELETE this tenant and all of its data? This cannot be undone."))) return;
     start(async () => {
       await deleteWorkspaceAction(workspaceId);
       router.push("/admin/users");
@@ -68,7 +69,7 @@ export function WorkspaceAdminControls({
         <p className="label">Plan</p>
         <select className="input max-w-xs" value={plan} onChange={(e) => changePlan(e.target.value)} disabled={pending}>
           {plans.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}{p.price > 0 ? ` — $${p.price}/mo` : " — Free"}</option>
+            <option key={p.id} value={p.id}>{p.name}{p.price > 0 ? ` · $${p.price}/mo` : " · Free"}</option>
           ))}
         </select>
       </div>

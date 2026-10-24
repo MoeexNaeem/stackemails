@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { COMPARISONS, REVIEWED, comparisonBySlug } from "@/content/compare";
 import { CtaBand, PageHero, breadcrumbLd } from "@/components/marketing/Sections";
 import { absUrl, jsonLd, site } from "@/lib/site";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamicParams = false;
 
@@ -49,13 +50,13 @@ export default async function ComparePage({ params }: Props) {
           <div className="m-card">
             <h2 className="text-[17px] font-semibold" style={{ color: "var(--m-head)" }}>Where {c.name} shines</h2>
             <ul className="mt-4 space-y-3">
-              {c.theyShine.map((t) => <li key={t} className="flex gap-3 text-[15px]" style={{ color: "var(--m-text)" }}><span style={{ color: "var(--m-faint)" }}>—</span>{t}</li>)}
+              {c.theyShine.map((t) => <li key={t} className="flex gap-3 text-[15px]" style={{ color: "var(--m-text)" }}><span className="mt-[10px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--m-faint)" }} />{t}</li>)}
             </ul>
           </div>
           <div className="m-card" style={{ borderColor: "var(--m-ink)" }}>
             <h2 className="text-[17px] font-semibold" style={{ color: "var(--m-head)" }}>Where Stack Emails is different</h2>
             <ul className="mt-4 space-y-3">
-              {c.weDiffer.map((t) => <li key={t} className="flex gap-3 text-[15px]" style={{ color: "var(--m-text)" }}><span style={{ color: "var(--m-accent)" }}>✓</span>{t}</li>)}
+              {c.weDiffer.map((t) => <li key={t} className="flex gap-3 text-[15px]" style={{ color: "var(--m-text)" }}><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{t}</li>)}
             </ul>
           </div>
         </div>
@@ -84,7 +85,7 @@ export default async function ComparePage({ params }: Props) {
           </table>
         </div>
         <p className="mt-4 text-[13px]" style={{ color: "var(--m-faint)" }}>
-          Last reviewed {REVIEWED} from public documentation. Products change — check {c.name}&apos;s website for current features and pricing. “Check vendor” means we couldn&apos;t confirm it from public docs.
+          Last reviewed {REVIEWED} from public documentation. Products change. Check {c.name}&apos;s website for current features and pricing. “Check vendor” means we couldn&apos;t confirm it from public docs.
         </p>
       </section>
 

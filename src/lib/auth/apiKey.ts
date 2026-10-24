@@ -6,7 +6,7 @@ import { env } from "@/lib/env";
  * API key format:  se_<mode>_<32 random bytes as hex>
  * e.g.  se_live_5f3c...   (72 chars total)
  *
- * We never store the raw key — only sha256(secret + rawKey). The salt is the
+ * We never store the raw key - only sha256(secret + rawKey). The salt is the
  * app SESSION_SECRET so a leaked DB alone can't be brute-forced offline
  * without it.
  */

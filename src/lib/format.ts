@@ -1,8 +1,8 @@
-/** "3m ago", "6mo ago" — compact relative time used across tables. */
+/** "3m ago", "6mo ago" - compact relative time used across tables. */
 export function timeAgo(input: string | Date | number | null | undefined): string {
-  if (!input) return "—";
+  if (!input) return "-";
   const t = new Date(input).getTime();
-  if (Number.isNaN(t)) return "—";
+  if (Number.isNaN(t)) return "-";
   const s = Math.round((Date.now() - t) / 1000);
   const future = s < 0;
   const a = Math.abs(s);

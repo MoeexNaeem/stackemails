@@ -6,11 +6,12 @@ import { PostCard, PostCover } from "@/components/marketing/Blog";
 import { PreferredSourceLink } from "@/components/marketing/PreferredSource";
 import { formatDate } from "@/lib/blog";
 import { absUrl, jsonLd, site } from "@/lib/site";
+import { Icon } from "@/components/ui/Icon";
 
 export const revalidate = 300;
 
 export const metadata: Metadata = pageMeta({
-  title: "Blog — email deliverability, guides and product news",
+  title: "Blog: email deliverability, guides and product news",
   description: "Practical guides on email deliverability, SPF/DKIM/DMARC, transactional email, webhooks and building with the Stack Emails API.",
   path: "/blog",
 });
@@ -64,12 +65,12 @@ export default async function BlogIndex() {
               <p className="text-[13px]" style={{ color: "var(--m-faint)" }}>Featured · <time dateTime={new Date(featured.publishedAt).toISOString()}>{formatDate(featured.publishedAt)}</time> · {featured.readingMinutes} min read</p>
               <h2 className="m-h2 mt-3 transition-colors group-hover:text-[var(--m-accent)]">{featured.title}</h2>
               <p className="m-lead mt-4">{featured.excerpt}</p>
-              <p className="mt-6 text-sm font-medium" style={{ color: "var(--m-ink)" }}>Read article →</p>
+              <p className="mt-6 text-sm font-medium" style={{ color: "var(--m-ink)" }}>Read article <Icon name="arrow-right" size={14} /></p>
             </div>
           </Link>
         </section>
       ) : (
-        <section className="m-container pb-24"><p className="m-lead">No articles yet — check back soon.</p></section>
+        <section className="m-container pb-24"><p className="m-lead">No articles yet. Check back soon.</p></section>
       )}
 
       {tags.length > 0 && (

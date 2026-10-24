@@ -30,10 +30,10 @@ export function WelcomeEmail({
   return (
     <Html>
       <Head />
-      <Preview>Welcome to {product} — let&apos;s get you set up.</Preview>
+      <Preview>Welcome to {product}, let&apos;s get you set up.</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Welcome to {product} 👋</Heading>
+          <Heading style={h1}>Welcome to {product}</Heading>
           <Text style={text}>Hi {name},</Text>
           <Text style={text}>
             Thanks for signing up. We&apos;re thrilled to have you on board. Click

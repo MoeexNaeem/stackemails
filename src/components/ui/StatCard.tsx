@@ -26,7 +26,7 @@ export function StatCard({
   trend?: number[];
 }) {
   let cls = "delta-flat";
-  let text = "—";
+  let text = "-";
   if (delta !== undefined && delta !== null) {
     const good = invert ? delta < 0 : delta > 0;
     cls = Math.abs(delta) < 0.05 ? "delta-flat" : good ? "delta-up" : "delta-down";

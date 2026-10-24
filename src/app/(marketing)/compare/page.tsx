@@ -5,8 +5,8 @@ import { COMPARISONS } from "@/content/compare";
 import { CtaBand, PageHero } from "@/components/marketing/Sections";
 
 export const metadata: Metadata = pageMeta({
-  title: "Compare email APIs — Stack Emails alternatives",
-  description: "How Stack Emails compares with Resend, SendGrid, Amazon SES, Mailgun and Postmark — honest, feature-by-feature.",
+  title: "Compare email APIs: Stack Emails alternatives",
+  description: "How Stack Emails compares with Resend, SendGrid, Amazon SES, Mailgun and Postmark. Honest and feature by feature.",
   path: "/compare",
 });
 

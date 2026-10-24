@@ -1,6 +1,8 @@
+import { LogoMark } from "@/components/Logo";
+
 /**
  * Static, decorative rendition of the Stack Emails dashboard (Monera style)
- * used on marketing pages. Pure HTML/CSS — crisp at any size, no images.
+ * used on marketing pages. Pure HTML/CSS - crisp at any size, no images.
  */
 const BARS = [38, 55, 72, 46, 92, 18, 24];
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -8,7 +10,7 @@ const ROWS = [
   { to: "ada@lovelace.dev", subject: "Your login code: 482 913", status: "Delivered", c: "#34d399" },
   { to: "grace@cobol.io", subject: "Receipt for order #10482", status: "Delivered", c: "#34d399" },
   { to: "linus@kernel.org", subject: "Reset your password", status: "Opened", c: "#c6f04f" },
-  { to: "margaret@apollo.space", subject: "Welcome to Acme 👋", status: "Sent", c: "#b77fe0" },
+  { to: "margaret@apollo.space", subject: "Welcome to Acme", status: "Sent", c: "#b77fe0" },
 ];
 
 export function DashboardMock() {
@@ -17,7 +19,7 @@ export function DashboardMock() {
       <div className="flex">
         <aside className="hidden w-[190px] shrink-0 border-r p-4 sm:block" style={{ background: "#141415", borderColor: "#27272d" }}>
           <div className="mb-6 flex items-center gap-2 text-[13px] font-medium">
-            <span className="h-5 w-5 rounded-md" style={{ background: "linear-gradient(135deg,#c6f04f,#b77fe0)" }} />
+            <LogoMark size={20} />
             Stack Emails
           </div>
           {["Overview", "Emails", "Templates", "Audience", "Broadcasts", "Automations", "Metrics", "Domains"].map((l, i) => (
@@ -50,8 +52,11 @@ export function DashboardMock() {
               <p className="mb-3 text-[13px]">Sending volume <span className="ml-1 rounded-full px-1.5 py-0.5 text-[9.5px]" style={{ background: "rgba(34,197,94,.16)", color: "#4ade80" }}>+12.4%</span></p>
               <div className="flex h-[120px] items-end gap-3">
                 {BARS.map((h, i) => (
-                  <div key={i} className="flex flex-1 flex-col items-center gap-1.5">
-                    <div className="m-grow w-full max-w-[22px] rounded-full" style={{ "--i": i, height: `${h}%`, background: i === 4 ? "linear-gradient(180deg,#d9b3f0,#b77fe0)" : "linear-gradient(180deg,rgba(183,127,224,.55),rgba(183,127,224,.15))", boxShadow: i === 4 ? "0 0 22px rgba(183,127,224,.55)" : undefined } as React.CSSProperties} />
+                  <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
+                    {/* Bars need a fixed-height track: a % height inside an auto-height column collapses to 0. */}
+                    <div className="flex w-full min-h-0 flex-1 items-end justify-center">
+                      <div className="m-grow w-full max-w-[22px] rounded-full" style={{ "--i": i, height: `${h}%`, background: i === 4 ? "linear-gradient(180deg,#d9b3f0,#b77fe0)" : "linear-gradient(180deg,rgba(183,127,224,.55),rgba(183,127,224,.15))", boxShadow: i === 4 ? "0 0 22px rgba(183,127,224,.55)" : undefined } as React.CSSProperties} />
+                    </div>
                     <span className="text-[9.5px]" style={{ color: "#71717a" }}>{DAYS[i]}</span>
                   </div>
                 ))}

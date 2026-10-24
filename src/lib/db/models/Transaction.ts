@@ -1,7 +1,7 @@
 import { Schema, model, models, type InferSchemaType, type Model } from "mongoose";
 import type { BaseFields } from "./_shared";
 
-/** A billing event (revenue line) — what the admin "earnings" views are built on. */
+/** A billing event (revenue line) - what the admin "earnings" views are built on. */
 const TransactionSchema = new Schema(
   {
     workspaceId: { type: Schema.Types.ObjectId, ref: "Workspace", required: true, index: true },

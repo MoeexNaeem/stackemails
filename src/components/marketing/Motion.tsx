@@ -43,10 +43,26 @@ function whenSeen(el: Element, cb: () => void, threshold = 0.12): () => void {
   return cleanup;
 }
 
+const EASE = "cubic-bezier(0.2, 0.7, 0.2, 1)";
+
+/** Play the reveal with the Web Animations API: no attribute or class changes, so no hydration mismatches. */
+function reveal(el: HTMLElement) {
+  const delay = parseFloat(getComputedStyle(el).getPropertyValue("--d")) || 0;
+  const kind = el.getAttribute("data-reveal");
+  const from = kind === "fade" ? "none" : kind === "zoom" ? "scale(0.96)" : "translate3d(0, 28px, 0)";
+  el.animate([{ opacity: 0, transform: from }, { opacity: 1, transform: "none" }], { duration: 800, delay, easing: EASE, fill: "both" });
+  el.querySelectorAll<HTMLElement>(".m-grow").forEach((g, i) =>
+    g.animate([{ transform: "scaleY(0.05)" }, { transform: "scaleY(1)" }], { duration: 1100, delay: delay + 250 + i * 90, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "both" }),
+  );
+  el.querySelectorAll<HTMLElement>(".m-check").forEach((c, i) =>
+    c.animate([{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: "none" }], { duration: 500, delay: delay + 450 + i * 180, easing: "cubic-bezier(0.3, 1.6, 0.5, 1)", fill: "both" }),
+  );
+}
+
 /**
  * Runs once in the marketing layout:
- *  - reveals `[data-reveal]` elements as they scroll into view (adds `.is-in`)
- *  - feeds the pointer position to `.m-spot` cards for the cursor glow
+ *  - reveals `[data-reveal]` elements as they scroll into view
+ *  - feeds the pointer position to the `.m-spot` cursor glow on hydrated cards
  * Elements added by client navigation are picked up via MutationObserver.
  */
 export function MotionController() {
@@ -55,15 +71,13 @@ export function MotionController() {
   useEffect(() => {
     window.__mMotion = true;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const cleanups = new Map<Element, () => void>();
+    const seen = new WeakSet<Element>();
+    const cleanups: (() => void)[] = [];
     const scan = () => {
-      document.querySelectorAll("[data-reveal]:not(.is-in)").forEach((el) => {
-        if (cleanups.has(el)) return;
-        if (reduce) {
-          el.classList.add("is-in");
-          return;
-        }
-        cleanups.set(el, whenSeen(el, () => el.classList.add("is-in")));
+      document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
+        if (seen.has(el)) return;
+        seen.add(el);
+        if (!reduce) cleanups.push(whenSeen(el, () => reveal(el)));
       });
     };
     scan();
@@ -72,7 +86,8 @@ export function MotionController() {
 
     const onMove = (ev: PointerEvent) => {
       const card = (ev.target as Element | null)?.closest?.(".m-spot") as HTMLElement | null;
-      if (!card) return;
+      // Only touch cards React has already hydrated, so inline vars never cause a mismatch.
+      if (!card || !Object.keys(card).some((k) => k.startsWith("__reactFiber"))) return;
       const r = card.getBoundingClientRect();
       card.style.setProperty("--mx", `${ev.clientX - r.left}px`);
       card.style.setProperty("--my", `${ev.clientY - r.top}px`);

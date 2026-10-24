@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import { saveTemplateAction, type ActionState } from "@/app/(app)/actions";
+import { Icon } from "@/components/ui/Icon";
 
 const initial: ActionState = { ok: false };
 
@@ -23,7 +24,7 @@ export function TemplateEditor({
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/templates" className="text-sm text-fg-muted hover:text-fg">← Templates</Link>
+        <Link href="/templates" className="text-sm text-fg-muted hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Templates</Link>
         <span className="text-fg-subtle">/</span>
         <span className="font-medium">{name}</span>
       </div>

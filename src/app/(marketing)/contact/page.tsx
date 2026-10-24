@@ -5,7 +5,7 @@ import { ContactForm } from "@/components/marketing/ContactForm";
 import { absUrl, jsonLd, site } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
-  title: "Contact us — sales and support",
+  title: "Contact us: sales and support",
   description: "Talk to the Stack Emails team about pricing, high-volume sending, partnerships or technical support.",
   path: "/contact",
 });
@@ -24,7 +24,7 @@ export default function ContactPage() {
         <div>
           <p className="m-eyebrow">Contact</p>
           <h1 className="m-display m-h1 mt-5 max-w-[12ch]">Let&apos;s <span className="m-highlight">talk.</span></h1>
-          <p className="m-lead mt-6 max-w-[460px]">Questions about pricing, volume or migrating from another provider? Send us a note — a real person replies, usually within one business day.</p>
+          <p className="m-lead mt-6 max-w-[460px]">Questions about pricing, volume or migrating from another provider? Send us a note. A real person replies, usually within one business day.</p>
           <div className="mt-10 space-y-6">
             <div>
               <p className="font-semibold" style={{ color: "var(--m-head)" }}>Already a customer?</p>

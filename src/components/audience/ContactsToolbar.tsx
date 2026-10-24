@@ -9,7 +9,7 @@ type Prop = { key: string; label: string; type: string };
 const initial: AudienceState = { ok: false };
 
 export function SegmentPicker({ segments, selected = [] }: { segments: Seg[]; selected?: string[] }) {
-  if (!segments.length) return <p className="text-xs text-fg-subtle">No segments yet — create one under Segments.</p>;
+  if (!segments.length) return <p className="text-xs text-fg-subtle">No segments yet. Create one under Segments.</p>;
   return (
     <div className="flex flex-wrap gap-1.5">
       {segments.map((s) => (
@@ -63,7 +63,7 @@ export function ContactsToolbar({ segments, properties }: { segments: Seg[]; pro
                   <label className="label" htmlFor={`p-${p.key}`}>{p.label}</label>
                   {p.type === "boolean" ? (
                     <select id={`p-${p.key}`} name={`prop_${p.key}`} className="input" defaultValue="">
-                      <option value="">—</option>
+                      <option value="">None</option>
                       <option value="true">True</option>
                       <option value="false">False</option>
                     </select>

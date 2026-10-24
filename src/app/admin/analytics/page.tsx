@@ -71,7 +71,7 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       <div className="card p-6">
-        <h2 className="font-semibold mb-5">Emails sent — last 14 days</h2>
+        <h2 className="font-semibold mb-5">Emails sent in the last 14 days</h2>
         <div className="flex items-end gap-2 h-44">
           {days.map((d, i) => (
             <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1">

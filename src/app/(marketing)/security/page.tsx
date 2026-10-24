@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
   title: "Security",
-  description: "How Stack Emails protects your account, your API keys and the email you send — and how to report a vulnerability.",
+  description: "How Stack Emails protects your account, your API keys and the email you send, and how to report a vulnerability.",
   path: "/security",
 });
 

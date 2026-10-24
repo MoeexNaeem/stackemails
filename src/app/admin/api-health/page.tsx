@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/auth/admin";
 import { connectToDatabase } from "@/lib/db/connect";
 import { ApiLog } from "@/lib/db/models";
 import { env } from "@/lib/env";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -88,7 +89,7 @@ export default async function AdminApiHealthPage() {
           {PIPELINE.map((step, i) => (
             <div key={step} className="flex items-center gap-2">
               <span className="rounded-lg px-3 py-2 text-xs font-medium text-center" style={{ background: "var(--bg-hover)", border: "1px solid var(--border-strong)" }}>{step}</span>
-              {i < PIPELINE.length - 1 && <span className="text-fg-subtle">→</span>}
+              {i < PIPELINE.length - 1 && <Icon name="chevron-right" size={14} className="text-fg-subtle" />}
             </div>
           ))}
         </div>
@@ -119,7 +120,7 @@ export default async function AdminApiHealthPage() {
 
         {/* Request volume chart */}
         <div className="card p-6">
-          <h2 className="font-semibold mb-4">Requests — last 14 days</h2>
+          <h2 className="font-semibold mb-4">Requests in the last 14 days</h2>
           <div className="flex items-end gap-2 h-40">
             {days.map((d, i) => (
               <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1">

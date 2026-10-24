@@ -43,7 +43,7 @@ export default async function StatusPage() {
         ))}
       </div>
       <p className="mt-6 text-[14px]" style={{ color: "var(--m-muted)" }}>
-        Email delivery runs on Amazon SES — see the <a className="m-link" href="https://health.aws.amazon.com/health/status" target="_blank" rel="noopener noreferrer">AWS Health Dashboard</a> for regional infrastructure status.
+        Email delivery runs on Amazon SES. See the <a className="m-link" href="https://health.aws.amazon.com/health/status" target="_blank" rel="noopener noreferrer">AWS Health Dashboard</a> for regional infrastructure status.
       </p>
     </section>
   );

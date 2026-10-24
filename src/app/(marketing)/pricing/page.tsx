@@ -6,11 +6,12 @@ import { Plan } from "@/lib/db/models";
 import { PLAN_LIMITS, fmtLimit, type PlanKey } from "@/lib/plans";
 import { CtaBand, Faq, faqLd } from "@/components/marketing/Sections";
 import { absUrl, jsonLd, site } from "@/lib/site";
+import { Icon } from "@/components/ui/Icon";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = pageMeta({
-  title: "Pricing — free email API, then pay as you grow",
+  title: "Pricing: free email API, then pay as you grow",
   description: "Stack Emails pricing: free for 3,000 emails a month, Pro at $25/month for 150,000 emails, Scale at $100/month for 1.5 million. No setup fees, no contracts.",
   path: "/pricing",
 });
@@ -43,12 +44,12 @@ const BLURB: Record<string, string> = {
 const EVERY_PLAN = ["REST API, SDK & SMTP relay", "DKIM, SPF & DMARC setup", "Automatic bounce & complaint suppression", "Signed webhooks with retries", "Broadcasts, segments & topics", "Inbound email & shared inboxes", "MCP server for AI agents", "30-day logs & analytics"];
 
 const FAQS = [
-  { q: "What counts as an email?", a: "Each recipient counts as one email — a message sent to three addresses in the To, Cc and Bcc fields counts as three. Broadcast emails count the same way." },
+  { q: "What counts as an email?", a: "Each recipient counts as one email. A message sent to three addresses in the To, Cc and Bcc fields counts as three. Broadcast emails count the same way." },
   { q: "What happens if I reach my limit?", a: "Sends beyond your daily or monthly limit are rejected with a clear quota_exceeded error, and nothing is charged. You'll see usage in the dashboard header and can upgrade at any time." },
-  { q: "How do I upgrade?", a: "Go to Settings → Billing in the dashboard and choose a plan. Our team confirms the change by email — usually within a few hours — and your new limits apply immediately." },
+  { q: "How do I upgrade?", a: "Go to Settings > Billing in the dashboard and choose a plan. Our team confirms the change by email, usually within a few hours, and your new limits apply immediately." },
   { q: "Is there a contract or setup fee?", a: "No. Plans are month-to-month and you can downgrade at any time." },
   { q: "Do you offer higher volumes?", a: "Yes. If you need more than the Scale plan, contact sales for custom volume pricing." },
-  { q: "Is the free plan really free?", a: "Yes — 3,000 emails a month (up to 100 a day), one domain and every core feature. No credit card required." },
+  { q: "Is the free plan really free?", a: "Yes, 3,000 emails a month (up to 100 a day), one domain and every core feature. No credit card required." },
 ];
 
 export default async function PricingPage() {
@@ -91,7 +92,7 @@ export default async function PricingPage() {
         <div className="relative z-[1] m-container pt-32 pb-12 text-center">
         <p className="m-eyebrow">Pricing</p>
         <h1 className="m-display m-h1 mx-auto mt-5 max-w-[16ch]">Simple pricing that <span className="m-highlight">scales with you.</span></h1>
-        <p className="m-lead mx-auto mt-6 max-w-[560px]">Start free with every feature. Upgrade when you need more volume — no contracts, no setup fees.</p>
+        <p className="m-lead mx-auto mt-6 max-w-[560px]">Start free with every feature. Upgrade when you need more volume. No contracts, no setup fees.</p>
         </div>
       </section>
 
@@ -108,11 +109,11 @@ export default async function PricingPage() {
                 <p className="mt-1.5 text-[14px]" style={{ color: "var(--m-muted)" }}>{BLURB[p.slug] ?? ""}</p>
                 <p className="m-display mt-6 text-[52px]">${p.price}<span className="text-base font-normal" style={{ color: "var(--m-muted)" }}>/month</span></p>
                 <ul className="mt-6 flex-1 space-y-2.5 text-[15px]" style={{ color: "var(--m-text)" }}>
-                  <li>✓ {p.monthly.toLocaleString()} emails / month</li>
-                  <li>✓ {p.daily.toLocaleString()} emails / day</li>
-                  <li>✓ {p.contacts.toLocaleString()} contacts</li>
-                  <li>✓ {fmtLimit(PLAN_LIMITS[(p.slug as PlanKey)]?.domains ?? 1)} domain{(PLAN_LIMITS[(p.slug as PlanKey)]?.domains ?? 1) === 1 ? "" : "s"}</li>
-                  {p.features.filter((f) => !/emails \/ month|domain/i.test(f) && !/dedicated ip/i.test(f)).map((f) => <li key={f}>✓ {f}</li>)}
+                  <li className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{p.monthly.toLocaleString()} emails / month</li>
+                  <li className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{p.daily.toLocaleString()} emails / day</li>
+                  <li className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{p.contacts.toLocaleString()} contacts</li>
+                  <li className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{fmtLimit(PLAN_LIMITS[(p.slug as PlanKey)]?.domains ?? 1)} domain{(PLAN_LIMITS[(p.slug as PlanKey)]?.domains ?? 1) === 1 ? "" : "s"}</li>
+                  {p.features.filter((f) => !/emails \/ month|domain/i.test(f) && !/dedicated ip/i.test(f)).map((f) => <li key={f} className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{f}</li>)}
                 </ul>
                 <Link href={p.price === 0 ? "/signup" : `/signup?plan=${p.slug}`} className={`m-btn mt-8 w-full ${popular ? "m-btn-ink" : "m-btn-light"}`}>
                   {p.price === 0 ? "Start for free" : `Choose ${p.name}`}
@@ -130,7 +131,7 @@ export default async function PricingPage() {
         <div className="m-container py-20">
           <h2 className="m-h2 text-[32px] sm:text-[40px]">Included on every plan</h2>
           <ul className="mt-8 grid gap-x-8 gap-y-4 text-[15px] sm:grid-cols-2 lg:grid-cols-4" style={{ color: "var(--m-text)" }}>
-            {EVERY_PLAN.map((f) => <li key={f} className="flex gap-2.5"><span style={{ color: "var(--m-accent)" }}>✓</span>{f}</li>)}
+            {EVERY_PLAN.map((f) => <li key={f} className="flex gap-2.5"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{f}</li>)}
           </ul>
 
           <div className="mt-14 overflow-x-auto rounded-[22px] border" style={{ borderColor: "var(--m-line)", background: "var(--m-surface)" }}>

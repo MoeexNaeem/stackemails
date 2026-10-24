@@ -36,7 +36,7 @@ export type SendResult =
 const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10 MB total per email
 const MAX_RECIPIENTS = 50;
 const MAX_SCHEDULE_MS = 30 * 86_400_000;
-// Headers callers may not set — they're owned by the provider / DKIM signature.
+// Headers callers may not set - they're owned by the provider / DKIM signature.
 const RESERVED_HEADERS = /^(from|to|cc|bcc|subject|reply-to|sender|return-path|date|message-id|mime-version|content-type|content-transfer-encoding|dkim-signature|received)$/i;
 
 function fail(status: number, code: string, message: string): SendResult {

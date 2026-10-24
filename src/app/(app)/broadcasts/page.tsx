@@ -68,7 +68,7 @@ export default async function BroadcastsPage({ searchParams }: { searchParams: P
                 <tr key={String(b._id)}>
                   <td className="max-w-[300px] truncate"><Link href={`/broadcasts/${b._id}`} className="font-medium hover:text-accent">{b.name || "Untitled"}</Link><p className="truncate text-xs text-fg-subtle">{b.subject}</p></td>
                   <td><StatusBadge status={b.status} />{b.status === "scheduled" && b.scheduledAt && <p className="mt-1 text-[11px] text-fg-subtle">{new Date(b.scheduledAt).toLocaleString()}</p>}</td>
-                  <td className="text-fg-muted">{b.audienceId ? segName.get(String(b.audienceId)) ?? "—" : "—"}</td>
+                  <td className="text-fg-muted">{b.audienceId ? segName.get(String(b.audienceId)) ?? "-" : "-"}</td>
                   <td className="hidden md:table-cell">{(b.stats?.recipients ?? 0).toLocaleString()}</td>
                   <td className="hidden md:table-cell text-fg-muted">{pct(b.stats?.opened ?? 0, b.stats?.recipients ?? 0)}</td>
                   <td className="text-right text-fg-subtle">{timeAgo(b.updatedAt)}</td>

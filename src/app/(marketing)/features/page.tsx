@@ -4,9 +4,10 @@ import Link from "next/link";
 import { FEATURES } from "@/content/features";
 import { CtaBand, PageHero } from "@/components/marketing/Sections";
 import { DashboardMock } from "@/components/marketing/DashboardMock";
+import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = pageMeta({
-  title: "Product — email API, broadcasts, inbound, SMTP & webhooks",
+  title: "Product: email API, broadcasts, inbound, SMTP & webhooks",
   description: "Everything Stack Emails does: transactional email API, broadcasts and audiences, inbound email and shared inboxes, SMTP relay, signed webhooks and an MCP server for AI agents.",
   path: "/features",
 });
@@ -23,7 +24,7 @@ const EXTRAS = [
 export default function FeaturesPage() {
   return (
     <>
-      <PageHero eyebrow="Product" title="One platform for every email" highlight="your product sends." lead="From a password reset to a product newsletter to a reply from a customer — Stack Emails handles sending, receiving and everything in between.">
+      <PageHero eyebrow="Product" title="One platform for every email" highlight="your product sends." lead="From a password reset to a product newsletter to a reply from a customer, Stack Emails handles sending, receiving and everything in between.">
         <Link href="/signup" className="m-btn m-btn-ink">Start for free</Link>
         <Link href="/pricing" className="m-btn m-btn-light">See pricing</Link>
       </PageHero>
@@ -35,7 +36,7 @@ export default function FeaturesPage() {
               <p className="m-eyebrow">{f.name}</p>
               <h2 className="m-h3 mt-3 text-[24px]">{f.h1} {f.highlight}</h2>
               <p className="m-body mt-3" style={{ color: "var(--m-muted)" }}>{f.lead}</p>
-              <p className="mt-5 text-sm font-medium" style={{ color: "var(--m-ink)" }}>Explore {f.name.toLowerCase()} →</p>
+              <p className="mt-5 text-sm font-medium" style={{ color: "var(--m-ink)" }}>Explore {f.name.toLowerCase()} <Icon name="arrow-right" size={14} /></p>
             </Link>
           ))}
         </div>

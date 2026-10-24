@@ -59,7 +59,7 @@ export function BlogEditor({ post, saved }: { post: EditablePost; saved?: boolea
             </div>
             <span className="text-xs text-fg-subtle">Markdown · {words.toLocaleString()} words · ~{Math.max(1, Math.round(words / 220))} min read</span>
           </div>
-          <textarea name="content" value={content} onChange={(e) => setContent(e.target.value)} rows={28} className={`mono w-full resize-y bg-transparent p-4 text-[13.5px] leading-relaxed outline-none ${tab === "write" ? "" : "hidden"}`} placeholder={"## A heading\n\nWrite in Markdown. Use ## and ### headings — they build the table of contents."} aria-label="Content (Markdown)" />
+          <textarea name="content" value={content} onChange={(e) => setContent(e.target.value)} rows={28} className={`mono w-full resize-y bg-transparent p-4 text-[13.5px] leading-relaxed outline-none ${tab === "write" ? "" : "hidden"}`} placeholder={"## A heading\n\nWrite in Markdown. Use ## and ### headings. They build the table of contents."} aria-label="Content (Markdown)" />
           {tab === "preview" && (
             <div className="mkt max-h-[720px] overflow-y-auto rounded-b-2xl p-6">
               <div className="m-prose" dangerouslySetInnerHTML={{ __html: preview || "<p>Nothing to preview yet.</p>" }} />

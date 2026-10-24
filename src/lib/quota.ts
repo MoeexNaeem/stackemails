@@ -45,8 +45,8 @@ export function assertWithinQuota(workspace: WorkspaceDoc): void {
   }
 }
 
-/** Increment usage counters for a sent email — one unit per recipient (to +
- *  cc + bcc) — rolling the daily counter at the start of a new day and the
+/** Increment usage counters for a sent email - one unit per recipient (to +
+ *  cc + bcc) - rolling the daily counter at the start of a new day and the
  *  monthly counter on the period anniversary. Approximate under concurrency,
  *  which is fine. */
 export async function recordSend(workspaceId: string, recipients = 1): Promise<void> {

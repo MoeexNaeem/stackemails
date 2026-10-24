@@ -11,7 +11,7 @@ export interface EmailQueue {
  * In-process queue. Enqueue schedules the job on the event loop and returns
  * immediately, keeping the API response fast. Mirrors BullMQ semantics with
  * exponential-backoff retries. Delayed jobs live in memory, so they don't
- * survive a restart — use BullMQ in production.
+ * survive a restart - use BullMQ in production.
  */
 class MemoryQueue implements EmailQueue {
   readonly driver = "memory";
@@ -37,7 +37,7 @@ class MemoryQueue implements EmailQueue {
 }
 
 /**
- * BullMQ queue. Only the producer lives here — jobs are consumed by the
+ * BullMQ queue. Only the producer lives here - jobs are consumed by the
  * standalone worker (`npm run worker`, see src/worker/index.ts).
  */
 class BullQueue implements EmailQueue {

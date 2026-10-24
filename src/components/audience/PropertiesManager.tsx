@@ -6,6 +6,7 @@ import { Modal, FormNote } from "@/components/ui/Modal";
 import { FilterBar } from "@/components/ui/FilterBar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { createPropertyAction, deletePropertyAction, type AudienceState } from "@/app/(app)/audience-actions";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 type Row = { id: string; key: string; label: string; type: string; fallback: string; createdAt: string };
 const initial: AudienceState = { ok: false };
@@ -61,12 +62,12 @@ export function PropertiesManager({ rows }: { rows: Row[] }) {
                   <td>{r.label}</td>
                   <td className="mono text-xs text-fg-muted">{`{{contact.${r.key}}}`}</td>
                   <td className="capitalize text-fg-muted">{r.type}</td>
-                  <td className="text-fg-subtle">{r.fallback || "—"}</td>
+                  <td className="text-fg-subtle">{r.fallback || "-"}</td>
                   <td className="text-right">
                     <button
                       className="btn btn-danger btn-sm"
-                      onClick={() => {
-                        if (!confirm(`Delete property "${r.key}"? Its values are removed from every contact.`)) return;
+                      onClick={async () => {
+                        if (!(await confirmDialog(`Delete property "${r.key}"? Its values are removed from every contact.`))) return;
                         start(async () => {
                           await deletePropertyAction(r.id);
                           router.refresh();

@@ -7,6 +7,8 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { CopyButton } from "@/components/CopyButton";
 import { deleteDomainAction, updateDomainSettingsAction, verifyDomainAction } from "@/app/(app)/domain-actions";
 import { timeAgo } from "@/lib/format";
+import { Icon } from "@/components/ui/Icon";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 type Rec = { type: string; name: string; value: string; priority: number | null; purpose: string; status: string };
 
@@ -57,7 +59,7 @@ export function DomainDetail({ domain }: { domain: DomainDetailData }) {
 
   return (
     <div>
-      <Link href="/domains" className="text-sm text-fg-subtle hover:text-fg">← Domains</Link>
+      <Link href="/domains" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Domains</Link>
       <div className="mt-4 mb-6 flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong" style={{ background: "var(--bg-card)" }}>
@@ -74,8 +76,8 @@ export function DomainDetail({ domain }: { domain: DomainDetailData }) {
           <button
             className="btn btn-danger"
             disabled={pending}
-            onClick={() => {
-              if (!confirm(`Remove ${domain.name}? You won't be able to send from it until it's added and verified again.`)) return;
+            onClick={async () => {
+              if (!(await confirmDialog(`Remove ${domain.name}? You won't be able to send from it until it's added and verified again.`))) return;
               start(async () => {
                 await deleteDomainAction(domain.id);
                 router.push("/domains");
@@ -96,7 +98,7 @@ export function DomainDetail({ domain }: { domain: DomainDetailData }) {
 
       <div className="card mb-6 p-5">
         <p className="text-sm" style={{ color: verified ? "var(--success)" : "var(--fg-muted)" }}>
-          {verified ? "✓ Domain verified — you can send from any address at this domain." : "Add the DNS records below at your DNS provider, then click Verify. Propagation can take up to 48 hours."}
+          {verified ? <><Icon name="check" size={15} className="mr-1.5" />Domain verified. You can send from any address at this domain.</> : "Add the DNS records below at your DNS provider, then click Verify. Propagation can take up to 48 hours."}
         </p>
         {domain.events.length > 0 && (
           <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -106,7 +108,7 @@ export function DomainDetail({ domain }: { domain: DomainDetailData }) {
                   <span className="badge" style={{ background: "var(--bg-hover)", color: "var(--fg-muted)" }}>{EVENT_LABEL[e.type] ?? e.type}</span>
                   <p className="mt-1 text-[11px] text-fg-subtle">{new Date(e.at).toLocaleString()}</p>
                 </div>
-                {i < domain.events.length - 1 && <span className="text-fg-subtle">→</span>}
+                {i < domain.events.length - 1 && <Icon name="chevron-right" size={14} className="text-fg-subtle" />}
               </div>
             ))}
           </div>

@@ -31,7 +31,7 @@ Marketing email must include a working unsubscribe mechanism. ${site.name} adds 
 
 ## 4. Deliverability and enforcement
 
-To protect recipients and other customers, we monitor bounce and complaint rates. We may pause, restrict or suspend sending — with notice where practical — if your account's activity threatens the Service, breaches these terms, or exceeds the thresholds set by our infrastructure providers.
+To protect recipients and other customers, we monitor bounce and complaint rates. We may pause, restrict or suspend sending, with notice where practical, if your account's activity threatens the Service, breaches these terms, or exceeds the thresholds set by our infrastructure providers.
 
 ## 5. Plans, quotas and fees
 

@@ -16,7 +16,7 @@ export type SystemEmailKind = "welcome" | "password_reset" | "password_changed" 
  * they're Stack Emails' own mail, not a customer's, and must still go out
  * when a workspace is over quota or restricted.
  *
- * Never throws — a failed system email must not fail signup or checkout.
+ * Never throws - a failed system email must not fail signup or checkout.
  */
 export async function sendSystemEmail(opts: {
   kind: SystemEmailKind;

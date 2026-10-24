@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Modal, FormNote } from "@/components/ui/Modal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { deleteTopicAction, saveTopicAction, type AudienceState } from "@/app/(app)/audience-actions";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 type Row = { id: string; name: string; description: string; defaultSubscribed: boolean; visibility: string; optedIn: number; optedOut: number };
 const initial: AudienceState = { ok: false };
@@ -54,8 +55,8 @@ export function TopicsManager({ rows }: { rows: Row[] }) {
                     <button className="btn btn-ghost btn-sm" onClick={() => setEditing(r)}>Edit</button>
                     <button
                       className="btn btn-danger btn-sm ml-1"
-                      onClick={() => {
-                        if (!confirm(`Delete topic "${r.name}"?`)) return;
+                      onClick={async () => {
+                        if (!(await confirmDialog(`Delete topic "${r.name}"?`))) return;
                         start(async () => {
                           await deleteTopicAction(r.id);
                           router.refresh();
@@ -87,15 +88,15 @@ export function TopicsManager({ rows }: { rows: Row[] }) {
             <div>
               <label className="label" htmlFor="t-def">Default subscription</label>
               <select id="t-def" name="defaultSubscription" className="input" defaultValue={current && !current.defaultSubscribed ? "opt_out" : "opt_in"}>
-                <option value="opt_in">Opt-in — subscribed by default</option>
-                <option value="opt_out">Opt-out — must opt in</option>
+                <option value="opt_in">Opt-in: subscribed by default</option>
+                <option value="opt_out">Opt-out: must opt in</option>
               </select>
             </div>
             <div>
               <label className="label" htmlFor="t-vis">Visibility</label>
               <select id="t-vis" name="visibility" className="input" defaultValue={current?.visibility ?? "public"}>
-                <option value="public">Public — on preference page</option>
-                <option value="private">Private — hidden</option>
+                <option value="public">Public: on preference page</option>
+                <option value="private">Private: hidden</option>
               </select>
             </div>
           </div>

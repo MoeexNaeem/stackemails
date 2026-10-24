@@ -158,7 +158,7 @@ export async function saveBlogPostAction(_prev: OpsState, formData: FormData): P
 
   revalidateBlog([slug, ...(oldSlug && oldSlug !== slug ? [oldSlug] : [])], [...tags, ...oldTags]);
   if (!existing) redirect(`/admin/blog/${id}?saved=1`);
-  return { ok: true, message: fields.status === "published" ? "Published — the article is live." : "Draft saved." };
+  return { ok: true, message: fields.status === "published" ? "Published. The article is live." : "Draft saved." };
 }
 
 export async function deleteBlogPostAction(id: string): Promise<void> {

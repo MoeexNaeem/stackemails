@@ -4,7 +4,7 @@ import { EmailLog } from "@/lib/db/models";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// POST /v1/emails/:id/cancel — cancel a scheduled email before it sends.
+// POST /v1/emails/:id/cancel - cancel a scheduled email before it sends.
 export const POST = apiRoute<{ id: string }>({ endpoint: "/emails/:id/cancel" }, async ({ workspace, params }) => {
   const log = await EmailLog.findOneAndUpdate(
     { workspaceId: workspace._id, messageId: params.id, status: "scheduled" },

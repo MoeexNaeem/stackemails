@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Spinner } from "@/components/ui/Icon";
+import { startNavigationProgress } from "@/components/ui/RouteProgress";
+import { toast } from "@/lib/toast";
 
 async function post(url: string, payload: unknown) {
   const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
@@ -25,6 +28,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [useRecovery, setUseRecovery] = useState(false);
 
   function go(to?: string) {
+    startNavigationProgress();
     router.push(next ?? to ?? "/overview");
     router.refresh();
   }
@@ -39,7 +43,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         const { ok, data } = await post("/api/auth/mfa", { challenge, code: payload.code });
         if (!ok) {
           if (data?.error?.code === "challenge_expired") setChallenge(null);
-          setError(data?.error?.message ?? "Invalid code.");
+          { const msg = data?.error?.message ?? "Invalid code."; setError(msg); toast.error(msg); }
           setLoading(false);
           return;
         }
@@ -47,7 +51,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       }
       const { ok, data } = await post(mode === "signup" ? "/api/auth/signup" : "/api/auth/login", payload);
       if (!ok) {
-        setError(data?.error?.message ?? "Something went wrong.");
+        { const msg = data?.error?.message ?? "Something went wrong."; setError(msg); toast.error(msg); }
         setLoading(false);
         return;
       }
@@ -81,7 +85,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             aria-label="Authentication code"
           />
           {error && <ErrorNote text={error} />}
-          <button type="submit" className="btn btn-primary w-full h-10" disabled={loading}>{loading ? "Verifying…" : "Verify"}</button>
+          <button type="submit" className="btn btn-primary w-full h-10" disabled={loading}>{loading ? <><Spinner /> Verifying</> : "Verify"}</button>
         </form>
         <button className="mt-4 w-full text-center text-sm text-accent hover:underline" onClick={() => setUseRecovery((r) => !r)}>
           {useRecovery ? "Use authenticator code instead" : "Use a recovery code"}
@@ -130,7 +134,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         )}
         {error && <ErrorNote text={error} />}
         <button type="submit" className="btn btn-primary w-full h-10" disabled={loading}>
-          {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
+          {loading ? <><Spinner /> {mode === "signup" ? "Creating your account" : "Signing in"}</> : mode === "signup" ? "Create account" : "Sign in"}
         </button>
         {mode === "signup" && (
           <p className="text-center text-xs text-fg-subtle">

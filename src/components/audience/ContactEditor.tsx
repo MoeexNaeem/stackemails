@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormNote } from "@/components/ui/Modal";
 import { SegmentPicker } from "@/components/audience/ContactsToolbar";
 import { deleteContactAction, updateContactAction, type AudienceState } from "@/app/(app)/audience-actions";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 const initial: AudienceState = { ok: false };
 
@@ -80,8 +81,8 @@ export function ContactEditor({
           type="button"
           className="btn btn-danger"
           disabled={deleting}
-          onClick={() => {
-            if (!confirm("Delete this contact? This can't be undone.")) return;
+          onClick={async () => {
+            if (!(await confirmDialog("Delete this contact? This can't be undone."))) return;
             start(async () => {
               await deleteContactAction(contact.id);
               router.push("/audience");

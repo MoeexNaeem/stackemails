@@ -7,7 +7,7 @@ import { serializeDomain } from "@/lib/api/serializers";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// POST /v1/domains/:id/verify — re-check DNS records and provider verification.
+// POST /v1/domains/:id/verify - re-check DNS records and provider verification.
 export const POST = apiRoute<{ id: string }>({ endpoint: "/domains/:id/verify" }, async ({ workspace, params }) => {
   if (!isValidObjectId(params.id)) apiFail(404, "not_found", "Domain not found.");
   const d = await Domain.findOne({ _id: params.id, workspaceId: workspace._id });

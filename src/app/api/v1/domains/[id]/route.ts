@@ -15,7 +15,7 @@ export const GET = apiRoute<{ id: string }>({ endpoint: "/domains/:id" }, async 
   return { data: serializeDomain(d, true) };
 });
 
-// PATCH /v1/domains/:id — { open_tracking?, click_tracking?, tls?: "opportunistic"|"enforced", receiving? }
+// PATCH /v1/domains/:id - { open_tracking?, click_tracking?, tls?: "opportunistic"|"enforced", receiving? }
 export const PATCH = apiRoute<{ id: string }>({ endpoint: "/domains/:id" }, async ({ workspace, params, body }) => {
   if (!isValidObjectId(params.id)) apiFail(404, "not_found", "Domain not found.");
   const input = await body(z.object({ open_tracking: z.boolean().optional(), click_tracking: z.boolean().optional(), tls: z.enum(["opportunistic", "enforced"]).optional(), receiving: z.boolean().optional() }));

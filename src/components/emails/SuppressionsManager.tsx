@@ -6,6 +6,7 @@ import { Modal, FormNote } from "@/components/ui/Modal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { addSuppressionAction, removeSuppressionAction, type EmailsState } from "@/app/(app)/emails-actions";
 import { timeAgo } from "@/lib/format";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 const COLOR: Record<string, string> = { bounce: "var(--danger)", complaint: "var(--warning)", unsubscribe: "var(--fg-subtle)", manual: "var(--info)" };
 const initial: EmailsState = { ok: false };
@@ -48,8 +49,8 @@ export function SuppressionsManager({ rows }: { rows: { id: string; email: strin
                   <td className="text-right">
                     <button
                       className="btn btn-ghost btn-sm"
-                      onClick={() => {
-                        if (!confirm(`Remove ${r.email} from suppressions? Future emails will be sent to it again.`)) return;
+                      onClick={async () => {
+                        if (!(await confirmDialog(`Remove ${r.email} from suppressions? Future emails will be sent to it again.`))) return;
                         start(async () => {
                           await removeSuppressionAction(r.id);
                           router.refresh();

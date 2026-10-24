@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setLabsFlagAction } from "@/app/(app)/settings-actions";
+import { Icon } from "@/components/ui/Icon";
 
 const FEATURES = [
   { flag: "inboxes" as const, title: "Inboxes", desc: "Shared inboxes your team and AI agents can use to send, receive, triage and reply to email. Create inboxes in the dashboard or connect agents through the MCP server.", href: "/inboxes" },
-  { flag: "assistant" as const, title: "Ask anything (AI assistant)", desc: "An in-dashboard assistant (Ctrl/⌘ K) that answers questions about sending, domains, deliverability and the API using your team's context.", href: "/overview" },
+  { flag: "assistant" as const, title: "Ask anything (AI assistant)", desc: "An in-dashboard assistant (Ctrl K or Cmd K) that answers questions about sending, domains, deliverability and the API using your team's context.", href: "/overview" },
 ];
 
 export function LabsToggles({ inboxes, assistant }: { inboxes: boolean; assistant: boolean }) {
@@ -47,7 +48,7 @@ export function LabsToggles({ inboxes, assistant }: { inboxes: boolean; assistan
               >
                 <span className="absolute top-0.5 rounded-full bg-white shadow transition-all" style={{ left: on ? 22 : 2, width: 18, height: 18 }} />
               </button>
-              <Link href={f.href} className="text-sm text-fg-muted hover:text-fg">Learn more ↗</Link>
+              <Link href={f.href} className="text-sm text-fg-muted hover:text-fg">Learn more <Icon name="arrow-up-right" size={14} /></Link>
             </div>
           </div>
         );

@@ -73,7 +73,7 @@ export function newBlock(type: BlockType): Block {
 /** A sensible starting layout for a new broadcast. */
 export function defaultBlocks(): Block[] {
   return [
-    { id: "h1", type: "heading", props: { ...BLOCK_DEFAULTS.heading, text: "Hello 👋" } },
+    { id: "h1", type: "heading", props: { ...BLOCK_DEFAULTS.heading, text: "Hello there" } },
     { id: "t1", type: "text", props: { ...BLOCK_DEFAULTS.text } },
     { id: "b1", type: "button", props: { ...BLOCK_DEFAULTS.button, text: "Get started" } },
   ];

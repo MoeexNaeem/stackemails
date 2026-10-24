@@ -18,7 +18,7 @@ export type InboxState = { ok: boolean; error?: string; message?: string };
 export async function createInboxAction(_prev: InboxState, formData: FormData): Promise<InboxState> {
   const { workspace } = await requireDashboardContext();
   await connectToDatabase();
-  if (workspace.labs?.inboxes === false) return { ok: false, error: "Inboxes are turned off in Settings → Labs." };
+  if (workspace.labs?.inboxes === false) return { ok: false, error: "Inboxes are turned off in Settings > Labs." };
 
   const local = String(formData.get("local") ?? "").trim().toLowerCase();
   const domainId = String(formData.get("domainId") ?? "");

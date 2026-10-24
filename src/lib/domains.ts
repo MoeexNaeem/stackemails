@@ -84,7 +84,7 @@ export async function createDomain(workspaceId: Types.ObjectId, input: DomainInp
   const ws = await Workspace.findById(workspaceId).select("plan").lean();
   const max = limitsFor(ws?.plan).domains;
   if ((await Domain.countDocuments({ workspaceId })) >= max) {
-    return { ok: false as const, status: 403, code: "plan_limit", message: `Your plan allows ${max} domain${max === 1 ? "" : "s"}. Upgrade on Settings → Billing to add more.` };
+    return { ok: false as const, status: 403, code: "plan_limit", message: `Your plan allows ${max} domain${max === 1 ? "" : "s"}. Upgrade on Settings > Billing to add more.` };
   }
 
   // Domains must live in the region we send from, or SES won't accept the sender.

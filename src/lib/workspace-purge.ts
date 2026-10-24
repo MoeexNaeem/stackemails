@@ -5,7 +5,7 @@ import { deleteDomain } from "@/lib/domains";
 
 /**
  * Permanently remove a workspace and everything that belongs to it.
- * Internal only — callers must have already authorised the deletion.
+ * Internal only - callers must have already authorised the deletion.
  */
 export async function purgeWorkspace(workspaceId: Types.ObjectId) {
   const domains = await M.Domain.find({ workspaceId }).select("_id").lean();

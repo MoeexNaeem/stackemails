@@ -21,8 +21,8 @@ export const STARTER_TEMPLATES: StarterTemplate[] = [
     id: "welcome",
     name: "Welcome",
     category: "Onboarding",
-    subject: "Welcome to {{product}} 👋",
-    html: shell(`    <h1 style="font-size:22px;color:#101017">Welcome to {{product}} 👋</h1>
+    subject: "Welcome to {{product}}",
+    html: shell(`    <h1 style="font-size:22px;color:#101017">Welcome to {{product}}</h1>
     <p style="color:#3c3c48;line-height:24px">Hi {{name}}, thanks for signing up. Click below to finish setting up your account.</p>
     <p style="text-align:center;margin:28px 0"><a href="{{url}}" style="background:#6366f1;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">Get started</a></p>`),
   },
@@ -61,7 +61,7 @@ export const STARTER_TEMPLATES: StarterTemplate[] = [
     id: "newsletter",
     name: "Newsletter",
     category: "Marketing",
-    subject: "{{product}} — what's new this month",
+    subject: "{{product}}: what's new this month",
     html: shell(`    <h1 style="font-size:22px;color:#101017">What's new this month</h1>
     <p style="color:#3c3c48;line-height:24px">Here are the latest updates and highlights from the team.</p>
     <ul style="color:#3c3c48;line-height:26px"><li>Feature one</li><li>Feature two</li><li>Feature three</li></ul>

@@ -43,7 +43,7 @@ export async function verifyDomainAction(id: string): Promise<DomainState> {
   const missing = domain.records.filter((r) => r.status !== "verified").length;
   return verified
     ? { ok: true, message: missing ? `Verified for sending. ${missing} optional record${missing === 1 ? "" : "s"} still pending.` : "All records verified." }
-    : { ok: false, error: `Not verified yet — ${missing} record${missing === 1 ? "" : "s"} not found in DNS. Changes can take up to 48 hours to propagate.` };
+    : { ok: false, error: `Not verified yet: ${missing} record${missing === 1 ? "" : "s"} not found in DNS. Changes can take up to 48 hours to propagate.` };
 }
 
 export async function deleteDomainAction(id: string): Promise<void> {

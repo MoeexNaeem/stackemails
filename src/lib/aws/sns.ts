@@ -32,7 +32,7 @@ function isAwsSnsUrl(raw: string | undefined, pathRe?: RegExp): boolean {
   }
 }
 
-/** SubscribeURL must point at SNS itself — never fetch arbitrary URLs (SSRF). */
+/** SubscribeURL must point at SNS itself - never fetch arbitrary URLs (SSRF). */
 export function isSafeSubscribeUrl(raw: string | undefined): boolean {
   return isAwsSnsUrl(raw);
 }

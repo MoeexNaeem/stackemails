@@ -8,6 +8,7 @@ import { SupportTicket, Workspace } from "@/lib/db/models";
 import { StaffReplyForm } from "@/components/admin/OpsForms";
 import { setTicketStatusAction } from "@/app/admin/ops-actions";
 import { timeAgo } from "@/lib/format";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Ticket" };
@@ -23,7 +24,7 @@ export default async function AdminTicketPage({ params }: { params: Promise<{ id
 
   return (
     <div className="space-y-5">
-      <Link href="/admin/support" className="text-sm text-fg-muted hover:text-fg">← Support</Link>
+      <Link href="/admin/support" className="text-sm text-fg-muted hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Support</Link>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="mono text-xs text-fg-subtle">Ticket #{t.number}</p>
@@ -58,7 +59,7 @@ export default async function AdminTicketPage({ params }: { params: Promise<{ id
         <div className="lg:sticky lg:top-6 lg:self-start">
           <StaffReplyForm id={String(t._id)} status={t.status} />
           {t.category === "billing" && /plan change/i.test(t.subject) && ws && (
-            <p className="mt-3 text-sm text-fg-muted">Plan request — change it under <Link href={`/admin/users/${ws._id}`} className="underline">the team&apos;s page → Plan</Link>, then resolve this ticket.</p>
+            <p className="mt-3 text-sm text-fg-muted">Plan request. Change it under <Link href={`/admin/users/${ws._id}`} className="underline">the team&apos;s page &gt; Plan</Link>, then resolve this ticket.</p>
           )}
         </div>
       </div>

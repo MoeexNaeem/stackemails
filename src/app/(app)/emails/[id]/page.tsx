@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { EmailPreview } from "@/components/emails/EmailPreview";
 import { CancelScheduledButton } from "@/components/emails/CancelScheduledButton";
 import { CopyButton } from "@/components/CopyButton";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Email" };
@@ -37,7 +38,7 @@ export default async function EmailDetailPage({ params }: { params: Promise<{ id
 
   return (
     <div>
-      <Link href="/emails" className="text-sm text-fg-subtle hover:text-fg">← Emails</Link>
+      <Link href="/emails" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Emails</Link>
       <div className="mt-3 mb-6 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="eyebrow">Email</p>
@@ -53,7 +54,7 @@ export default async function EmailDetailPage({ params }: { params: Promise<{ id
         <Meta label="From" value={email.from} />
         <Meta label="To" value={email.to.join(", ")} />
         <Meta label="Created" value={new Date(email.createdAt).toLocaleString()} />
-        <Meta label={email.status === "scheduled" ? "Scheduled for" : "Sent"} value={email.status === "scheduled" && email.scheduledAt ? new Date(email.scheduledAt).toLocaleString() : email.sentAt ? new Date(email.sentAt).toLocaleString() : "—"} />
+        <Meta label={email.status === "scheduled" ? "Scheduled for" : "Sent"} value={email.status === "scheduled" && email.scheduledAt ? new Date(email.scheduledAt).toLocaleString() : email.sentAt ? new Date(email.sentAt).toLocaleString() : "-"} />
         {email.cc?.length > 0 && <Meta label="Cc" value={email.cc.join(", ")} />}
         {email.bcc?.length > 0 && <Meta label="Bcc" value={email.bcc.join(", ")} />}
         {email.replyTo?.length > 0 && <Meta label="Reply-To" value={email.replyTo.join(", ")} />}
@@ -80,7 +81,7 @@ export default async function EmailDetailPage({ params }: { params: Promise<{ id
               {email.attachments?.length ? (
                 <div>
                   <p className="eyebrow mb-1.5">Attachments</p>
-                  {email.attachments.map((a, i) => <p key={i} className="text-fg-muted">📎 {a.filename} <span className="text-fg-subtle">({Math.max(1, Math.round((a.size ?? 0) / 1024))} KB)</span></p>)}
+                  {email.attachments.map((a, i) => <p key={i} className="text-fg-muted"><Icon name="paperclip" size={14} className="mr-1" />{a.filename} <span className="text-fg-subtle">({Math.max(1, Math.round((a.size ?? 0) / 1024))} KB)</span></p>)}
                 </div>
               ) : null}
               {email.tags?.length ? (

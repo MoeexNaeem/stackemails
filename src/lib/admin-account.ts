@@ -36,7 +36,7 @@ export async function syncPlatformAdmin(): Promise<{ email: string; created: boo
     created = true;
   } else if (!(await verifyPassword(password, user.passwordHash))) {
     user.passwordHash = await hashPassword(password);
-    await Session.deleteMany({ userId: user._id }); // password changed → sign out everywhere
+    await Session.deleteMany({ userId: user._id }); // password changed > sign out everywhere
   }
   user!.platformRole = "admin";
   await user!.save();

@@ -6,6 +6,7 @@ import { requireDashboardContext } from "@/lib/auth/context";
 import { connectToDatabase } from "@/lib/db/connect";
 import { ApiKey, ApiLog } from "@/lib/db/models";
 import { CopyButton } from "@/components/CopyButton";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Log" };
@@ -33,18 +34,18 @@ export default async function LogDetailPage({ params }: { params: Promise<{ id: 
 
   return (
     <div>
-      <Link href="/logs" className="text-sm text-fg-subtle hover:text-fg">← Logs</Link>
+      <Link href="/logs" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Logs</Link>
       <div className="mt-3 mb-6 flex flex-wrap items-center gap-3">
         <span className="badge mono" style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}>{log.status}</span>
         <h1 className="mono text-xl">{log.method} {log.endpoint}</h1>
       </div>
       <div className="card mb-6 grid gap-5 p-6 text-sm sm:grid-cols-2 lg:grid-cols-4">
         <Meta label="Created" value={new Date(log.createdAt).toLocaleString()} />
-        <Meta label="Duration" value={log.durationMs != null ? `${log.durationMs} ms` : "—"} />
-        <Meta label="API key" value={key ? `${key.name} (${key.keyPrefix}…)` : "—"} />
+        <Meta label="Duration" value={log.durationMs != null ? `${log.durationMs} ms` : "-"} />
+        <Meta label="API key" value={key ? `${key.name} (${key.keyPrefix}…)` : "-"} />
         <Meta label="Source" value={log.source} />
-        <Meta label="User agent" value={log.userAgent ?? "—"} />
-        <Meta label="IP" value={log.ip ?? "—"} />
+        <Meta label="User agent" value={log.userAgent ?? "-"} />
+        <Meta label="IP" value={log.ip ?? "-"} />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <Body title="Request body" body={req} />
@@ -70,7 +71,7 @@ function Body({ title, body }: { title: string; body: string | null }) {
         <p className="text-sm font-medium">{title}</p>
         {body && <CopyButton value={body} className="!px-2 !py-1" />}
       </div>
-      <pre className="mono max-h-[520px] overflow-auto p-5 text-xs leading-relaxed text-fg-muted">{body ?? "— empty —"}</pre>
+      <pre className="mono max-h-[520px] overflow-auto p-5 text-xs leading-relaxed text-fg-muted">{body ?? "(empty)"}</pre>
     </div>
   );
 }

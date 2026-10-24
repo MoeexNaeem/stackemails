@@ -7,6 +7,7 @@ import { connectToDatabase } from "@/lib/db/connect";
 import { InboundEmail, Inbox } from "@/lib/db/models";
 import { InboxView } from "@/components/inboxes/InboxView";
 import { ReceivingAddress } from "@/components/emails/ReceivingAddress";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Inbox" };
@@ -49,7 +50,7 @@ export default async function InboxPage({ params, searchParams }: { params: Prom
 
   return (
     <div>
-      <Link href="/inboxes" className="text-sm text-fg-subtle hover:text-fg">← Inboxes</Link>
+      <Link href="/inboxes" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Inboxes</Link>
       <div className="mt-3 mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[26px] font-normal tracking-tight">{inbox.name}</h1>

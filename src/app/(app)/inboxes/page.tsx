@@ -39,7 +39,7 @@ export default async function InboxesPage({ searchParams }: { searchParams: Prom
     <div>
       <PageHeader title="Inboxes" description="Dedicated addresses your team can use to send, receive, organise and reply to email." action={!disabled && <CreateInboxButton domains={domainOptions} />} />
       {disabled ? (
-        <div className="card"><EmptyState title="Inboxes are turned off" description="Turn them on in Settings → Labs."><Link href="/settings/labs" className="btn btn-primary">Open Labs</Link></EmptyState></div>
+        <div className="card"><EmptyState title="Inboxes are turned off" description="Turn them on in Settings > Labs."><Link href="/settings/labs" className="btn btn-primary">Open Labs</Link></EmptyState></div>
       ) : (
         <>
           <FilterBar fields={[{ type: "search", name: "q", placeholder: "Search…" }]} />
@@ -71,7 +71,7 @@ export default async function InboxesPage({ searchParams }: { searchParams: Prom
                         <td className="text-xs text-fg-muted">{i.receiveMode === "domain" ? "Domain MX" : <span className="mono">{i.alias}</span>}</td>
                         <td>{l?.count ?? 0}</td>
                         <td>{i.unread ? <span className="badge delta-up">{i.unread}</span> : <span className="text-fg-subtle">0</span>}</td>
-                        <td className="text-right text-fg-subtle">{l ? timeAgo(l.at) : "—"}</td>
+                        <td className="text-right text-fg-subtle">{l ? timeAgo(l.at) : "-"}</td>
                       </tr>
                     );
                   })}

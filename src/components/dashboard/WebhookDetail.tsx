@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { deleteWebhookAction, redeliverAction, sendTestWebhookAction, toggleWebhookAction } from "@/app/(app)/webhook-actions";
 import { timeAgo } from "@/lib/format";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 type Delivery = { id: string; eventId: string; eventType: string; status: string; attempts: number; responseStatus: number | null; responseBody: string; error: string; durationMs: number | null; nextRetryAt: string | null; createdAt: string; payload: string };
 const STATUS: Record<string, string> = { success: "delivered", failed: "failed", retrying: "delivery_delayed", pending: "queued" };
@@ -38,8 +39,8 @@ export function WebhookDetail({ webhook, deliveries }: { webhook: { id: string; 
           <button
             className="btn btn-danger"
             disabled={pending}
-            onClick={() => {
-              if (!confirm("Delete this endpoint?")) return;
+            onClick={async () => {
+              if (!(await confirmDialog("Delete this endpoint?"))) return;
               start(async () => {
                 await deleteWebhookAction(webhook.id);
                 router.push("/webhooks");
@@ -80,9 +81,9 @@ export function WebhookDetail({ webhook, deliveries }: { webhook: { id: string; 
                 <button className="btn btn-secondary btn-sm" disabled={pending} onClick={() => run(() => redeliverAction(current.id))}>Resend</button>
               </div>
               <div className="grid grid-cols-3 gap-3 text-sm">
-                <div><p className="eyebrow">Response</p><p className="mt-1 mono">{current.responseStatus ?? "—"}</p></div>
-                <div><p className="eyebrow">Duration</p><p className="mt-1">{current.durationMs != null ? `${current.durationMs}ms` : "—"}</p></div>
-                <div><p className="eyebrow">Next retry</p><p className="mt-1">{current.nextRetryAt ? timeAgo(current.nextRetryAt) : "—"}</p></div>
+                <div><p className="eyebrow">Response</p><p className="mt-1 mono">{current.responseStatus ?? "-"}</p></div>
+                <div><p className="eyebrow">Duration</p><p className="mt-1">{current.durationMs != null ? `${current.durationMs}ms` : "-"}</p></div>
+                <div><p className="eyebrow">Next retry</p><p className="mt-1">{current.nextRetryAt ? timeAgo(current.nextRetryAt) : "-"}</p></div>
               </div>
               {current.error && <p className="rounded-xl px-3 py-2 text-sm" style={{ color: "var(--danger)", background: "color-mix(in srgb, var(--danger) 10%, transparent)" }}>{current.error}</p>}
               <div>

@@ -7,14 +7,14 @@ import { serializeEmail } from "@/lib/api/serializers";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// GET /v1/emails/:id — retrieve one email (tenant-scoped).
+// GET /v1/emails/:id - retrieve one email (tenant-scoped).
 export const GET = apiRoute<{ id: string }>({ endpoint: "/emails/:id" }, async ({ workspace, params }) => {
   const log = await EmailLog.findOne({ workspaceId: workspace._id, messageId: params.id }).lean();
   if (!log) apiFail(404, "not_found", "Email not found.");
   return { data: serializeEmail(log, true) };
 });
 
-// PATCH /v1/emails/:id — reschedule a scheduled email. Body: { scheduled_at }
+// PATCH /v1/emails/:id - reschedule a scheduled email. Body: { scheduled_at }
 export const PATCH = apiRoute<{ id: string }>({ endpoint: "/emails/:id" }, async ({ workspace, params, body }) => {
   const { scheduled_at } = await body(z.object({ scheduled_at: z.string().datetime({ offset: true }) }));
   const when = new Date(scheduled_at);

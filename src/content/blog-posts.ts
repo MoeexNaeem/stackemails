@@ -21,14 +21,14 @@ export const SEED_POSTS: SeedPost[] = [
   {
     slug: "email-deliverability-guide",
     title: "The developer's guide to email deliverability",
-    excerpt: "Why perfectly valid emails still land in spam, and the eight things that actually move inbox placement — from authentication to list hygiene.",
+    excerpt: "Why perfectly valid emails still land in spam, and the eight things that actually move inbox placement, from authentication to list hygiene.",
     category: "Deliverability",
     tags: ["deliverability", "dkim", "spf", "dmarc", "best-practices"],
     publishedAt: "2026-09-02T09:00:00.000Z",
     featured: true,
     seoTitle: "Email deliverability guide for developers (2026)",
-    seoDescription: "A practical, no-fluff guide to email deliverability: authentication, sender reputation, bounce and complaint rates, list hygiene and content — with checklists.",
-    content: `Sending an email is easy. Getting it into the inbox is the hard part. An API can return \`200 OK\` while Gmail quietly files your password reset under *Promotions* — or worse, *Spam*. This guide covers what inbox providers actually look at, in the order it matters.
+    seoDescription: "A practical, no-fluff guide to email deliverability: authentication, sender reputation, bounce and complaint rates, list hygiene and content, with checklists.",
+    content: `Sending an email is easy. Getting it into the inbox is the hard part. An API can return \`200 OK\` while Gmail quietly files your password reset under *Promotions*: or worse, *Spam*. This guide covers what inbox providers actually look at, in the order it matters.
 
 ## 1. Authenticate every domain you send from
 
@@ -38,7 +38,7 @@ Mailbox providers will not trust mail they cannot attribute to you. Three DNS re
 - **DKIM** adds a cryptographic signature that proves the message was not altered and was sent by the domain owner.
 - **DMARC** tells receivers what to do when SPF or DKIM fail, and asks them to send you reports.
 
-Since February 2024, Gmail and Yahoo **require** SPF, DKIM and a DMARC record for anyone sending more than 5,000 messages a day to their users — and they reject unauthenticated mail far more aggressively for everyone else. Stack Emails generates all three records when you add a domain; see the [SPF, DKIM and DMARC setup guide](/blog/spf-dkim-dmarc-setup-guide) for a walkthrough.
+Since February 2024, Gmail and Yahoo **require** SPF, DKIM and a DMARC record for anyone sending more than 5,000 messages a day to their users, and they reject unauthenticated mail far more aggressively for everyone else. Stack Emails generates all three records when you add a domain; see the [SPF, DKIM and DMARC setup guide](/blog/spf-dkim-dmarc-setup-guide) for a walkthrough.
 
 ## 2. Align your From domain
 
@@ -62,7 +62,7 @@ The fastest way to reduce complaints is to make unsubscribing easier than report
 
 ## 5. Separate transactional and marketing traffic
 
-Receipts and login codes should never share a reputation with your newsletter. Use a different subdomain — for example \`mail.acme.com\` for product email and \`news.acme.com\` for campaigns — so a bad campaign cannot delay a password reset. Read more in [transactional vs marketing email](/blog/transactional-vs-marketing-email).
+Receipts and login codes should never share a reputation with your newsletter. Use a different subdomain, for example \`mail.acme.com\` for product email and \`news.acme.com\` for campaigns, so a bad campaign cannot delay a password reset. Read more in [transactional vs marketing email](/blog/transactional-vs-marketing-email).
 
 ## 6. Warm up new domains
 
@@ -91,11 +91,11 @@ Watch delivery, bounce and complaint rates per domain, and register your domain 
 | One-click unsubscribe | On all marketing email |
 | Separate subdomains | Transactional vs marketing |
 
-Deliverability is not a setting you switch on — it is the sum of many small habits. Get the foundations right and the inbox follows.`,
+Deliverability is not a setting you switch on. It is the sum of many small habits. Get the foundations right and the inbox follows.`,
   },
   {
     slug: "spf-dkim-dmarc-setup-guide",
-    title: "SPF, DKIM and DMARC explained — and how to set them up",
+    title: "SPF, DKIM and DMARC explained, and how to set them up",
     excerpt: "What each email authentication record does, how they work together, and a step-by-step setup for any DNS provider.",
     category: "Deliverability",
     tags: ["dkim", "spf", "dmarc", "dns", "domains"],
@@ -136,16 +136,16 @@ Start with \`p=none\` to collect reports without affecting delivery. Once every 
 
 ## Setting it up with Stack Emails
 
-1. In the dashboard, open **Domains → Add domain** and enter the domain (a subdomain like \`mail.acme.com\` is recommended).
+1. In the dashboard, open **Domains > Add domain** and enter the domain (a subdomain like \`mail.acme.com\` is recommended).
 2. Copy the generated records: three DKIM CNAMEs, an MX and SPF TXT record for the custom return path, and a DMARC TXT record.
-3. Add them at your DNS provider. For **Cloudflare**, set CNAMEs to *DNS only* (grey cloud). For **Hostinger** and **GoDaddy**, enter only the host part (e.g. \`abc123._domainkey\`) — the panel appends your domain. In **Route 53**, paste the full name.
+3. Add them at your DNS provider. For **Cloudflare**, set CNAMEs to *DNS only* (grey cloud). For **Hostinger** and **GoDaddy**, enter only the host part (e.g. \`abc123._domainkey\`). The panel appends your domain. In **Route 53**, paste the full name.
 4. Click **Verify**. Most providers propagate within minutes; some take up to 72 hours. Stack Emails also re-checks pending domains automatically every 10 minutes.
 
 ## Common mistakes
 
 - **Two SPF records.** Merge them; receivers treat duplicates as a permanent error.
 - **Proxying DKIM CNAMEs** through a CDN. They must resolve directly.
-- **Doubling the domain** — entering \`abc._domainkey.acme.com\` in a panel that appends \`.acme.com\` produces \`abc._domainkey.acme.com.acme.com\`.
+- **Doubling the domain**: entering \`abc._domainkey.acme.com\` in a panel that appends \`.acme.com\` produces \`abc._domainkey.acme.com.acme.com\`.
 - **Jumping straight to \`p=reject\`** before checking reports, which can block your own invoices sent from another tool.
 
 ## How to check your records
@@ -157,7 +157,7 @@ dig +short TXT _dmarc.acme.com
 dig +short CNAME abc123._domainkey.acme.com
 \`\`\`
 
-Or send yourself a test email in Gmail and choose **Show original** — you should see \`SPF: PASS\`, \`DKIM: PASS\` and \`DMARC: PASS\`.
+Or send yourself a test email in Gmail and choose **Show original**: you should see \`SPF: PASS\`, \`DKIM: PASS\` and \`DMARC: PASS\`.
 
 With all three passing and aligned you have done the single most important thing for [deliverability](/blog/email-deliverability-guide).`,
   },
@@ -205,7 +205,7 @@ The mail client sends a \`POST\` to the HTTPS URL; your server must unsubscribe 
 
 Stack Emails adds both headers to every broadcast automatically, hosts the unsubscribe endpoint, and records the opt-out against the contact (or the specific topic they unsubscribed from).
 
-## Transactional email is exempt — mostly
+## Transactional email is exempt (mostly)
 
 Password resets, receipts and security alerts do not need one-click unsubscribe. They still need authentication and still count towards your spam rate, so keep them on a separate subdomain from marketing traffic.
 
@@ -241,7 +241,7 @@ Under laws like CAN-SPAM, purely transactional messages do not require an unsubs
 
 ## What counts as marketing
 
-Marketing (or *broadcast*) email promotes something — product updates, newsletters, offers, onboarding drip campaigns. It requires consent under GDPR in the EU and a working unsubscribe mechanism almost everywhere. Since 2024, Gmail and Yahoo also require [one-click unsubscribe](/blog/gmail-yahoo-bulk-sender-requirements) for it.
+Marketing (or *broadcast*) email promotes something: product updates, newsletters, offers, onboarding drip campaigns. It requires consent under GDPR in the EU and a working unsubscribe mechanism almost everywhere. Since 2024, Gmail and Yahoo also require [one-click unsubscribe](/blog/gmail-yahoo-bulk-sender-requirements) for it.
 
 ## Why they need separate reputations
 
@@ -266,7 +266,7 @@ Keeping the two streams apart costs you ten minutes of DNS setup and protects th
   {
     slug: "send-email-nextjs",
     title: "How to send email from Next.js (App Router) in 5 minutes",
-    excerpt: "Send transactional email from a Next.js Server Action or Route Handler with the Stack Emails SDK — with React Email templates and safe retries.",
+    excerpt: "Send transactional email from a Next.js Server Action or Route Handler with the Stack Emails SDK, with React Email templates and safe retries.",
     category: "Tutorials",
     tags: ["nextjs", "react", "react-email", "tutorial", "nodejs"],
     publishedAt: "2026-09-30T09:00:00.000Z",
@@ -276,7 +276,7 @@ Keeping the two streams apart costs you ten minutes of DNS setup and protects th
 
 ## 1. Get an API key and verify a domain
 
-Create a free account, add your domain under **Domains** and add the DNS records it shows you. Then create an API key under **API Keys** — a *sending access* key scoped to that domain is ideal for production.
+Create a free account, add your domain under **Domains** and add the DNS records it shows you. Then create an API key under **API Keys**: a *sending access* key scoped to that domain is ideal for production.
 
 Add it to \`.env.local\`:
 
@@ -320,7 +320,7 @@ The SDK throws a \`StackEmailsError\` (with \`status\`, \`code\` and \`message\`
 
 ## 4. Use React Email for templates
 
-[React Email](https://react.email) lets you write emails as components. Install \`@react-email/render\` and pass the element as \`react\` — the SDK renders it to HTML for you:
+[React Email](https://react.email) lets you write emails as components. Install \`@react-email/render\` and pass the element as \`react\`: the SDK renders it to HTML for you:
 
 \`\`\`tsx
 import { WelcomeEmail } from "@/emails/welcome";
@@ -350,7 +350,7 @@ after(() => stack.emails.send(payload));
 
 Add a webhook endpoint under **Webhooks** to receive \`email.delivered\`, \`email.bounced\` and other events in a Route Handler. See [how to verify webhook signatures](/blog/email-webhooks-guide).
 
-That's it — you're sending production email from Next.js. The full API is in the [docs](/docs).`,
+That's it. You're sending production email from Next.js. The full API is in the [docs](/docs).`,
   },
   {
     slug: "email-webhooks-guide",
@@ -359,7 +359,7 @@ That's it — you're sending production email from Next.js. The full API is in t
     category: "Tutorials",
     tags: ["webhooks", "security", "tutorial", "nodejs"],
     publishedAt: "2026-10-07T09:00:00.000Z",
-    content: `An email API tells you a message was *accepted*. Webhooks tell you what happened next — delivered, bounced, opened, clicked, or marked as spam.
+    content: `An email API tells you a message was *accepted*. Webhooks tell you what happened next: delivered, bounced, opened, clicked, or marked as spam.
 
 ## Events Stack Emails sends
 
@@ -414,11 +414,11 @@ export async function POST(req: Request) {
 }
 \`\`\`
 
-Always verify against the **raw** body — re-serialising parsed JSON changes whitespace and breaks the signature.
+Always verify against the **raw** body, re-serialising parsed JSON changes whitespace and breaks the signature.
 
 ## Handle retries and duplicates
 
-If your endpoint returns anything other than a \`2xx\` within 10 seconds, Stack Emails retries with backoff — after 30 seconds, 2 minutes, 10 minutes, 1 hour and 6 hours. That means you may occasionally receive the same event twice, so:
+If your endpoint returns anything other than a \`2xx\` within 10 seconds, Stack Emails retries with backoff: after 30 seconds, 2 minutes, 10 minutes, 1 hour and 6 hours. That means you may occasionally receive the same event twice, so:
 
 - Respond quickly and do heavy work in a background job.
 - Deduplicate on the event \`id\` (also sent as the \`X-StackEmails-Event-Id\` header).
@@ -429,7 +429,7 @@ With signed, retried webhooks, your app always knows the true state of every ema
   {
     slug: "reduce-email-bounce-rate",
     title: "How to reduce your email bounce rate",
-    excerpt: "Hard bounces, soft bounces and suppression lists explained — plus seven practical ways to keep your bounce rate low.",
+    excerpt: "Hard bounces, soft bounces and suppression lists explained, plus seven practical ways to keep your bounce rate low.",
     category: "Deliverability",
     tags: ["bounces", "deliverability", "list-hygiene"],
     publishedAt: "2026-10-14T09:00:00.000Z",
@@ -440,7 +440,7 @@ With signed, retried webhooks, your app always knows the true state of every ema
 - A **hard bounce** is permanent: the mailbox does not exist, or the domain has no mail server. You should never send to that address again.
 - A **soft bounce** is temporary: the mailbox is full, the server is down, or the message was too large. These usually resolve themselves.
 
-Stack Emails only suppresses an address after a **permanent** bounce, and only the specific recipient that bounced — not every recipient on the message.
+Stack Emails only suppresses an address after a **permanent** bounce, and only the specific recipient that bounced, not every recipient on the message.
 
 ## What is a good bounce rate?
 
@@ -451,7 +451,7 @@ Aim for **under 2%**. Amazon SES places accounts under review at 5% and may paus
 1. **Validate at the point of capture.** Check syntax and catch common typos (\`gmial.com\`) in your signup form.
 2. **Use double opt-in for marketing lists.** A confirmation email proves the address is real and wanted.
 3. **Never buy or rent lists.** They are full of dead addresses and spam traps.
-4. **Respect your suppression list.** Stack Emails blocks sends to suppressed addresses automatically and shows them under *Emails → Suppressions*.
+4. **Respect your suppression list.** Stack Emails blocks sends to suppressed addresses automatically and shows them under *Emails > Suppressions*.
 5. **Sunset unengaged contacts.** Addresses that haven't opened anything in a year are likely abandoned.
 6. **Re-confirm old lists before mailing them.** If a list hasn't been used in six months, send a small batch first.
 7. **Watch bounces per domain.** A spike at one provider often points to a block, not bad addresses.
@@ -469,7 +469,7 @@ A clean list is the cheapest deliverability win there is.`,
     category: "Product",
     tags: ["mcp", "ai-agents", "claude", "product"],
     publishedAt: "2026-10-21T09:00:00.000Z",
-    content: `The **Model Context Protocol** (MCP) is an open standard for connecting AI assistants to tools. Stack Emails runs a remote MCP server, so any MCP-capable client can send email on your behalf — with the same domain checks, quotas and logs as the REST API.
+    content: `The **Model Context Protocol** (MCP) is an open standard for connecting AI assistants to tools. Stack Emails runs a remote MCP server, so any MCP-capable client can send email on your behalf, with the same domain checks, quotas and logs as the REST API.
 
 ## What agents can do
 
@@ -503,7 +503,7 @@ Agents make mistakes, so give them the least access they need:
 
 - Create a **sending access** key, which cannot read or change anything except sending.
 - **Scope the key to one domain**, so the agent can only send from, say, \`agents.acme.com\`.
-- Review everything the agent sent in **Emails** and **Logs** — MCP calls are logged like any other API request.
+- Review everything the agent sent in **Emails** and **Logs**: MCP calls are logged like any other API request.
 
 ## Example prompt
 

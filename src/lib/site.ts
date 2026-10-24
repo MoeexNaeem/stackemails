@@ -1,6 +1,6 @@
 /**
  * Public-site configuration shared by metadata, sitemaps, JSON-LD, RSS and
- * llms.txt. SITE_URL is the canonical origin search engines should index —
+ * llms.txt. SITE_URL is the canonical origin search engines should index  - 
  * it defaults to production even in dev so canonicals never point at localhost.
  */
 export const site = {
@@ -10,7 +10,7 @@ export const site = {
   domain: "stackemails.com",
   tagline: "The email API for developers",
   description:
-    "Stack Emails is the email API for developers. Send transactional and marketing email with a clean REST API, typed SDKs, verified domains, real-time webhooks and inbound inboxes — built on Amazon SES.",
+    "Stack Emails is the email API for developers. Send transactional and marketing email with a clean REST API, typed SDKs, verified domains, real-time webhooks and inbound inboxes, built on Amazon SES.",
   keywords: [
     "email API",
     "transactional email",

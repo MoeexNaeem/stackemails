@@ -7,6 +7,7 @@ import { connectToDatabase } from "@/lib/db/connect";
 import { BlogPost } from "@/lib/db/models";
 import { BlogEditor } from "@/components/admin/BlogEditor";
 import { deleteBlogPostAction } from "@/app/admin/ops-actions";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Edit article" };
@@ -22,11 +23,11 @@ export default async function EditPostPage({ params, searchParams }: { params: P
 
   return (
     <div className="space-y-5">
-      <Link href="/admin/blog" className="text-sm text-fg-muted hover:text-fg">← Blog</Link>
+      <Link href="/admin/blog" className="text-sm text-fg-muted hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Blog</Link>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-[28px] font-normal tracking-[-0.02em]">Edit article</h1>
         <div className="flex gap-2">
-          {p.status === "published" && <Link href={`/blog/${p.slug}`} target="_blank" className="btn btn-secondary btn-sm">View live ↗</Link>}
+          {p.status === "published" && <Link href={`/blog/${p.slug}`} target="_blank" className="btn btn-secondary btn-sm">View live <Icon name="arrow-up-right" size={14} /></Link>}
           <form action={deleteBlogPostAction.bind(null, String(p._id))}>
             <button className="btn btn-danger btn-sm">Delete</button>
           </form>

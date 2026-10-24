@@ -34,7 +34,7 @@ function baseOptions(): SMTPServerOptions {
     authOptional: false,
     size: 10 * 1024 * 1024,
     disabledCommands: key && cert ? [] : ["STARTTLS"],
-    allowInsecureAuth: !(key && cert), // dev only — production must provide TLS
+    allowInsecureAuth: !(key && cert), // dev only - production must provide TLS
     ...(key && cert ? { key: readFileSync(key), cert: readFileSync(cert) } : {}),
 
     async onAuth(auth, session, callback) {

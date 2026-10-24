@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CODE_SNIPPETS } from "@/lib/code-snippets";
 import { CopyButton } from "@/components/CopyButton";
+import { Icon } from "@/components/ui/Icon";
 
 const TITLES: Record<string, string> = {
   emails: "Emails API",
@@ -45,7 +46,7 @@ export function CodeDrawer({ resource }: { resource: keyof typeof CODE_SNIPPETS 
           <div className="h-full w-full max-w-xl overflow-y-auto p-6" style={{ background: "var(--bg-elevated)" }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-semibold">{TITLES[resource] ?? "API"}</h2>
-              <button className="btn btn-ghost px-2" onClick={() => setOpen(false)}>✕</button>
+              <button className="btn btn-ghost px-2" onClick={() => setOpen(false)}><Icon name="x" size={16} /></button>
             </div>
 
             <div className="flex gap-1 mb-4 flex-wrap">
@@ -67,7 +68,7 @@ export function CodeDrawer({ resource }: { resource: keyof typeof CODE_SNIPPETS 
             </div>
 
             <a href="/docs" className="text-sm text-accent hover:underline mt-4 inline-block">
-              View full documentation →
+              View full documentation <Icon name="arrow-right" size={14} />
             </a>
           </div>
         </div>

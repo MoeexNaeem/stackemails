@@ -8,6 +8,7 @@ import { Section } from "@/components/settings/AccountForms";
 import { changeMemberRoleAction, deleteTeamAction, inviteMemberAction, removeMemberAction, renameTeamAction, revokeInviteAction, type SettingsState } from "@/app/(app)/settings-actions";
 import { createTeamAction } from "@/app/(app)/team-actions";
 import { timeAgo } from "@/lib/format";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 type Member = { id: string; userId: string; email: string; name: string; role: string; mfa: boolean; joined: string };
 const initial: SettingsState = { ok: false };
@@ -81,8 +82,8 @@ export function TeamSettings({ team, me, members, invites, openCreate }: { team:
                     <button
                       className="btn btn-ghost btn-sm text-danger"
                       disabled={pending}
-                      onClick={() => {
-                        if (!confirm(m.userId === me.id ? "Leave this team?" : `Remove ${m.email} from the team?`)) return;
+                      onClick={async () => {
+                        if (!(await confirmDialog(m.userId === me.id ? "Leave this team?" : `Remove ${m.email} from the team?`))) return;
                         start(async () => {
                           const r = await removeMemberAction(m.id);
                           setNote(r?.error ?? r?.message ?? null);
@@ -138,8 +139,8 @@ export function TeamSettings({ team, me, members, invites, openCreate }: { team:
           <div>
             <label className="label" htmlFor="inv-role">Role</label>
             <select id="inv-role" name="role" className="input" defaultValue="member">
-              <option value="member">Member — can send and view everything</option>
-              <option value="admin">Admin — can also manage team, billing and settings</option>
+              <option value="member">Member: can send and view everything</option>
+              <option value="admin">Admin: can also manage team, billing and settings</option>
             </select>
           </div>
           <FormNote state={inviteState} />

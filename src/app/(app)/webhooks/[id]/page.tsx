@@ -6,6 +6,7 @@ import { requireDashboardContext } from "@/lib/auth/context";
 import { connectToDatabase } from "@/lib/db/connect";
 import { Webhook, WebhookDelivery } from "@/lib/db/models";
 import { WebhookDetail } from "@/components/dashboard/WebhookDetail";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Webhook" };
@@ -21,7 +22,7 @@ export default async function WebhookPage({ params }: { params: Promise<{ id: st
 
   return (
     <div>
-      <Link href="/webhooks" className="text-sm text-fg-subtle hover:text-fg">← Webhooks</Link>
+      <Link href="/webhooks" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Webhooks</Link>
       <WebhookDetail
         webhook={{ id: String(w._id), url: w.url, enabled: w.enabled, events: w.events, createdAt: w.createdAt.toISOString() }}
         deliveries={deliveries.map((d) => ({

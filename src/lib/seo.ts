@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { site } from "@/lib/site";
 
-const DEFAULT_OG = [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${site.name} — ${site.tagline}` }];
+const DEFAULT_OG = [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${site.name} | ${site.tagline}` }];
 
 /**
  * Complete per-page metadata: title, description, canonical, and matching
  * Open Graph / Twitter tags. Next merges `openGraph` shallowly, so a page
- * that doesn't set its own would inherit the homepage's og:title and og:url —
+ * that doesn't set its own would inherit the homepage's og:title and og:url  - 
  * always build page metadata through this helper.
  *
  * `title` is the page title (the root template appends "· Stack Emails");

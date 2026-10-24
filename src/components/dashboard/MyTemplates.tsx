@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteTemplateAction } from "@/app/(app)/actions";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 export type TemplateView = {
   id: string;
@@ -18,8 +19,8 @@ export function MyTemplates({ templates }: { templates: TemplateView[] }) {
   const router = useRouter();
   const [pending, start] = useTransition();
 
-  function remove(id: string) {
-    if (!confirm("Delete this template?")) return;
+  async function remove(id: string) {
+    if (!(await confirmDialog("Delete this template?"))) return;
     start(async () => {
       await deleteTemplateAction(id);
       router.refresh();

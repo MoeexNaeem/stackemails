@@ -9,7 +9,7 @@ export const API_BASE = `${site.url}/v1`;
 
 type SendArgs = { key?: string; from?: string; to?: string; subject?: string; html?: string };
 
-/** "Send an email" in 10 languages — SDK for Node, plain HTTP everywhere else. */
+/** "Send an email" in 10 languages - SDK for Node, plain HTTP everywhere else. */
 export function sendEmailSnippets(a: SendArgs = {}): Snippet[] {
   const key = a.key ?? "se_live_xxxxxxxxx";
   const from = a.from ?? "Acme <onboarding@your-domain.com>";
@@ -199,7 +199,7 @@ await stack.domains.verify(domain.id);`,
 const apiKeys: Snippet[] = [
   {
     lang: "Node.js",
-    code: `// Store the key in an environment variable — never in client-side code.
+    code: `// Store the key in an environment variable, never in client-side code.
 // STACKEMAILS_API_KEY=se_live_...
 import { StackEmails } from "stackemails";
 const stack = new StackEmails(); // reads STACKEMAILS_API_KEY`,

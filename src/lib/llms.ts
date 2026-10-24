@@ -5,7 +5,7 @@ import { FAQS } from "@/lib/knowledge";
 import { getPublishedPosts } from "@/lib/blog";
 import { absUrl, site } from "@/lib/site";
 
-/** /llms.txt — the llmstxt.org index: a concise map of the site for AI assistants. */
+/** /llms.txt - the llmstxt.org index: a concise map of the site for AI assistants. */
 export async function llmsIndex(): Promise<string> {
   const posts = await getPublishedPosts();
   const lines = [
@@ -35,9 +35,9 @@ export async function llmsIndex(): Promise<string> {
   return lines.join("\n");
 }
 
-/** /llms-full.txt — the complete docs and FAQs as plain Markdown. */
+/** /llms-full.txt - the complete docs and FAQs as plain Markdown. */
 export async function llmsFull(): Promise<string> {
-  const parts = [`# ${site.name} — complete documentation`, "", `> ${site.description}`, ""];
+  const parts = [`# ${site.name}: complete documentation`, "", `> ${site.description}`, ""];
   for (const d of DOCS) parts.push(`# ${d.title}`, "", `Source: ${absUrl(`/docs/${d.slug}`)}`, "", d.description, "", d.content, "");
   parts.push("# Frequently asked questions", "");
   for (const f of FAQS) parts.push(`## ${f.q}`, "", f.a, "");

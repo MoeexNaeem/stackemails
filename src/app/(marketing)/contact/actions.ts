@@ -24,7 +24,7 @@ const schema = z.object({
 
 /**
  * Public contact form. Stored for the admin inbox and forwarded to the
- * support address. No auto-reply is sent to the submitted address — that
+ * support address. No auto-reply is sent to the submitted address - that
  * would let anyone use the form to email arbitrary people.
  */
 export async function submitContactAction(_prev: ContactState, formData: FormData): Promise<ContactState> {
@@ -41,7 +41,7 @@ export async function submitContactAction(_prev: ContactState, formData: FormDat
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
   const rl = await getRateLimiter().check(`contact:${ip}`, 5, 3_600_000);
-  if (!rl.allowed) return { ok: false, error: "Too many messages from your network — please try again later or email us directly." };
+  if (!rl.allowed) return { ok: false, error: "Too many messages from your network. Please try again later or email us directly." };
 
   await connectToDatabase();
   const m = parsed.data;

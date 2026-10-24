@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Select } from "@/components/ui/Select";
+import { Spinner } from "@/components/ui/Icon";
 
 export type FilterField =
   | { type: "search"; name: string; placeholder?: string }
@@ -9,7 +11,7 @@ export type FilterField =
 
 /**
  * URL-driven filter bar. Every control writes to the query string, so the
- * server component re-renders with filtered results — shareable, back-button
+ * server component re-renders with filtered results - shareable, back-button
  * friendly and SSR-correct. Search is debounced.
  */
 export function FilterBar({ fields, exportHref }: { fields: FilterField[]; exportHref?: string }) {
@@ -33,19 +35,15 @@ export function FilterBar({ fields, exportHref }: { fields: FilterField[]; expor
         f.type === "search" ? (
           <SearchInput key={f.name} name={f.name} placeholder={f.placeholder} initial={params.get(f.name) ?? ""} onChange={(v) => update(f.name, v)} />
         ) : (
-          <select
-            key={f.name}
-            aria-label={f.name}
-            className="input input-pill w-auto min-w-[150px]"
-            value={params.get(f.name) ?? f.defaultValue ?? f.options[0]?.value ?? ""}
-            onChange={(e) => update(f.name, e.target.value, f.defaultValue ?? f.options[0]?.value)}
-          >
-            {f.options.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          <div key={f.name} className="min-w-[160px]">
+            <Select
+              ariaLabel={f.name}
+              options={f.options}
+              value={params.get(f.name) ?? f.defaultValue ?? f.options[0]?.value ?? ""}
+              onChange={(v) => update(f.name, v, f.defaultValue ?? f.options[0]?.value)}
+              align="right"
+            />
+          </div>
         ),
       )}
       {exportHref && (
@@ -58,7 +56,7 @@ export function FilterBar({ fields, exportHref }: { fields: FilterField[]; expor
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" /></svg>
         </a>
       )}
-      {pending && <span className="text-xs text-fg-subtle">Loading…</span>}
+      {pending && <span className="flex items-center gap-1.5 text-xs text-fg-subtle"><Spinner size={13} /> Updating</span>}
     </div>
   );
 }

@@ -39,7 +39,7 @@ const TOOLS: Tool[] = [
     sending: true,
     inputSchema: {
       type: "object",
-      properties: { from: str('Sender, e.g. "Acme <hello@acme.com>" — must be on a verified domain'), to: strArr("Recipient addresses"), subject: str("Subject line"), html: str("HTML body"), text: str("Plain-text body"), cc: strArr("Cc"), bcc: strArr("Bcc"), reply_to: strArr("Reply-To"), scheduled_at: str("Optional ISO 8601 time to send, up to 30 days ahead") },
+      properties: { from: str('Sender, e.g. "Acme <hello@acme.com>", must be on a verified domain'), to: strArr("Recipient addresses"), subject: str("Subject line"), html: str("HTML body"), text: str("Plain-text body"), cc: strArr("Cc"), bcc: strArr("Bcc"), reply_to: strArr("Reply-To"), scheduled_at: str("Optional ISO 8601 time to send, up to 30 days ahead") },
       required: ["from", "to", "subject"],
       additionalProperties: false,
     },

@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/marketing/ThemeToggle";
+import { Icon } from "@/components/ui/Icon";
+import { LinkSpinner, NotPending } from "@/components/ui/RouteProgress";
 
 const LINKS = [
   { href: "/features", label: "Product" },
@@ -64,7 +66,7 @@ export function Nav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className="relative rounded-full px-3.5 py-2 text-[14px] transition-colors hover:bg-[color-mix(in_srgb,var(--m-head)_6%,transparent)] hover:text-[var(--m-head)]"
-                style={{ color: active ? "var(--m-head)" : "var(--m-muted)", fontWeight: active ? 500 : 400 }}
+                style={{ color: active ? "var(--m-head)" : "var(--m-text)", fontWeight: 500 }}
               >
                 {l.label}
                 {active && <span className="absolute inset-x-3.5 -bottom-0.5 h-[2px] rounded-full" style={{ background: "var(--m-accent)" }} />}
@@ -76,11 +78,11 @@ export function Nav() {
         <div className="hidden items-center gap-2 md:flex">
           <ThemeToggle />
           {signedIn ? (
-            <Link href="/overview" className="m-btn m-btn-ink m-btn-sm">Dashboard →</Link>
+            <Link href="/overview" className="m-btn m-btn-ink m-btn-sm">Dashboard <LinkSpinner /><NotPending><Icon name="arrow-right" size={14} /></NotPending></Link>
           ) : (
             <>
               <Link href="/login" className="rounded-full px-3 py-2 text-[14px] font-medium transition-colors hover:bg-[color-mix(in_srgb,var(--m-head)_6%,transparent)]" style={{ color: "var(--m-ink)" }}>Sign in</Link>
-              <Link href="/signup" className="m-btn m-btn-ink m-btn-sm">Get started — free</Link>
+              <Link href="/signup" className="m-btn m-btn-ink m-btn-sm">Get started free <LinkSpinner /></Link>
             </>
           )}
         </div>
@@ -99,10 +101,10 @@ export function Nav() {
             {LINKS.map((l) => <Link key={l.href} href={l.href} className="rounded-2xl px-3 py-3 text-[17px]" style={{ color: "var(--m-head)" }}>{l.label}</Link>)}
             <div className="mt-2 grid gap-2">
               {signedIn ? (
-                <Link href="/overview" className="m-btn m-btn-ink">Dashboard</Link>
+                <Link href="/overview" className="m-btn m-btn-ink">Dashboard <LinkSpinner /></Link>
               ) : (
                 <>
-                  <Link href="/signup" className="m-btn m-btn-ink">Get started — free</Link>
+                  <Link href="/signup" className="m-btn m-btn-ink">Get started free</Link>
                   <Link href="/login" className="m-btn m-btn-light">Sign in</Link>
                 </>
               )}

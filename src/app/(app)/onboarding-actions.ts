@@ -30,7 +30,7 @@ export async function sendOnboardingEmailAction(): Promise<{ ok: boolean; messag
   const { workspace, user } = await requireDashboardContext();
   await connectToDatabase();
   const rl = await getRateLimiter().check(`onboarding-send:${user._id}`, 5, 3600_000);
-  if (!rl.allowed) return { ok: false, error: "You've sent a few test emails already — try again in an hour." };
+  if (!rl.allowed) return { ok: false, error: "You've sent a few test emails already. Try again in an hour." };
 
   const domain = senderDomain(env.systemFromEmail) ?? "stackemails.com";
   const from = `Stack Emails <onboarding@${domain}>`;
@@ -58,7 +58,7 @@ export async function sendOnboardingEmailAction(): Promise<{ ok: boolean; messag
     await bumpStat(workspace._id, from, { total: 1, sent: 1, ...(env.emailProvider === "mock" ? { delivered: 1 } : {}) });
     revalidatePath("/emails");
     revalidatePath("/overview");
-    return { ok: true, message: `Sent to ${user.email} — check your inbox.` };
+    return { ok: true, message: `Sent to ${user.email}. Check your inbox.` };
   } catch (err) {
     log.status = "failed";
     log.errorMessage = err instanceof Error ? err.message : String(err);

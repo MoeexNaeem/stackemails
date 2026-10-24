@@ -6,6 +6,7 @@ import { DOCS, docBySlug } from "@/content/docs";
 import { renderMarkdown } from "@/lib/markdown";
 import { absUrl, jsonLd } from "@/lib/site";
 import { breadcrumbLd } from "@/components/marketing/Sections";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamicParams = false;
 
@@ -18,7 +19,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const d = docBySlug((await params).slug);
   if (!d) return {};
-  return pageMeta({ title: `${d.title} — API docs`, description: d.description, path: `/docs/${d.slug}` });
+  return pageMeta({ title: `${d.title} | API docs`, description: d.description, path: `/docs/${d.slug}` });
 }
 
 export default async function DocPage({ params }: Props) {
@@ -53,13 +54,13 @@ export default async function DocPage({ params }: Props) {
         <div className="mt-16 grid gap-4 border-t pt-8 sm:grid-cols-2" style={{ borderColor: "var(--m-line)" }}>
           {prev ? (
             <Link href={`/docs/${prev.slug}`} className="m-card m-card-hover block !p-5">
-              <span className="text-[12.5px]" style={{ color: "var(--m-faint)" }}>← Previous</span>
+              <span className="text-[12.5px]" style={{ color: "var(--m-faint)" }}><Icon name="arrow-left" size={14} className="mr-1" />Previous</span>
               <span className="mt-1 block font-semibold" style={{ color: "var(--m-head)" }}>{prev.title}</span>
             </Link>
           ) : <span />}
           {next && (
             <Link href={`/docs/${next.slug}`} className="m-card m-card-hover block !p-5 text-right">
-              <span className="text-[12.5px]" style={{ color: "var(--m-faint)" }}>Next →</span>
+              <span className="text-[12.5px]" style={{ color: "var(--m-faint)" }}>Next <Icon name="arrow-right" size={14} /></span>
               <span className="mt-1 block font-semibold" style={{ color: "var(--m-head)" }}>{next.title}</span>
             </Link>
           )}

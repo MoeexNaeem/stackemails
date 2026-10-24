@@ -5,6 +5,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/StatusBadge";
 import { deleteAutomationAction, saveAutomationAction, toggleAutomationAction } from "@/app/(app)/automation-actions";
+import { Icon } from "@/components/ui/Icon";
+import { confirmDialog } from "@/components/ui/Confirm";
 
 type WaitStep = { type: "wait"; waitDuration: number; waitUnit: "minutes" | "hours" | "days" };
 type EmailStep = { type: "email"; from: string; subject: string; html: string };
@@ -70,7 +72,7 @@ export function AutomationEditor({
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <Link href="/automations" className="text-sm text-fg-subtle hover:text-fg">← Automations</Link>
+          <Link href="/automations" className="text-sm text-fg-subtle hover:text-fg"><Icon name="arrow-left" size={14} className="mr-1" />Automations</Link>
           <input
             value={m.name}
             onChange={(e) => update((d) => ({ ...d, name: e.target.value }))}
@@ -126,13 +128,13 @@ export function AutomationEditor({
               <Connector />
               <Node
                 accent={s.type === "wait" ? "var(--warning)" : "var(--lime)"}
-                label={s.type === "wait" ? `Wait ${s.waitDuration} ${s.waitUnit}` : `Send email${s.subject ? ` — ${s.subject}` : ""}`}
+                label={s.type === "wait" ? `Wait ${s.waitDuration} ${s.waitUnit}` : `Send email${s.subject ? `: ${s.subject}` : ""}`}
                 onToggle={s.type === "email" ? () => setOpen(open === i ? null : i) : undefined}
                 actions={
                   <>
-                    <button className="btn btn-ghost btn-sm w-7 px-0" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">↑</button>
-                    <button className="btn btn-ghost btn-sm w-7 px-0" onClick={() => move(i, 1)} disabled={i === m.steps.length - 1} aria-label="Move down">↓</button>
-                    <button className="btn btn-ghost btn-sm w-7 px-0" onClick={() => update((d) => ({ ...d, steps: d.steps.filter((_, j) => j !== i) }))} aria-label="Remove step">✕</button>
+                    <button className="btn btn-ghost btn-sm w-7 px-0" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up"><Icon name="arrow-up" size={14} /></button>
+                    <button className="btn btn-ghost btn-sm w-7 px-0" onClick={() => move(i, 1)} disabled={i === m.steps.length - 1} aria-label="Move down"><Icon name="arrow-down" size={14} /></button>
+                    <button className="btn btn-ghost btn-sm w-7 px-0" onClick={() => update((d) => ({ ...d, steps: d.steps.filter((_, j) => j !== i) }))} aria-label="Remove step"><Icon name="x" size={16} /></button>
                   </>
                 }
               >
@@ -199,7 +201,7 @@ export function AutomationEditor({
               + Send email
             </button>
           </div>
-          <p className="mt-3 text-center text-xs text-fg-subtle">Waits add up — an email after “wait 1 day” and “wait 2 days” sends 3 days after the trigger (max 30 days).</p>
+          <p className="mt-3 text-center text-xs text-fg-subtle">Waits add up. An email after “wait 1 day” and “wait 2 days” sends 3 days after the trigger (max 30 days).</p>
         </div>
 
         <aside className="space-y-4">
@@ -215,8 +217,8 @@ export function AutomationEditor({
           <button
             className="btn btn-danger w-full"
             disabled={pending}
-            onClick={() => {
-              if (confirm("Delete this automation? Scheduled emails already queued will still send.")) start(() => deleteAutomationAction(id));
+            onClick={async () => {
+              if (await confirmDialog("Delete this automation? Scheduled emails already queued will still send.")) start(() => deleteAutomationAction(id));
             }}
           >
             Delete automation

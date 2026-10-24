@@ -5,7 +5,7 @@ export function sha256(input: string): string {
   return createHash("sha256").update(input).digest("hex");
 }
 
-/** HMAC-SHA256 hex digest — used to sign webhook payloads. */
+/** HMAC-SHA256 hex digest - used to sign webhook payloads. */
 export function hmacSha256(payload: string, secret: string): string {
   return createHmac("sha256", secret).update(payload).digest("hex");
 }

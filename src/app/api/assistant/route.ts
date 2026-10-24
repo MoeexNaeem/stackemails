@@ -21,7 +21,7 @@ const bodySchema = z.object({
 
 // Frozen system prompt (byte-stable → prompt-cacheable). Per-team context goes
 // in the first user turn instead, so the cached prefix is shared by everyone.
-const SYSTEM = `You are the Stack Emails in-app assistant. Help users of the Stack Emails dashboard send email, verify domains, debug API errors and improve deliverability. Be concise and practical: short paragraphs, numbered steps for procedures, and code in fenced blocks. Only describe features listed in the product brief; if something isn't supported, say so and suggest the closest option or contacting support via Help → New ticket. Never ask for or repeat API keys or passwords.
+const SYSTEM = `You are the Stack Emails in-app assistant. Help users of the Stack Emails dashboard send email, verify domains, debug API errors and improve deliverability. Be concise and practical: short paragraphs, numbered steps for procedures, and code in fenced blocks. Only describe features listed in the product brief; if something isn't supported, say so and suggest the closest option or contacting support via Help > New ticket. Never ask for or repeat API keys or passwords.
 
 <product_brief>
 ${PRODUCT_BRIEF}
@@ -35,7 +35,7 @@ function textStream(text: string) {
 function offlineAnswer(question: string): string {
   const hits = searchFaqs(question, 2);
   if (!hits.length) {
-    return "I couldn't find that in the knowledge base. Try rephrasing, browse the docs at /docs, or open Help → New ticket and our team will get back to you.";
+    return "I couldn't find that in the knowledge base. Try rephrasing, browse the docs at /docs, or open Help > New ticket and our team will get back to you.";
   }
   return hits.map((h) => `**${h.q}**\n${h.a}`).join("\n\n");
 }
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
 
   const lastQuestion = body.messages[body.messages.length - 1].content;
   const activeWs = await getActiveWorkspace(user);
-  if (activeWs?.labs?.assistant === false) return apiError(403, "disabled", "The assistant is turned off for this team (Settings → Labs).");
+  if (activeWs?.labs?.assistant === false) return apiError(403, "disabled", "The assistant is turned off for this team (Settings > Labs).");
   if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) {
     return textStream(offlineAnswer(lastQuestion));
   }
@@ -104,15 +104,15 @@ export async function POST(req: Request) {
         }
         const final = await s.finalMessage();
         if (final.stop_reason === "refusal") {
-          controller.enqueue(encoder.encode("\n\nI can't help with that one. For account-specific issues, open Help → New ticket."));
+          controller.enqueue(encoder.encode("\n\nI can't help with that one. For account-specific issues, open Help > New ticket."));
         } else if (final.stop_reason === "max_tokens") {
-          controller.enqueue(encoder.encode("\n\n…(answer truncated — ask me to continue)"));
+          controller.enqueue(encoder.encode("\n\n…(answer truncated, ask me to continue)"));
         }
       } catch (err) {
         if (err instanceof Anthropic.RateLimitError) {
           controller.enqueue(encoder.encode("The assistant is busy right now. Please try again in a moment."));
         } else if (err instanceof Anthropic.AuthenticationError) {
-          console.error("[assistant] Anthropic auth failed — check ANTHROPIC_API_KEY");
+          console.error("[assistant] Anthropic auth failed. Check ANTHROPIC_API_KEY");
           controller.enqueue(encoder.encode(offlineAnswer(lastQuestion)));
         } else {
           console.error("[assistant] error", err);

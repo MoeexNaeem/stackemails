@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "@/components/ui/Icon";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -11,7 +12,7 @@ const SUGGESTIONS = [
   "How do I contact human support?",
 ];
 
-/** Tiny, safe renderer: **bold**, `code`, ```blocks``` and line breaks — no HTML injection. */
+/** Tiny, safe renderer: **bold**, `code`, ```blocks``` and line breaks - no HTML injection. */
 function Rich({ text }: { text: string }) {
   const parts = text.split(/```(?:\w+)?\n?([\s\S]*?)```/g);
   return (
@@ -104,7 +105,7 @@ export function AssistantPanel({ open, onClose }: { open: boolean; onClose: () =
           {messages.length > 0 && (
             <button className="btn btn-ghost btn-sm" onClick={() => setMessages([])} disabled={busy}>New chat</button>
           )}
-          <button className="btn btn-ghost w-8 h-8 px-0" onClick={onClose} aria-label="Close assistant">✕</button>
+          <button className="btn btn-ghost w-8 h-8 px-0" onClick={onClose} aria-label="Close assistant"><Icon name="x" size={16} /></button>
         </div>
       </div>
 
@@ -161,7 +162,7 @@ export function AssistantPanel({ open, onClose }: { open: boolean; onClose: () =
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
           </button>
         </div>
-        <p className="mt-2 px-1 text-[11px] text-fg-subtle">AI answers can be wrong. For account issues use Help → New ticket.</p>
+        <p className="mt-2 px-1 text-[11px] text-fg-subtle">AI answers can be wrong. For account issues use Help &gt; New ticket.</p>
       </form>
     </div>
   );

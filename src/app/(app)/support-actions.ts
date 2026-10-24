@@ -20,7 +20,7 @@ export async function createTicketAction(_prev: SupportState, formData: FormData
   const { workspace, user } = await requireDashboardContext();
   await connectToDatabase();
   const rl = await getRateLimiter().check(`ticket:${user._id}`, 5, 3600_000);
-  if (!rl.allowed) return { ok: false, error: "You've opened several tickets recently — please wait before opening another." };
+  if (!rl.allowed) return { ok: false, error: "You've opened several tickets recently. Please wait before opening another." };
 
   const subject = String(formData.get("subject") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
@@ -43,11 +43,11 @@ export async function createTicketAction(_prev: SupportState, formData: FormData
 
   // Confirm to the customer and alert the support inbox.
   await Promise.all([
-    sendSystemEmail({ kind: "ticket_opened", to: user.email, subject: `[#${number}] ${subject}`, react: createElement(TicketEmail, { heading: "We got your request", name: user.name, number, subject, body, footer: "Our team usually replies within one business day. Reply in Help → your ticket." }) }),
+    sendSystemEmail({ kind: "ticket_opened", to: user.email, subject: `[#${number}] ${subject}`, react: createElement(TicketEmail, { heading: "We got your request", name: user.name, number, subject, body, footer: "Our team usually replies within one business day. Reply in Help > your ticket." }) }),
     sendSystemEmail({ kind: "ticket_alert", to: env.supportEmail, subject: `New ${priority} ticket #${number}: ${subject}`, react: createElement(TicketEmail, { heading: `New ticket from ${user.email}`, name: "team", number, subject, body, footer: `Team: ${workspace.name} · Category: ${category} · Priority: ${priority}` }) }),
   ]);
   revalidatePath("/help");
-  return { ok: true, message: `Ticket #${number} opened — we've emailed you a confirmation.` };
+  return { ok: true, message: `Ticket #${number} opened. We've emailed you a confirmation.` };
 }
 
 export async function replyTicketAction(_prev: SupportState, formData: FormData): Promise<SupportState> {
@@ -63,7 +63,7 @@ export async function replyTicketAction(_prev: SupportState, formData: FormData)
   if (t.status === "resolved" || t.status === "closed" || t.status === "pending") t.status = "open";
   t.lastActivityAt = new Date();
   await t.save();
-  await sendSystemEmail({ kind: "ticket_alert", to: env.supportEmail, subject: `Reply on #${t.number}: ${t.subject}`, react: createElement(TicketEmail, { heading: `${user.email} replied`, name: "team", number: t.number, subject: t.subject, body, footer: "Answer from the admin panel → Support." }) });
+  await sendSystemEmail({ kind: "ticket_alert", to: env.supportEmail, subject: `Reply on #${t.number}: ${t.subject}`, react: createElement(TicketEmail, { heading: `${user.email} replied`, name: "team", number: t.number, subject: t.subject, body, footer: "Answer from the admin panel > Support." }) });
   revalidatePath("/help");
   return { ok: true, message: "Reply sent." };
 }

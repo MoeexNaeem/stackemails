@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { UserMenu } from "@/components/dashboard/UserMenu";
 import { AssistantPanel } from "@/components/dashboard/AssistantPanel";
+import { useCollapsed } from "@/components/ui/useCollapsed";
 import type { TeamOption } from "@/components/dashboard/TeamSwitcher";
 
 export function AppShell({
@@ -25,6 +26,7 @@ export function AppShell({
 }) {
   const [drawer, setDrawer] = useState(false);
   const [assistant, setAssistant] = useState(false);
+  const [collapsed, toggleCollapsed] = useCollapsed("se-sidebar");
   const pathname = usePathname();
   const pct = Math.min(100, Math.round((usage.sent / Math.max(1, usage.quota)) * 100));
 
@@ -46,8 +48,8 @@ export function AppShell({
   return (
     <div className="flex h-dvh overflow-hidden">
       {/* Desktop sidebar */}
-      <div className="hidden lg:block">
-        <Sidebar teams={teams} activeTeamId={activeTeamId} isAdmin={user.isAdmin} />
+      <div className="hidden h-full lg:block">
+        <Sidebar teams={teams} activeTeamId={activeTeamId} isAdmin={user.isAdmin} collapsed={collapsed} onToggle={toggleCollapsed} />
       </div>
 
       {/* Mobile drawer */}
@@ -60,7 +62,7 @@ export function AppShell({
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="h-16 shrink-0 flex items-center justify-between gap-3 border-b border-border px-4 sm:px-6 bg-bg-elevated/70 backdrop-blur">
           <div className="flex items-center gap-3 min-w-0">
             <button className="btn btn-ghost w-9 px-0 lg:hidden" onClick={() => setDrawer(true)} aria-label="Open menu">
@@ -83,7 +85,7 @@ export function AppShell({
             <UserMenu email={user.email} name={user.name} />
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto">
+        <main className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8 py-7">{children}</div>
         </main>
       </div>

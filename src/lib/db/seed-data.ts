@@ -58,7 +58,7 @@ export async function seedDemoData(): Promise<{ apiKey: string } | null> {
   });
 
   const samples = [
-    { subject: "Welcome to Acme 👋", status: "delivered" as const },
+    { subject: "Welcome to Acme", status: "delivered" as const },
     { subject: "Reset your password", status: "delivered" as const },
     { subject: "Your invoice for October", status: "sent" as const },
     { subject: "Weekly digest", status: "bounced" as const },

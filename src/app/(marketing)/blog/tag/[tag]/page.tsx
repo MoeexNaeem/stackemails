@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getPublishedPosts, getTags, tagSlug } from "@/lib/blog";
 import { PostCard } from "@/components/marketing/Blog";
 import { absUrl, jsonLd, site } from "@/lib/site";
+import { Icon } from "@/components/ui/Icon";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const found = (await getTags()).find((t) => t.slug === tag);
   if (!found) return { title: "Topic not found", robots: { index: false } };
   return pageMeta({
-    title: `${found.tag} — articles`,
+    title: `Articles about ${found.tag}`,
     description: `Stack Emails articles about ${found.tag}: ${found.count} guide${found.count === 1 ? "" : "s"} on email delivery and building with email.`,
     path: `/blog/tag/${found.slug}`,
   });
@@ -52,7 +53,7 @@ export default async function TagPage({ params }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />
       <section className="m-container pt-32 pb-12">
-        <Link href="/blog" className="text-[13px] hover:text-[var(--m-head)]" style={{ color: "var(--m-faint)" }}>← All articles</Link>
+        <Link href="/blog" className="text-[13px] hover:text-[var(--m-head)]" style={{ color: "var(--m-faint)" }}><Icon name="arrow-left" size={14} className="mr-1" />All articles</Link>
         <h1 className="m-display m-h1 mt-5">#{found.tag}</h1>
         <p className="m-lead mt-4">{found.count} article{found.count === 1 ? "" : "s"}</p>
       </section>

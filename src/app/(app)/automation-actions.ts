@@ -62,7 +62,7 @@ export async function saveAutomationAction(id: string, raw: unknown): Promise<Au
 
   if (input.trigger === "event") {
     if (!input.eventName || !(await AutomationEvent.exists({ workspaceId: workspace._id, name: input.eventName }))) {
-      return { ok: false, error: "Choose an event (create one under Automations → Events)." };
+      return { ok: false, error: "Choose an event (create one under Automations > Events)." };
     }
   }
   if (input.audienceId && (!isValidObjectId(input.audienceId) || !(await Segment.exists({ _id: input.audienceId, workspaceId: workspace._id })))) {
@@ -151,7 +151,7 @@ export async function sendTestEventAction(_prev: AutoState, formData: FormData):
     const { contact } = await upsertContact(workspace._id, { email, source: "dashboard" });
     const n = await runAutomations(workspace._id, contact, { type: "event", name, data: { source: "dashboard_test" } });
     revalidatePath("/automations/events");
-    return { ok: true, message: n ? `Triggered — ${n} email${n === 1 ? "" : "s"} scheduled.` : "Event recorded. No active automation uses it yet." };
+    return { ok: true, message: n ? `Triggered: ${n} email${n === 1 ? "" : "s"} scheduled.` : "Event recorded. No active automation uses it yet." };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

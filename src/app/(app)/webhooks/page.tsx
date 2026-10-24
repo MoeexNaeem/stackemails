@@ -53,8 +53,8 @@ export default async function WebhooksPage() {
                     <td className="max-w-[360px] truncate"><Link href={`/webhooks/${w._id}`} className="mono text-[13px] hover:text-accent">{w.url}</Link></td>
                     <td><StatusBadge status={w.enabled ? "active" : "paused"} /></td>
                     <td className="text-fg-muted">{w.events.length === 0 ? "All events" : `${w.events.length} event${w.events.length === 1 ? "" : "s"}`}</td>
-                    <td className="hidden md:table-cell text-fg-muted">{s ? `${Math.round((s.ok / s.total) * 100)}% of ${s.total}` : "—"}</td>
-                    <td className="text-right text-fg-subtle">{s ? timeAgo(s.last) : "—"}</td>
+                    <td className="hidden md:table-cell text-fg-muted">{s ? `${Math.round((s.ok / s.total) * 100)}% of ${s.total}` : "-"}</td>
+                    <td className="text-right text-fg-subtle">{s ? timeAgo(s.last) : "-"}</td>
                   </tr>
                 );
               })}
