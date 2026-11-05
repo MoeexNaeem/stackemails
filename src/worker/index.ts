@@ -19,6 +19,11 @@ import { processEmailJob, type EmailJob } from "@/lib/email/dispatch";
 
 const connection = new Redis(env.redisUrl, { maxRetriesPerRequest: null });
 
+// Hosted Redis (Upstash) bills every command, and idle workers poll constantly.
+// A long blocking wait still wakes instantly when a job arrives, so these only
+// cut idle traffic: ~1 poll a minute per queue instead of every 5 seconds.
+const IDLE = { drainDelay: 60, stalledInterval: 5 * 60_000 } as const;
+
 // SES enforces a per-second send rate: 1/s in the sandbox, 14+/s in production.
 const maxPerSecond = Math.max(1, Number(process.env.SES_MAX_SEND_RATE || 1));
 
@@ -29,6 +34,7 @@ const worker = new Worker<EmailJob>(
   },
   {
     connection,
+    ...IDLE,
     concurrency: Math.min(50, maxPerSecond * 4),
     limiter: { max: maxPerSecond, duration: 1000 },
   },
@@ -41,7 +47,7 @@ const webhookWorker = new Worker<{ deliveryId: string }>(
     const { attemptDelivery } = await import("@/lib/webhooks/dispatch");
     await attemptDelivery(job.data.deliveryId);
   },
-  { connection, concurrency: 20 },
+  { connection, ...IDLE, concurrency: 20 },
 );
 webhookWorker.on("failed", (job, err) => console.error(`[worker] webhook job ${job?.id} errored: ${err.message}`));
 

@@ -5,7 +5,11 @@ const UserSchema = new Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     name: { type: String, required: true, trim: true },
+    // Accounts created with Google get a random, unknown password; they can set one via "Forgot password".
     passwordHash: { type: String, required: true },
+    // Google account id ("sub" claim), set once the account signs in with Google.
+    googleId: { type: String, unique: true, sparse: true },
+    avatarUrl: { type: String },
     // Platform-level role. "admin" = the SaaS owner's superadmin panel access.
     platformRole: { type: String, enum: ["user", "admin"], default: "user", index: true },
     lastLoginAt: { type: Date },

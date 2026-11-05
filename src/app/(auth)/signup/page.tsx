@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
 import { getCurrentUser } from "@/lib/auth/session";
+import { googleEnabled } from "@/lib/auth/google";
 
 export const metadata: Metadata = {
   title: "Create your free account",
@@ -14,7 +15,7 @@ export default async function SignupPage() {
   if (await getCurrentUser()) redirect("/overview");
   return (
     <Suspense>
-      <AuthForm mode="signup" />
+      <AuthForm mode="signup" google={googleEnabled()} />
     </Suspense>
   );
 }

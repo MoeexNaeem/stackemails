@@ -33,6 +33,12 @@ export const env = {
   // Point a wildcard MX (*.INBOUND_DOMAIN) at your SES receiving endpoint.
   inboundDomain: str("INBOUND_DOMAIN", "in.stackemails.com"),
 
+  // Sign in with Google (OAuth web client). Mixed-case names are accepted too.
+  google: {
+    clientId: str("GOOGLE_CLIENT_ID", str("Google_Client_ID")),
+    clientSecret: str("GOOGLE_CLIENT_SECRET", str("Google_Client_Secret")),
+  },
+
   aws: {
     region: str("AWS_REGION", "us-east-1"),
     accessKeyId: str("AWS_ACCESS_KEY_ID"),

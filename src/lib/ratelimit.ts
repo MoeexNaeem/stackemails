@@ -77,11 +77,33 @@ class RedisLimiter implements Limiter {
   }
 }
 
+/**
+ * Uses Redis, but never lets a Redis outage (or an exhausted plan quota) break
+ * sign-in or the API: on error it falls back to per-process memory limits.
+ */
+class ResilientLimiter implements Limiter {
+  private redis = new RedisLimiter();
+  private memory = new MemoryLimiter();
+  private lastWarn = 0;
+
+  async check(key: string, limit: number, windowMs: number): Promise<RateLimitResult> {
+    try {
+      return await this.redis.check(key, limit, windowMs);
+    } catch (err) {
+      if (Date.now() - this.lastWarn > 60_000) {
+        this.lastWarn = Date.now();
+        console.error(`[ratelimit] Redis unavailable, using in-memory limits: ${(err as Error).message}`);
+      }
+      return this.memory.check(key, limit, windowMs);
+    }
+  }
+}
+
 let limiter: Limiter | null = null;
 
 export function getRateLimiter(): Limiter {
   if (!limiter) {
-    limiter = env.rateLimitDriver === "redis" ? new RedisLimiter() : new MemoryLimiter();
+    limiter = env.rateLimitDriver === "redis" ? new ResilientLimiter() : new MemoryLimiter();
   }
   return limiter;
 }
