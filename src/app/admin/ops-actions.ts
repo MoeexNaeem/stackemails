@@ -108,6 +108,9 @@ const postSchema = z.object({
 function revalidateBlog(slugs: string[], tags: string[]) {
   revalidatePath("/blog");
   revalidatePath("/sitemap.xml");
+  revalidatePath("/blog/sitemap.xml");
+  revalidatePath("/sitemaps/blog-posts.xml");
+  revalidatePath("/sitemaps/blog-categories.xml");
   revalidatePath("/blog/rss.xml");
   revalidatePath("/llms.txt");
   for (const s of slugs) revalidatePath(`/blog/${s}`);

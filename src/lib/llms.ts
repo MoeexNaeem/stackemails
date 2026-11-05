@@ -4,6 +4,8 @@ import { COMPARISONS } from "@/content/compare";
 import { FAQS } from "@/lib/knowledge";
 import { getPublishedPosts } from "@/lib/blog";
 import { absUrl, site } from "@/lib/site";
+import { GUIDES } from "@/content/pseo/guides";
+import { TOOLS } from "@/content/pseo/tools";
 
 /** /llms.txt - the llmstxt.org index: a concise map of the site for AI assistants. */
 export async function llmsIndex(): Promise<string> {
@@ -25,7 +27,17 @@ export async function llmsIndex(): Promise<string> {
     "## Guides",
     ...posts.map((p) => `- [${p.title}](${absUrl(`/blog/${p.slug}`)}): ${p.excerpt}`),
     "",
+    "## Send email from code",
+    ...GUIDES.map((g) => `- [Send email with ${g.name}](${absUrl(`/send-email/${g.slug}`)}): ${g.summary}`),
+    "",
+    "## Free tools",
+    ...TOOLS.map((t) => `- [${t.name}](${absUrl(`/tools/${t.slug}`)}): ${t.description}`),
+    "",
     "## Optional",
+    `- [SMTP server settings for 25+ providers](${absUrl("/smtp-settings")})`,
+    `- [Free transactional email templates](${absUrl("/email-templates")})`,
+    `- [Email glossary](${absUrl("/glossary")})`,
+    `- [Email API alternatives](${absUrl("/alternatives")})`,
     ...COMPARISONS.map((c) => `- [Stack Emails vs ${c.name}](${absUrl(`/compare/${c.slug}`)})`),
     `- [Security](${absUrl("/security")})`,
     `- [Privacy policy](${absUrl("/privacy")})`,

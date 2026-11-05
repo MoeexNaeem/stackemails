@@ -12,6 +12,7 @@
     "verify": "tsx scripts/verify-services.ts",
     "typecheck": "tsc --noEmit",
     "migrate": "tsx scripts/migrate.ts",
+    "blog:sync": "tsx scripts/sync-blog.ts",
     "admin:sync": "tsx scripts/migrate.ts"
   },
   "dependencies": {

@@ -20,6 +20,8 @@ const COLUMNS = [
     links: [
       { href: "/docs", label: "API reference" },
       { href: "/docs/sdk", label: "Node.js SDK" },
+      { href: "/send-email", label: "Send email guides" },
+      { href: "/smtp-settings", label: "SMTP settings" },
       { href: "/features/mcp-server", label: "MCP server" },
       { href: "/changelog", label: "Changelog" },
       { href: "/status", label: "Status" },
@@ -29,8 +31,10 @@ const COLUMNS = [
     title: "Resources",
     links: [
       { href: "/blog", label: "Blog" },
-      { href: "/blog/email-deliverability-guide", label: "Deliverability guide" },
-      { href: "/blog/spf-dkim-dmarc-setup-guide", label: "SPF, DKIM & DMARC" },
+      { href: "/tools", label: "Free email tools" },
+      { href: "/email-templates", label: "Email templates" },
+      { href: "/glossary", label: "Email glossary" },
+      { href: "/alternatives", label: "Alternatives" },
       { href: "/compare/resend", label: "vs Resend" },
       { href: "/compare/sendgrid", label: "vs SendGrid" },
       { href: "/compare/amazon-ses", label: "vs Amazon SES" },

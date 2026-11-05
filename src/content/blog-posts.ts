@@ -4,6 +4,8 @@
  * editable from Admin → Blog. They are also the fallback when the database is
  * unreachable at build time, so the blog never renders empty.
  */
+import { SEO_POSTS } from "./blog-posts-seo";
+
 export type SeedPost = {
   slug: string;
   title: string;
@@ -17,7 +19,7 @@ export type SeedPost = {
   content: string;
 };
 
-export const SEED_POSTS: SeedPost[] = [
+const LAUNCH_POSTS: SeedPost[] = [
   {
     slug: "email-deliverability-guide",
     title: "The developer's guide to email deliverability",
@@ -514,3 +516,5 @@ The agent calls \`list_contacts\`, sends five emails with \`send_email\`, then c
 MCP turns email from something you integrate into something your agents can simply use. Read the [MCP docs](/docs/mcp) to get started.`,
   },
 ];
+
+export const SEED_POSTS: SeedPost[] = [...LAUNCH_POSTS, ...SEO_POSTS];

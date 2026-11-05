@@ -13,7 +13,7 @@ const LINKS = [
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
   { href: "/blog", label: "Blog" },
-  { href: "/changelog", label: "Changelog" },
+  { href: "/tools", label: "Free tools" },
 ];
 
 /**

@@ -36,7 +36,7 @@ export default function robots(): MetadataRoute.Robots {
       // AI assistants and answer engines may read the public site (see /llms.txt).
       { userAgent: ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User", "Claude-SearchBot", "PerplexityBot", "Google-Extended", "Applebot-Extended"], allow: "/", disallow: PRIVATE },
     ],
-    sitemap: absUrl("/sitemap.xml"),
+    sitemap: [absUrl("/sitemap.xml"), absUrl("/blog/sitemap.xml")],
     host: site.url,
   };
 }
