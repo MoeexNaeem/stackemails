@@ -44,6 +44,8 @@ const COLUMNS = [
       { href: "/security", label: "Security" },
       { href: "/privacy", label: "Privacy" },
       { href: "/terms", label: "Terms" },
+      { href: "/refund", label: "Refunds" },
+      { href: "/acceptable-use", label: "Acceptable use" },
       { href: "/legal/dpa", label: "DPA" },
     ],
   },

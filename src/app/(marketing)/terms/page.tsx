@@ -19,7 +19,7 @@ You must provide accurate information, keep your credentials and API keys secure
 
 ## 3. Acceptable use
 
-You may only send email to people who have agreed to receive it from you, and you must comply with applicable laws, including anti-spam laws (such as CAN-SPAM, CASL and the ePrivacy rules) and data protection laws. You must not:
+Our [acceptable use policy](/acceptable-use) is part of these terms. You may only send email to people who have agreed to receive it from you, and you must comply with applicable laws, including anti-spam laws (such as CAN-SPAM, CASL and the ePrivacy rules) and data protection laws. You must not:
 
 - send unsolicited bulk email, or use purchased, rented or scraped lists;
 - send phishing, malware, or deceptive or fraudulent content, or impersonate others;
@@ -35,7 +35,7 @@ To protect recipients and other customers, we monitor bounce and complaint rates
 
 ## 5. Plans, quotas and fees
 
-Plans include the sending quotas and limits shown on our [pricing page](/pricing). Paid plans are billed monthly in advance. Fees are non-refundable except where required by law. We may change prices with at least 30 days' notice. Exceeding your quota results in sends being rejected, not in overage charges.
+Plans include the sending quotas and limits shown on our [pricing page](/pricing). Paid plans are billed monthly in advance and renew automatically until you cancel. You can cancel at any time, and you can request a full refund of any charge within 14 days, as described in our [refund policy](/refund). We may change prices with at least 30 days' notice. Exceeding your quota results in sends being rejected, not in overage charges.
 
 ## 6. Your content and data
 
@@ -68,5 +68,5 @@ These terms are the entire agreement between us regarding the Service. If a prov
 Questions? Contact ${site.supportEmail}.`;
 
 export default function TermsPage() {
-  return <LegalPage eyebrow="Legal" title="Terms of service" updated="October 23, 2026" markdown={MD} />;
+  return <LegalPage eyebrow="Legal" title="Terms of service" updated="November 5, 2026" markdown={MD} />;
 }

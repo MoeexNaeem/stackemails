@@ -47,7 +47,8 @@ const FAQS = [
   { q: "What counts as an email?", a: "Each recipient counts as one email. A message sent to three addresses in the To, Cc and Bcc fields counts as three. Broadcast emails count the same way." },
   { q: "What happens if I reach my limit?", a: "Sends beyond your daily or monthly limit are rejected with a clear quota_exceeded error, and nothing is charged. You'll see usage in the dashboard header and can upgrade at any time." },
   { q: "How do I upgrade?", a: "Go to Settings > Billing in the dashboard and choose a plan. Our team confirms the change by email, usually within a few hours, and your new limits apply immediately." },
-  { q: "Is there a contract or setup fee?", a: "No. Plans are month-to-month and you can downgrade at any time." },
+  { q: "Is there a contract or setup fee?", a: "No. Plans are month-to-month and you can cancel or downgrade at any time." },
+  { q: "Can I get a refund?", a: "Yes. Request a full refund of any charge within 14 days and we'll refund it, no questions asked. See our refund policy for details." },
   { q: "Do you offer higher volumes?", a: "Yes. If you need more than the Scale plan, contact sales for custom volume pricing." },
   { q: "Is the free plan really free?", a: "Yes, 3,000 emails a month (up to 100 a day), one domain and every core feature. No credit card required." },
 ];
