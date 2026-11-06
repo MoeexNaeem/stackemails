@@ -17,6 +17,7 @@ import { absUrl } from "@/lib/site";
  *   /blog/sitemap.xml       index of the blog children only
  *   /sitemaps/<name>.xml    one sitemap per section
  * lastmod uses real dates (post updatedAt, content review dates), never "now".
+ * No XSL stylesheet: Chrome is removing XSLT support, and crawlers never used it.
  */
 
 type Entry = { loc: string; lastmod?: Date; images?: string[] };
@@ -80,7 +81,7 @@ export const SITEMAPS: Record<string, { blog?: boolean; build: () => Promise<Ent
 
 const xmlEsc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const iso = (d?: Date) => (d && !Number.isNaN(+d) ? d.toISOString() : undefined);
-const HEAD = `<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n`;
+const HEAD = `<?xml version="1.0" encoding="UTF-8"?>\n`;
 
 export function urlsetXml(entries: Entry[]): string {
   const hasImages = entries.some((e) => e.images?.length);

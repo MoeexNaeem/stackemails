@@ -38,13 +38,23 @@ export async function proxy(req: NextRequest) {
   const value = decodeURIComponent((isTag ? second : first) ?? "").toLowerCase();
   if (!value || (!isTag && (value === "rss.xml" || value === "sitemap.xml"))) return NextResponse.next();
   try {
-    if (await exists(isTag ? "tags" : "slugs", value)) return NextResponse.next();
+    // Never hold a page hostage to a slow database: after 2s, let the request through.
+    const check = exists(isTag ? "tags" : "slugs", value);
+    check.catch(() => {}); // a late failure after the timeout must not become an unhandled rejection
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<"timeout">((resolve) => { timer = setTimeout(() => resolve("timeout"), 2000); });
+    const found = await Promise.race([check, timeout]).finally(() => clearTimeout(timer));
+    if (found === "timeout") {
+      console.error("[proxy] blog slug check timed out after 2s");
+      return NextResponse.next();
+    }
+    if (found) return NextResponse.next();
   } catch (err) {
     console.error("[proxy] blog slug check failed", (err as Error).message);
     return NextResponse.next();
   }
-  // No route matches this path, so Next renders app/not-found.tsx with a 404 status.
-  return NextResponse.rewrite(new URL("/__not-found", req.url));
+  // app/page-not-found calls notFound() outside any loading boundary: a real 404.
+  return NextResponse.rewrite(new URL("/page-not-found", req.url));
 }
 
 export const config = {
