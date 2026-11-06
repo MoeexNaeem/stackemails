@@ -54,7 +54,12 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
   // app/page-not-found calls notFound() outside any loading boundary: a real 404.
-  return NextResponse.rewrite(new URL("/page-not-found", req.url));
+  // Clone nextUrl (not new URL(path, req.url)): behind nginx req.url carries the public
+  // origin, which Next treats as an external rewrite and tries to fetch, causing a 500.
+  const url = req.nextUrl.clone();
+  url.pathname = "/page-not-found";
+  url.search = "";
+  return NextResponse.rewrite(url);
 }
 
 export const config = {
