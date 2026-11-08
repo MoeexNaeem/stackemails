@@ -9,6 +9,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { escapeRegex, pageOf, PAGE_SIZE } from "@/lib/filters";
 import { timeAgo } from "@/lib/format";
+import { DeleteTeamButton } from "@/components/admin/DeleteTeamButton";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Teams & users" };
@@ -61,9 +62,9 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
         <EmptyState title="No teams found" description="Try a different search or clear the filters." />
       ) : (
         <div className="card overflow-x-auto">
-          <table className="table min-w-[860px]">
+          <table className="table min-w-[900px]">
             <thead>
-              <tr><th>Team</th><th>Owner</th><th>Plan</th><th>Status</th><th>Usage this period</th><th className="text-right">Joined</th></tr>
+              <tr><th>Team</th><th>Owner</th><th>Plan</th><th>Status</th><th>Usage this period</th><th className="text-right">Joined</th><th className="w-10"><span className="sr-only">Actions</span></th></tr>
             </thead>
             <tbody>
               {workspaces.map((w) => {
@@ -91,6 +92,9 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                       </div>
                     </td>
                     <td className="text-right text-fg-subtle">{new Date(w.createdAt).toLocaleDateString()}</td>
+                    <td className="text-right">
+                      {owner?.platformRole !== "admin" && <DeleteTeamButton workspaceId={String(w._id)} name={w.name} ownerEmail={owner?.email} />}
+                    </td>
                   </tr>
                 );
               })}

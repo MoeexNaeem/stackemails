@@ -40,6 +40,7 @@ const PATHS = {
   activity: "M3 12h4l3 8 4-16 3 8h4",
   refresh: "M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7",
   "loader": "M12 3a9 9 0 1 0 9 9",
+  trash: "M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3",
 } as const;
 
 export type IconName = keyof typeof PATHS;

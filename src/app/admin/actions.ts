@@ -39,6 +39,10 @@ export async function deleteWorkspaceAction(workspaceId: string): Promise<void> 
   await requireAdminUser();
   const ws = await Workspace.findById(workspaceId);
   if (!ws) return;
+  // Never wipe a platform admin's own team (e.g. Stack Emails HQ).
+  if (ws.ownerId && (await User.exists({ _id: ws.ownerId, platformRole: "admin" }))) {
+    throw new Error("The admin team cannot be deleted.");
+  }
 
   // Cascade: remove all data owned by this workspace.
   await Promise.all([
