@@ -430,7 +430,7 @@ Comcast blocks outbound port 25 on residential connections to stop spam from inf
       { q: "What is the Comcast SMTP server?", a: "smtp.comcast.net on port 587 with STARTTLS or 465 with SSL/TLS, using your full Comcast email address." },
       { q: "Why can't I send on port 25 with Comcast?", a: "Comcast blocks port 25 on residential connections. Use port 587 or 465 for mail submission." },
     ],
-    related: ["att", "aol", "gmail"],
+    related: ["att", "aol", "earthlink"],
   },
   {
     slug: "att",
@@ -522,7 +522,7 @@ For WordPress contact forms, set your SMTP plugin to \`smtp.hostinger.com\`, por
     faq: [
       { q: "What is the Hostinger SMTP server?", a: "smtp.hostinger.com on port 465 with SSL/TLS (587 with STARTTLS is also supported)." },
     ],
-    related: ["namecheap", "godaddy", "bluehost"],
+    related: ["namecheap", "godaddy", "bluehost", "titan"],
   },
   {
     slug: "bluehost",
@@ -545,7 +545,7 @@ Mail sent by PHP's \`mail()\` from shared hosting often lands in spam because it
     faq: [
       { q: "What is the Bluehost SMTP server?", a: "mail.yourdomain.com (your own domain) on port 465 with SSL/TLS. The exact hostname is shown in Bluehost's Connect Devices page." },
     ],
-    related: ["hostinger", "namecheap", "godaddy"],
+    related: ["hostinger", "namecheap", "godaddy", "inmotion"],
   },
   {
     slug: "ionos",
@@ -565,6 +565,118 @@ IONOS runs separate mail domains per country. If sign-in fails, swap \`.com\` fo
       { q: "What is the IONOS SMTP server?", a: "smtp.ionos.com for US accounts (smtp.ionos.de, smtp.ionos.co.uk and so on elsewhere), on port 587 with STARTTLS or 465 with SSL/TLS." },
     ],
     related: ["gmx", "godaddy", "hostinger"],
+  },
+  {
+    slug: "earthlink",
+    name: "EarthLink",
+    kind: "Mailbox",
+    host: "smtpauth.earthlink.net",
+    ports: [{ port: 587, security: "STARTTLS", recommended: true }, { port: 465, security: "SSL/TLS" }],
+    username: "Your full EarthLink address (name@earthlink.net)",
+    password: "Your EarthLink password",
+    imap: { host: "imap.earthlink.net", port: 993 },
+    pop: { host: "pop.earthlink.net", port: 995 },
+    lead: "The EarthLink SMTP server is smtpauth.earthlink.net on port 587 (STARTTLS) or 465 (SSL). Sign in with your full EarthLink email address and password; outgoing mail always requires authentication.",
+    notes: `## Common problems
+
+- **Authentication is required.** EarthLink only accepts outgoing mail from signed-in users, so turn on "My outgoing server requires authentication" in your mail app.
+- **Use your full address** (including \`@earthlink.net\`) as the username.
+- **Port 25 is blocked** by most home internet providers. Use 587 or 465.
+- If sign-in keeps failing, check EarthLink's web mail settings for third-party (external) mail app access and its current help pages.`,
+    faq: [
+      { q: "What is the EarthLink SMTP server?", a: "smtpauth.earthlink.net on port 587 with STARTTLS or 465 with SSL/TLS, using your full EarthLink address and password." },
+      { q: "What are EarthLink's IMAP settings?", a: "imap.earthlink.net on port 993 with SSL/TLS." },
+    ],
+    related: ["comcast", "att", "aol"],
+  },
+  {
+    slug: "rackspace",
+    name: "Rackspace Email",
+    kind: "Web host",
+    host: "secure.emailsrvr.com",
+    ports: [{ port: 465, security: "SSL/TLS", recommended: true }, { port: 587, security: "STARTTLS" }],
+    username: "Your full Rackspace email address",
+    password: "Your mailbox password",
+    imap: { host: "secure.emailsrvr.com", port: 993 },
+    pop: { host: "secure.emailsrvr.com", port: 995 },
+    lead: "The Rackspace Email SMTP server is secure.emailsrvr.com on port 465 (SSL) or 587 (STARTTLS). The same host handles IMAP on port 993 and POP3 on port 995; sign in with your full email address.",
+    notes: `## One host for everything
+
+Rackspace uses \`secure.emailsrvr.com\` for SMTP, IMAP and POP3, so you only need to remember one server name. Always use your **full email address** as the username.
+
+## Sending from applications
+
+Rackspace mailboxes have per-mailbox sending limits meant for people, not applications. For password resets, receipts and notifications, send through a transactional email service on your own domain, such as [Stack Emails](/smtp-settings/stack-emails), and keep Rackspace for staff mailboxes.`,
+    faq: [
+      { q: "What is the Rackspace SMTP server?", a: "secure.emailsrvr.com on port 465 with SSL/TLS or 587 with STARTTLS." },
+      { q: "What is the Rackspace IMAP server?", a: "secure.emailsrvr.com on port 993 with SSL/TLS." },
+    ],
+    related: ["office-365", "google-workspace", "godaddy"],
+  },
+  {
+    slug: "dreamhost",
+    name: "DreamHost Email",
+    kind: "Web host",
+    host: "smtp.dreamhost.com",
+    ports: [{ port: 465, security: "SSL/TLS", recommended: true }, { port: 587, security: "STARTTLS" }],
+    username: "Your full email address",
+    password: "Your mailbox password",
+    imap: { host: "imap.dreamhost.com", port: 993 },
+    pop: { host: "pop.dreamhost.com", port: 995 },
+    lead: "The DreamHost SMTP server is smtp.dreamhost.com on port 465 (SSL) or 587 (STARTTLS), with imap.dreamhost.com on port 993 for incoming mail. Sign in with your full email address and mailbox password.",
+    notes: `## Sending from a DreamHost website
+
+PHP's \`mail()\` on shared hosting isn't authenticated for your domain, so messages often land in spam. Point your contact forms and WordPress at an SMTP relay instead, and add its SPF and DKIM records. Our [WordPress guide](/send-email/wordpress) shows how.`,
+    faq: [
+      { q: "What is the DreamHost SMTP server?", a: "smtp.dreamhost.com on port 465 with SSL/TLS or 587 with STARTTLS." },
+    ],
+    related: ["bluehost", "hostinger", "inmotion"],
+  },
+  {
+    slug: "inmotion",
+    name: "InMotion Hosting Email",
+    kind: "Web host",
+    host: "mail.yourdomain.com (or your server's hostname)",
+    ports: [{ port: 465, security: "SSL/TLS", recommended: true }, { port: 587, security: "STARTTLS" }],
+    username: "Your full email address",
+    password: "Your mailbox password",
+    imap: { host: "mail.yourdomain.com", port: 993 },
+    pop: { host: "mail.yourdomain.com", port: 995 },
+    lead: "InMotion Hosting email uses your own domain as the server: mail.yourdomain.com for SMTP on port 465 (SSL) or 587, and for IMAP on port 993. If the SSL certificate doesn't match, use your server's hostname shown in cPanel instead.",
+    notes: `## Find your exact settings
+
+In cPanel, open **Email Accounts**, then **Connect Devices** next to the mailbox. It lists the secure server hostname and ports for your account. Using the server hostname avoids certificate warnings when \`mail.yourdomain.com\` isn't covered by SSL.
+
+## Sending from your website
+
+For WordPress and contact forms, an authenticated SMTP relay with SPF and DKIM for your domain delivers far more reliably than PHP \`mail()\`. Check your records with the free [SPF checker](/tools/spf-checker).`,
+    faq: [
+      { q: "What is the InMotion Hosting SMTP server?", a: "mail.yourdomain.com (your own domain) or your server's hostname, on port 465 with SSL/TLS. cPanel's Connect Devices page shows the exact host." },
+    ],
+    related: ["bluehost", "hostinger", "dreamhost"],
+  },
+  {
+    slug: "titan",
+    name: "Titan Email",
+    kind: "Web host",
+    host: "smtp.titan.email",
+    ports: [{ port: 465, security: "SSL/TLS", recommended: true }, { port: 587, security: "STARTTLS" }],
+    username: "Your full Titan email address",
+    password: "Your mailbox password",
+    imap: { host: "imap.titan.email", port: 993 },
+    pop: { host: "pop.titan.email", port: 995 },
+    lead: "The Titan Email SMTP server is smtp.titan.email on port 465 (SSL) or 587 (STARTTLS), with imap.titan.email on port 993. Titan is the business email bundled with many hosts and domain registrars.",
+    notes: `## Who uses Titan
+
+Titan provides the mailboxes sold by several hosts and registrars (often labelled "Professional Email" or "Business Email"). If your provider's email login page is at titan.email, these are your settings.
+
+## Domain records
+
+Your provider usually adds Titan's MX, SPF and DKIM records for you. Confirm them with our [MX lookup](/tools/mx-lookup) and [SPF checker](/tools/spf-checker).`,
+    faq: [
+      { q: "What is the Titan Email SMTP server?", a: "smtp.titan.email on port 465 with SSL/TLS or 587 with STARTTLS, using your full email address." },
+    ],
+    related: ["hostinger", "namecheap", "godaddy"],
   },
   {
     slug: "sendgrid",

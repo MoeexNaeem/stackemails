@@ -19,7 +19,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const d = docBySlug((await params).slug);
   if (!d) return {};
-  return pageMeta({ title: `${d.title} | API docs`, description: d.description, path: `/docs/${d.slug}` });
+  // Doc descriptions are one short line; pad them into a full search snippet (Google shows up to ~155 chars).
+  const description = `${d.description} Stack Emails API documentation with request examples, parameters and error codes.`.slice(0, 160);
+  return pageMeta({ title: `${d.title} | API docs`, description, path: `/docs/${d.slug}` });
 }
 
 export default async function DocPage({ params }: Props) {

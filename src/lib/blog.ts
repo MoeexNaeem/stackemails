@@ -85,6 +85,9 @@ export function tagSlug(tag: string) {
   return slugify(tag);
 }
 
+/** Tag pages with fewer posts than this are noindex and left out of the sitemap (thin content). */
+export const MIN_INDEXED_TAG_POSTS = 3;
+
 export async function getTags(): Promise<{ tag: string; slug: string; count: number }[]> {
   const counts = new Map<string, { tag: string; count: number }>();
   for (const p of await getPublishedPosts()) {

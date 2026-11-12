@@ -5,7 +5,7 @@ import { PageHero } from "@/components/marketing/Sections";
 import { formatDate } from "@/lib/blog";
 
 export const metadata: Metadata = pageMeta({
-  title: "Changelog",
+  title: "Changelog: new features and updates",
   description: "New features, improvements and fixes in Stack Emails.",
   path: "/changelog",
 });

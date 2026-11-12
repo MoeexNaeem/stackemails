@@ -70,9 +70,18 @@ server {
     location /.well-known/acme-challenge/ { root $ACME_ROOT; }
     location / { return 301 https://$DOMAIN\$request_uri; }
 }
+# One canonical host: https://www.$DOMAIN permanently redirects to https://$DOMAIN
+# so search engines never index two copies of every page.
 server {
     listen 443 ssl;
-    server_name $DOMAIN www.$DOMAIN;
+    server_name www.$DOMAIN;
+    ssl_certificate     $CERT_DIR/fullchain.pem;
+    ssl_certificate_key $CERT_DIR/privkey.pem;
+    return 301 https://$DOMAIN\$request_uri;
+}
+server {
+    listen 443 ssl;
+    server_name $DOMAIN;
     ssl_certificate     $CERT_DIR/fullchain.pem;
     ssl_certificate_key $CERT_DIR/privkey.pem;
     client_max_body_size 10m;

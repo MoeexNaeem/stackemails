@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/marketing/LegalPage";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
-  title: "Security",
+  title: "Security and data protection",
   description: "How Stack Emails protects your account, your API keys and the email you send, and how to report a vulnerability.",
   path: "/security",
 });

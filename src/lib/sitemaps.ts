@@ -1,5 +1,5 @@
 import "server-only";
-import { getPublishedPosts, getTags } from "@/lib/blog";
+import { MIN_INDEXED_TAG_POSTS, getPublishedPosts, getTags } from "@/lib/blog";
 import { FEATURES } from "@/content/features";
 import { COMPARISONS } from "@/content/compare";
 import { DOCS } from "@/content/docs";
@@ -23,7 +23,7 @@ import { absUrl } from "@/lib/site";
 type Entry = { loc: string; lastmod?: Date; images?: string[] };
 
 /** Bump when the static marketing/programmatic content is meaningfully revised. */
-const CONTENT_UPDATED = new Date("2026-11-05T00:00:00Z");
+const CONTENT_UPDATED = new Date("2026-11-12T00:00:00Z");
 const LAUNCH = new Date("2026-10-23T00:00:00Z");
 
 const at = (path: string, lastmod: Date = CONTENT_UPDATED): Entry => ({ loc: absUrl(path), lastmod });
@@ -68,7 +68,7 @@ export const SITEMAPS: Record<string, { blog?: boolean; build: () => Promise<Ent
     build: async () => {
       const [posts, tags] = await Promise.all([getPublishedPosts(), getTags()]);
       const latestFor = (slug: string) => posts.find((p) => p.tags.some((t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slug))?.updatedAt;
-      return tags.map((t) => ({ loc: absUrl(`/blog/tag/${t.slug}`), lastmod: latestFor(t.slug) ?? posts[0]?.updatedAt ?? CONTENT_UPDATED }));
+      return tags.filter((t) => t.count >= MIN_INDEXED_TAG_POSTS).map((t) => ({ loc: absUrl(`/blog/tag/${t.slug}`), lastmod: latestFor(t.slug) ?? posts[0]?.updatedAt ?? CONTENT_UPDATED }));
     },
   },
   "smtp-settings": { build: async () => [at("/smtp-settings"), ...SMTP_PROVIDERS.map((p) => at(`/smtp-settings/${p.slug}`))] },

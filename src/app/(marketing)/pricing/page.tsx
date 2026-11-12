@@ -71,12 +71,24 @@ export default async function PricingPage() {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Product",
-        name: `${site.name} email API`,
+        // SoftwareApplication, not Product: Product makes Google expect a shopping item
+        // (image, shipping, returns) and flags it in the Merchant listings report.
+        "@type": "SoftwareApplication",
+        name: site.name,
         description: site.description,
-        brand: { "@type": "Brand", name: site.name },
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: "Web",
         url: absUrl("/pricing"),
-        offers: plans.map((p) => ({ "@type": "Offer", name: p.name, price: String(p.price), priceCurrency: "USD", url: absUrl("/pricing"), availability: "https://schema.org/InStock" })),
+        image: absUrl("/opengraph-image"),
+        publisher: { "@type": "Organization", name: site.name, url: site.url },
+        offers: plans.map((p) => ({
+          "@type": "Offer",
+          name: p.name,
+          price: String(p.price),
+          priceCurrency: "USD",
+          url: absUrl("/pricing"),
+          ...(p.price > 0 ? { priceSpecification: { "@type": "UnitPriceSpecification", price: String(p.price), priceCurrency: "USD", billingDuration: "P1M", unitText: "MONTH" } } : {}),
+        })),
       },
       faqLd(FAQS),
     ],

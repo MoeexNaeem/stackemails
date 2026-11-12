@@ -5,7 +5,7 @@ import { CtaBand, PageHero } from "@/components/marketing/Sections";
 import { absUrl, jsonLd, site } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
-  title: "About",
+  title: "About Stack Emails: the email API built for developers",
   description: "Stack Emails is building the email platform we always wanted: simple for developers, honest about deliverability, and fair on price.",
   path: "/about",
 });

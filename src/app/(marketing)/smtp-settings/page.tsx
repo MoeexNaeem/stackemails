@@ -4,8 +4,8 @@ import { PseoHub } from "@/components/marketing/Pseo";
 import { SMTP_PROVIDERS } from "@/content/pseo/smtp";
 
 export const metadata: Metadata = pageMeta({
-  title: "SMTP server settings for Gmail, Outlook, Office 365 and 25+ providers",
-  description: "Find the SMTP server, port, username and password rules for Gmail, Outlook, Office 365, Yahoo, iCloud, Zoho, GoDaddy, SendGrid, Amazon SES and more.",
+  title: "SMTP server addresses and settings for Gmail, Outlook and 30+ providers",
+  description: "SMTP server addresses, ports and login rules for Gmail, Outlook, Office 365, Yahoo, iCloud, Zoho, GoDaddy, Rackspace, SendGrid, Amazon SES and 20+ more.",
   path: "/smtp-settings",
 });
 
@@ -18,7 +18,7 @@ export default function SmtpHub() {
       crumbs={[{ name: "SMTP settings", path: "/smtp-settings" }]}
       eyebrow="SMTP settings"
       title="SMTP server settings for every major provider"
-      lead="The outgoing mail server, ports, username and password rules for the providers people ask about most, checked against each provider's own help pages."
+      lead="The SMTP server address, ports, username and password rules for the providers people ask about most, checked against each provider's own help pages."
       path="/smtp-settings"
       description="SMTP server settings for Gmail, Outlook, Office 365, Yahoo and more."
       groups={KINDS.map((k) => ({

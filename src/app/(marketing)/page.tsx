@@ -11,7 +11,7 @@ import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = pageMeta({
   title: "Stack Emails | The email API for developers",
-  description: "Send transactional and marketing email with one clean API. Verified domains, real-time webhooks, broadcasts, inbound inboxes and an MCP server for AI agents, built on Amazon SES. Free up to 3,000 emails a month.",
+  description: "The email API for developers: transactional and marketing email with verified domains, webhooks and inbound inboxes, on Amazon SES. 3,000 free emails a month.",
   path: "/",
   absoluteTitle: true,
 });

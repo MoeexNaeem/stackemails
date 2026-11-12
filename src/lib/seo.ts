@@ -24,10 +24,14 @@ export function pageMeta(opts: {
   keywords?: string[];
   noindex?: boolean;
 }): Metadata {
-  const fullTitle = opts.absoluteTitle ? opts.title : `${opts.title} · ${site.name}`;
+  // Google shows roughly 60 characters of a title. Add the " · Stack Emails" suffix only
+  // when it still fits; otherwise the suffix would push the keywords out of view.
+  const suffixed = `${opts.title} · ${site.name}`;
+  const absolute = opts.absoluteTitle || suffixed.length > 60;
+  const fullTitle = absolute ? opts.title : suffixed;
   const images = opts.images ?? DEFAULT_OG;
   return {
-    title: opts.absoluteTitle ? { absolute: opts.title } : opts.title,
+    title: absolute ? { absolute: opts.title } : opts.title,
     description: opts.description,
     ...(opts.keywords ? { keywords: opts.keywords } : {}),
     alternates: { canonical: opts.path },

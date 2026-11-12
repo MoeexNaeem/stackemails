@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPublishedPosts, getTags, tagSlug } from "@/lib/blog";
+import { getPublishedPosts, getTags, tagSlug, MIN_INDEXED_TAG_POSTS } from "@/lib/blog";
 import { PostCard } from "@/components/marketing/Blog";
 import { absUrl, jsonLd, site } from "@/lib/site";
 import { Icon } from "@/components/ui/Icon";
@@ -24,6 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `Articles about ${found.tag}`,
     description: `Stack Emails articles about ${found.tag}: ${found.count} guide${found.count === 1 ? "" : "s"} on email delivery and building with email.`,
     path: `/blog/tag/${found.slug}`,
+    // A topic with one or two posts is a thin duplicate of those posts: keep it out of the index (links still followed).
+    noindex: found.count < MIN_INDEXED_TAG_POSTS,
   });
 }
 

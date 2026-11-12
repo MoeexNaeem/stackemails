@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = pageMeta({
   title: "Product: email API, broadcasts, inbound, SMTP & webhooks",
-  description: "Everything Stack Emails does: transactional email API, broadcasts and audiences, inbound email and shared inboxes, SMTP relay, signed webhooks and an MCP server for AI agents.",
+  description: "Everything Stack Emails does: transactional email API, broadcasts, inbound email and shared inboxes, SMTP relay, signed webhooks and an MCP server for AI agents.",
   path: "/features",
 });
 
