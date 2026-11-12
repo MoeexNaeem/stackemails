@@ -41,9 +41,14 @@ export async function verifyDomainAction(id: string): Promise<DomainState> {
   revalidatePath("/domains");
   revalidatePath(`/domains/${id}`);
   const missing = domain.records.filter((r) => r.status !== "verified").length;
-  return verified
-    ? { ok: true, message: missing ? `Verified for sending. ${missing} optional record${missing === 1 ? "" : "s"} still pending.` : "All records verified." }
-    : { ok: false, error: `Not verified yet: ${missing} record${missing === 1 ? "" : "s"} not found in DNS. Changes can take up to 48 hours to propagate.` };
+  if (verified) {
+    return { ok: true, message: missing ? `Verified for sending. ${missing} optional record${missing === 1 ? "" : "s"} still pending.` : "All records verified." };
+  }
+  // Every record resolves but the provider hasn't finished its own check yet: say so, not "0 records not found".
+  if (!missing) {
+    return { ok: true, message: "All DNS records found. Waiting for Amazon SES to confirm, which usually takes a few minutes. We'll keep checking automatically." };
+  }
+  return { ok: false, error: `Not verified yet: ${missing} record${missing === 1 ? "" : "s"} not found in DNS. Changes can take up to 48 hours to propagate.` };
 }
 
 export async function deleteDomainAction(id: string): Promise<void> {
