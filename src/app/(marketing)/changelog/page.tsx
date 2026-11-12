@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/blog";
 
 export const metadata: Metadata = pageMeta({
   title: "Changelog: new features and updates",
-  description: "New features, improvements and fixes in Stack Emails.",
+  description: "Every new feature, improvement and fix in Stack Emails: the email API, dashboard, SMTP relay, webhooks, broadcasts and inbound email.",
   path: "/changelog",
 });
 

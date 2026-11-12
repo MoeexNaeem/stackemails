@@ -16,7 +16,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!p) return {};
   const port = p.ports.map((x) => x.port).slice(0, 2).join(" / ");
   return pageMeta({
-    title: `${p.name} SMTP settings: server, port ${port} and login (2026)`,
+    // Longest title that fits Google's ~60 characters, so the provider name and "SMTP" always show.
+    title: [`${p.name} SMTP settings: server, port ${port} and login (2026)`, `${p.name} SMTP settings: server, port and login (2026)`, `${p.name} SMTP server settings (2026)`, `${p.name} SMTP settings`].find((t) => t.length <= 60) ?? `${p.name} SMTP settings`,
     description: `${p.name} SMTP server: ${p.host}, port ${port}. Username, password and ${p.imap ? "IMAP settings" : "setup steps"}, plus fixes for common sign-in errors.`.slice(0, 160),
     path: `/smtp-settings/${p.slug}`,
     type: "article",

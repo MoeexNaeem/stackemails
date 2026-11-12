@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
   title: "Acceptable use and anti-spam policy",
-  description: "What you can and can't send with Stack Emails: verified domains, opt-in recipients only, automatic suppression of bounces and complaints, and zero tolerance for spam.",
+  description: "What you can and can't send with Stack Emails: verified domains, opt-in recipients only, automatic bounce and complaint suppression, zero tolerance for spam.",
   path: "/acceptable-use",
 });
 

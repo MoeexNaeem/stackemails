@@ -4,7 +4,7 @@ import { PseoHub } from "@/components/marketing/Pseo";
 import { SMTP_PROVIDERS } from "@/content/pseo/smtp";
 
 export const metadata: Metadata = pageMeta({
-  title: "SMTP server addresses and settings for Gmail, Outlook and 30+ providers",
+  title: "SMTP server settings: Gmail, Outlook and 30+ providers",
   description: "SMTP server addresses, ports and login rules for Gmail, Outlook, Office 365, Yahoo, iCloud, Zoho, GoDaddy, Rackspace, SendGrid, Amazon SES and 20+ more.",
   path: "/smtp-settings",
 });
