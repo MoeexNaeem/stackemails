@@ -1,4 +1,4 @@
-import { Domain, Suppression } from "@/lib/db/models";
+import { Domain, Suppression, User, Workspace } from "@/lib/db/models";
 import { env } from "@/lib/env";
 import type { Types } from "mongoose";
 
@@ -48,6 +48,17 @@ export async function assertSenderAllowed(workspaceId: Id, from: string): Promis
   return { ok: true };
 }
 
+/**
+ * The platform's own teams (owned by a platform admin) may use the platform's
+ * domain, e.g. mail.stackemails.com for Stack Emails' own newsletters. Tenants
+ * can never become platform admins, so they stay blocked.
+ */
+async function ownedByPlatformAdmin(workspaceId: Id): Promise<boolean> {
+  const ws = await Workspace.findById(workspaceId).select("ownerId").lean();
+  if (!ws?.ownerId) return false;
+  return Boolean(await User.exists({ _id: ws.ownerId, platformRole: "admin", disabled: { $ne: true } }));
+}
+
 /** Split recipients into those we may send to and those on the suppression list. */
 export async function partitionSuppressed(
   workspaceId: Id,
@@ -75,7 +86,7 @@ export async function partitionSuppressed(
  */
 export async function checkDomainAvailable(workspaceId: Id, name: string): Promise<GuardResult> {
   const systemDomain = senderDomain(env.systemFromEmail);
-  if (systemDomain && domainAndParents(name).includes(systemDomain)) {
+  if (systemDomain && domainAndParents(name).includes(systemDomain) && !(await ownedByPlatformAdmin(workspaceId))) {
     return { ok: false, code: "domain_reserved", message: "This domain is reserved and can't be added." };
   }
   const existing = await Domain.findOne({ name }).select("workspaceId").lean();
