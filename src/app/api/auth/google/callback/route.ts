@@ -11,6 +11,7 @@ import { issueMfaChallenge } from "@/lib/auth/mfaChallenge";
 import { getRateLimiter } from "@/lib/ratelimit";
 import { sendSystemEmail } from "@/lib/email/system";
 import { NoticeEmail, SystemWelcomeEmail } from "@/emails/system";
+import { isDisposableEmail } from "@/lib/abuse";
 import { GOOGLE_STATE_COOKIE, decodeState, exchangeGoogleCode, googleEnabled } from "@/lib/auth/google";
 
 export const runtime = "nodejs";
@@ -75,6 +76,7 @@ export async function GET(req: Request) {
       );
     }
   } else {
+    if (isDisposableEmail(profile.email)) return fail("google_failed");
     try {
       // Google-only accounts get a random password nobody knows; "Forgot password" lets them set one later.
       await createAccount({ name: profile.name, email: profile.email, password: randomBytes(32).toString("hex") });

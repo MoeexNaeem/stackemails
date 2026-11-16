@@ -1,4 +1,5 @@
-import { Domain, Inbox, Workspace } from "@/lib/db/models";
+import { Domain, Inbox, Membership, Workspace } from "@/lib/db/models";
+import { FREE_MAX_DOMAINS_PER_OWNER, ownerHasPaidPlan } from "@/lib/abuse";
 import { limitsFor } from "@/lib/plans";
 import { checkDomainAvailable } from "@/lib/email/guards";
 import { buildDnsRecords, mailFromDomain } from "@/lib/dns";
@@ -85,6 +86,14 @@ export async function createDomain(workspaceId: Types.ObjectId, input: DomainInp
   const max = limitsFor(ws?.plan).domains;
   if ((await Domain.countDocuments({ workspaceId })) >= max) {
     return { ok: false as const, status: 403, code: "plan_limit", message: `Your plan allows ${max} domain${max === 1 ? "" : "s"}. Upgrade on Settings > Billing to add more.` };
+  }
+  // Count domains across every team the owner runs, so free limits can't be multiplied by creating teams.
+  const owner = await Workspace.findById(workspaceId).select("ownerId").lean();
+  if (owner?.ownerId && !(await ownerHasPaidPlan(owner.ownerId))) {
+    const ownedTeams = (await Membership.find({ userId: owner.ownerId, role: "owner" }).select("workspaceId").lean()).map((m) => m.workspaceId);
+    if ((await Domain.countDocuments({ workspaceId: { $in: ownedTeams } })) >= FREE_MAX_DOMAINS_PER_OWNER) {
+      return { ok: false as const, status: 403, code: "plan_limit", message: `Free accounts can add up to ${FREE_MAX_DOMAINS_PER_OWNER} domains in total. Upgrade a team on Settings > Billing to add more.` };
+    }
   }
 
   // Domains must live in the region we send from, or SES won't accept the sender.

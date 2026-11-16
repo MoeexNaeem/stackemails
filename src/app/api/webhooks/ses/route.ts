@@ -5,6 +5,7 @@ import { apiJson } from "@/lib/api/response";
 import { confirmSubscription, verifySnsMessage } from "@/lib/aws/sns";
 import { refreshBroadcastStats } from "@/lib/broadcast";
 import { bumpStat } from "@/lib/stats";
+import { enforceSenderReputation } from "@/lib/abuse";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -84,6 +85,8 @@ export async function POST(req: Request) {
         await Promise.all(recipients.map((email) => Suppression.updateOne({ workspaceId: log.workspaceId, email }, { $setOnInsert: { reason: "bounce" } }, { upsert: true })));
       }
       await emitEvent(ws, "email.bounced", { ...base, status: "bounced", bounce: { type, sub_type: event.bounce?.bounceSubType ?? null, recipients } });
+      // Automatic brake: pause this sender before its bounces put the whole SES account at risk.
+      if (type === "Permanent") await enforceSenderReputation(log.workspaceId).catch((e) => console.error("[abuse] check failed", e));
       break;
     }
     case "complaint": {
@@ -94,6 +97,7 @@ export async function POST(req: Request) {
       await log.save();
       await Promise.all(recipients.map((email) => Suppression.updateOne({ workspaceId: log.workspaceId, email }, { $set: { reason: "complaint" } }, { upsert: true })));
       await emitEvent(ws, "email.complained", { ...base, status: "complained", recipients });
+      await enforceSenderReputation(log.workspaceId).catch((e) => console.error("[abuse] check failed", e));
       break;
     }
     case "deliverydelay": {

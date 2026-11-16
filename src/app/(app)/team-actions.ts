@@ -7,6 +7,7 @@ import { ACTIVE_WS_COOKIE } from "@/lib/auth/workspace";
 import { connectToDatabase } from "@/lib/db/connect";
 import { Membership } from "@/lib/db/models";
 import { createWorkspaceFor } from "@/lib/accounts";
+import { FREE_MAX_OWNED_TEAMS, ownerHasPaidPlan } from "@/lib/abuse";
 
 const COOKIE_OPTS = {
   httpOnly: true,
@@ -36,7 +37,11 @@ export async function createTeamAction(rawName: string): Promise<{ ok: boolean; 
 
   await connectToDatabase();
   const owned = await Membership.countDocuments({ userId: user._id, role: "owner" });
-  if (owned >= 10) return { ok: false, error: "You can own up to 10 teams." };
+  // Free accounts get a small team allowance; spreading sending across many free teams was an abuse vector.
+  const maxTeams = (await ownerHasPaidPlan(user._id)) ? 10 : FREE_MAX_OWNED_TEAMS;
+  if (owned >= maxTeams) {
+    return { ok: false, error: maxTeams === 10 ? "You can own up to 10 teams." : `Free accounts can own up to ${FREE_MAX_OWNED_TEAMS} teams. Upgrade a team to create more.` };
+  }
 
   const ws = await createWorkspaceFor(user._id, name);
   (await cookies()).set(ACTIVE_WS_COOKIE, String(ws._id), COOKIE_OPTS);

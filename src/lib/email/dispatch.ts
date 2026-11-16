@@ -1,6 +1,6 @@
 import type { HydratedDocument } from "mongoose";
 import { connectToDatabase } from "@/lib/db/connect";
-import { Domain, EmailLog, type EmailLogDoc } from "@/lib/db/models";
+import { Domain, EmailLog, type EmailLogDoc, Workspace } from "@/lib/db/models";
 import { assertSenderAllowed, partitionSuppressed, senderDomain } from "@/lib/email/guards";
 import { getEmailProvider } from "@/lib/email";
 import { emitEvent } from "@/lib/webhooks/dispatch";
@@ -52,6 +52,11 @@ export async function processEmailJob(job: EmailJob, attempt = 1): Promise<void>
 
   // Policy checks run here because every send path (API, dashboard, broadcasts,
   // automations, SMTP, inboxes) funnels through this job. Failures are final.
+  // A team restricted or suspended after this email was queued must not send it.
+  const team = await Workspace.findById(job.workspaceId).select("status restrictedReason").lean();
+  if (team && team.status !== "active") {
+    return failPermanently(log, job.workspaceId, team.status === "suspended" ? "This account has been suspended." : team.restrictedReason || "This account is restricted from sending.");
+  }
   const sender = await assertSenderAllowed(job.workspaceId, log.from);
   if (!sender.ok) return failPermanently(log, job.workspaceId, sender.message);
 
