@@ -1,5 +1,5 @@
 import type { Types } from "mongoose";
-import { Plan, Subscription, Transaction, Workspace, type TransactionDoc } from "@/lib/db/models";
+import { Plan, Subscription, Transaction, User, Workspace, type TransactionDoc } from "@/lib/db/models";
 
 const PERIOD_DAYS = 30;
 
@@ -38,6 +38,8 @@ export async function activatePlan(workspaceId: Types.ObjectId | string, planId:
   );
 
   if (plan.priceMonthly <= 0) return { tx: null };
+  // A paying customer is approved to send (skips the new-account review).
+  await User.updateOne({ _id: ws.ownerId, sendingApprovedAt: null }, { $set: { sendingApprovedAt: now } });
   const tx = await Transaction.create({
     workspaceId: ws._id, workspaceName: ws.name, planId: plan._id, planName: plan.name,
     amount: opts.amount ?? plan.priceMonthly, type: renewing ? "renewal" : ws.plan === "free" ? "new" : "upgrade", status: "paid",

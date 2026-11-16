@@ -9,3 +9,14 @@
 export function isEmailVerified(user: { emailVerifiedAt?: Date | null; googleId?: string | null; platformRole?: string | null }): boolean {
   return Boolean(user.emailVerifiedAt || user.googleId || user.platformRole === "admin");
 }
+
+/**
+ * Whether the account may add sending domains. Spam bots pass email
+ * confirmation with real Outlook/Hotmail inboxes, so new accounts are reviewed
+ * by a person (Admin > Review) first. Paying for a plan also approves the account.
+ * Set ACCOUNT_REVIEW=off to turn the review off.
+ */
+export function isApprovedSender(user: { sendingApprovedAt?: Date | null; platformRole?: string | null }): boolean {
+  if (process.env.ACCOUNT_REVIEW === "off") return true;
+  return Boolean(user.sendingApprovedAt || user.platformRole === "admin");
+}

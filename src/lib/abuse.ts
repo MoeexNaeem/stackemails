@@ -82,6 +82,36 @@ export async function enforceSenderReputation(workspaceId: Types.ObjectId | stri
   return { restricted: true, reason };
 }
 
+/**
+ * A not-yet-approved account tried to add a sending domain: tell the admin
+ * (at most once a day per account) so they can approve or suspend it.
+ */
+export async function requestAccountReview(user: { _id: Types.ObjectId; email: string; name?: string }, domain: string): Promise<void> {
+  try {
+    await connectToDatabase();
+    await User.updateOne({ _id: user._id }, { $set: { reviewRequestedAt: new Date(), reviewDomain: domain.slice(0, 253) } });
+    const { getRateLimiter } = await import("@/lib/ratelimit");
+    const gate = await getRateLimiter().check(`review-alert:${user._id}`, 1, 24 * 3600_000);
+    if (!gate.allowed) return;
+    const [{ sendSystemEmail }, { NoticeEmail }] = await Promise.all([import("@/lib/email/system"), import("@/emails/system")]);
+    await sendSystemEmail({
+      kind: "account_notice",
+      to: env.supportEmail,
+      subject: `Review: ${user.email} wants to add ${domain}`,
+      react: createElement(NoticeEmail, {
+        heading: "An account is waiting for approval",
+        paragraphs: [
+          `${user.email} (${user.name ?? "no name"}) tried to add the sending domain ${domain}.`,
+          "Approve it only if it looks like a real business: a real website on that domain, a name and email that match it. Bots use random Outlook/Hotmail addresses and other people's small-business domains.",
+        ],
+        cta: { label: "Review accounts", href: `${env.appUrl}/admin/review` },
+      }),
+    });
+  } catch (err) {
+    console.error("[abuse] review alert failed", err);
+  }
+}
+
 // Signup surge alarm: a normal day has a handful of signups; a wave means a bot run.
 const SURGE_WINDOW_MS = 3600_000;
 const SURGE_THRESHOLD = 15;

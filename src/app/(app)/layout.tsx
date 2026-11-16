@@ -6,7 +6,7 @@ import { getActiveWorkspace, listWorkspacesForUser } from "@/lib/auth/workspace"
 import { Suspense } from "react";
 import { AppShell } from "@/components/dashboard/AppShell";
 import { VerifyEmailBanner } from "@/components/dashboard/VerifyEmailBanner";
-import { isEmailVerified } from "@/lib/auth/verified";
+import { isApprovedSender, isEmailVerified } from "@/lib/auth/verified";
 
 // The dashboard is private: never index it.
 export const metadata: Metadata = {
@@ -30,7 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       assistantEnabled={workspace.labs?.assistant !== false}
     >
       <Suspense fallback={null}>
-        <VerifyEmailBanner email={user.email} verified={isEmailVerified(user)} />
+        <VerifyEmailBanner email={user.email} verified={isEmailVerified(user)} inReview={!isApprovedSender(user) && workspace.plan === "free"} />
       </Suspense>
       {children}
     </AppShell>

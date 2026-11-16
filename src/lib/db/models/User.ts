@@ -12,6 +12,12 @@ const UserSchema = new Schema(
     avatarUrl: { type: String },
     // Set when the person clicks the verification link (or signs up with Google).
     emailVerifiedAt: { type: Date },
+    // Set when a platform admin approves the account to send (or the owner pays for a plan).
+    // New accounts can't add sending domains until then.
+    sendingApprovedAt: { type: Date },
+    // Last domain the account tried to add while waiting for review (shown in Admin > Review).
+    reviewRequestedAt: { type: Date },
+    reviewDomain: { type: String },
     // Platform-level role. "admin" = the SaaS owner's superadmin panel access.
     platformRole: { type: String, enum: ["user", "admin"], default: "user", index: true },
     lastLoginAt: { type: Date },

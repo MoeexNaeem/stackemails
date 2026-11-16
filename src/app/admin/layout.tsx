@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth/admin";
 import { connectToDatabase } from "@/lib/db/connect";
-import { ContactMessage, ManualPayment, SupportTicket } from "@/lib/db/models";
+import { ContactMessage, ManualPayment, SupportTicket, User } from "@/lib/db/models";
 import { AdminMobileNav, AdminSidebar } from "@/components/admin/AdminSidebar";
 
 export const metadata: Metadata = { title: { default: "Admin", template: "%s · Admin · Stack Emails" }, robots: { index: false, follow: false } };
@@ -9,15 +9,17 @@ export const metadata: Metadata = { title: { default: "Admin", template: "%s · 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
   await connectToDatabase();
-  const [openTickets, newMessages, pendingPayments] = await Promise.all([
+  const [openTickets, newMessages, pendingPayments, toReview] = await Promise.all([
     SupportTicket.countDocuments({ status: "open" }),
     ContactMessage.countDocuments({ status: "new" }),
     ManualPayment.countDocuments({ status: "pending" }),
+    // Accounts that tried to add a domain and are waiting for approval.
+    User.countDocuments({ platformRole: { $ne: "admin" }, disabled: { $ne: true }, sendingApprovedAt: null, reviewRequestedAt: { $ne: null } }),
   ]);
 
   return (
     <div className="flex h-dvh overflow-hidden bg-bg">
-      <AdminSidebar email={admin.email} openTickets={openTickets} newMessages={newMessages} pendingPayments={pendingPayments} />
+      <AdminSidebar email={admin.email} openTickets={openTickets} newMessages={newMessages} pendingPayments={pendingPayments} toReview={toReview} />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border px-6">
           <span className="text-[15px]">Platform admin</span>

@@ -1,6 +1,6 @@
 import { Domain, Inbox, Membership, User, Workspace } from "@/lib/db/models";
-import { isEmailVerified } from "@/lib/auth/verified";
-import { FREE_MAX_DOMAINS_PER_OWNER, ownerHasPaidPlan } from "@/lib/abuse";
+import { isApprovedSender, isEmailVerified } from "@/lib/auth/verified";
+import { FREE_MAX_DOMAINS_PER_OWNER, ownerHasPaidPlan, requestAccountReview } from "@/lib/abuse";
 import { limitsFor } from "@/lib/plans";
 import { checkDomainAvailable } from "@/lib/email/guards";
 import { buildDnsRecords, mailFromDomain } from "@/lib/dns";
@@ -91,9 +91,21 @@ export async function createDomain(workspaceId: Types.ObjectId, input: DomainInp
   // Count domains across every team the owner runs, so free limits can't be multiplied by creating teams.
   const owner = await Workspace.findById(workspaceId).select("ownerId").lean();
   // The team owner must have confirmed their email before any domain (and so any sending) is possible.
-  const ownerUser = owner?.ownerId ? await User.findById(owner.ownerId).select("emailVerifiedAt googleId platformRole").lean() : null;
+  const ownerUser = owner?.ownerId ? await User.findById(owner.ownerId).select("email name emailVerifiedAt googleId platformRole sendingApprovedAt").lean() : null;
   if (!ownerUser || !isEmailVerified(ownerUser)) {
     return { ok: false as const, status: 403, code: "email_unverified", message: "The team owner must confirm their email address before adding a domain. Check your inbox for the confirmation link, or resend it from the dashboard." };
+  }
+  const team = await Workspace.findById(workspaceId).select("status").lean();
+  if (team?.status && team.status !== "active") {
+    return { ok: false as const, status: 403, code: "team_restricted", message: "This team is restricted and can't add domains. Contact support@stackemails.com." };
+  }
+  // New accounts are reviewed by a person before they can send (bots pass email confirmation).
+  if (!isApprovedSender(ownerUser) && !(await ownerHasPaidPlan(ownerUser._id))) {
+    void requestAccountReview(ownerUser, input.name);
+    return {
+      ok: false as const, status: 403, code: "account_review",
+      message: "New accounts are reviewed before they can add a sending domain, to keep spam off our network. We've been notified and usually approve within a few hours; you'll get an email. Upgrading to a paid plan skips the wait.",
+    };
   }
   if (owner?.ownerId && !(await ownerHasPaidPlan(owner.ownerId))) {
     const ownedTeams = (await Membership.find({ userId: owner.ownerId, role: "owner" }).select("workspaceId").lean()).map((m) => m.workspaceId);

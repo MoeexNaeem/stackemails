@@ -8,12 +8,21 @@ const AMBER = { borderColor: "var(--warning, #d97706)", background: "color-mix(i
 const GREEN = { borderColor: "var(--lime, #65a30d)", background: "color-mix(in srgb, #65a30d 10%, transparent)" };
 
 /** Shown until the user confirms their email; also reports the result of clicking the link. */
-export function VerifyEmailBanner({ email, verified }: { email: string; verified: boolean }) {
+export function VerifyEmailBanner({ email, verified, inReview = false }: { email: string; verified: boolean; inReview?: boolean }) {
   const status = useSearchParams().get("verify");
   const [msg, setMsg] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
   if (verified) {
+    if (inReview) {
+      return (
+        <div role="status" className="mb-5 rounded-xl border px-4 py-3 text-sm" style={status === "done" ? GREEN : AMBER}>
+          {status === "done" && <strong>Email confirmed. </strong>}
+          <strong>Your account is waiting for a quick review</strong> before you can add a sending domain. This keeps spammers off our network and protects your deliverability. We usually approve within a few hours and will email you.{" "}
+          <a href="/settings/billing" className="underline">Upgrading to a paid plan</a> skips the wait.
+        </div>
+      );
+    }
     if (status !== "done") return null;
     return (
       <div role="status" className="mb-5 rounded-xl border px-4 py-3 text-sm" style={GREEN}>

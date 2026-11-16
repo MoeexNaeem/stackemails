@@ -29,7 +29,7 @@ const I = {
  * Fixed admin sidebar: full viewport height, its own scroll, "Back to
  * dashboard" pinned at the bottom. One button collapses it to an icon rail.
  */
-export function AdminSidebar({ email, openTickets, newMessages, pendingPayments = 0 }: { email: string; openTickets: number; newMessages: number; pendingPayments?: number }) {
+export function AdminSidebar({ email, openTickets, newMessages, pendingPayments = 0, toReview = 0 }: { email: string; openTickets: number; newMessages: number; pendingPayments?: number; toReview?: number }) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, toggle] = useCollapsed("se-admin-sidebar");
@@ -38,6 +38,7 @@ export function AdminSidebar({ email, openTickets, newMessages, pendingPayments 
     [
       { href: "/admin", label: "Overview", icon: I.overview, exact: true },
       { href: "/admin/users", label: "Teams & users", icon: I.users },
+      { href: "/admin/review", label: "Account review", icon: I.users, badge: toReview },
       { href: "/admin/support", label: "Support", icon: I.support, badge: openTickets },
       { href: "/admin/messages", label: "Messages", icon: I.inbox, badge: newMessages },
     ],
@@ -144,7 +145,7 @@ export function AdminMobileNav() {
   const pathname = usePathname();
   const links = [
     ["/admin", "Overview"], ["/admin/users", "Teams"], ["/admin/support", "Support"], ["/admin/messages", "Messages"],
-    ["/admin/blog", "Blog"], ["/admin/system-emails", "Emails"], ["/admin/payments", "Payments"], ["/admin/plans", "Plans"], ["/admin/revenue", "Revenue"], ["/admin/analytics", "Analytics"], ["/admin/settings", "Settings"],
+    ["/admin/blog", "Blog"], ["/admin/system-emails", "Emails"], ["/admin/review", "Review"], ["/admin/payments", "Payments"], ["/admin/plans", "Plans"], ["/admin/revenue", "Revenue"], ["/admin/analytics", "Analytics"], ["/admin/settings", "Settings"],
   ];
   return (
     <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-border px-4 py-2 lg:hidden" aria-label="Admin">

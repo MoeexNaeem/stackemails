@@ -1,6 +1,7 @@
 /**
- * Find and shut down abusive accounts (throwaway-email signups, or free users
- * owning more teams than the free limit). Dry run by default.
+ * Find and shut down abusive accounts (throwaway-email signups, free users
+ * owning more teams than the free limit, or accounts already disabled by an
+ * admin that still own domains). Dry run by default.
  *
  *   npx tsx scripts/abuse-cleanup.ts            list suspects
  *   npx tsx scripts/abuse-cleanup.ts --apply    disable them
@@ -27,7 +28,15 @@ async function main() {
   for (const u of users) {
     const teams = (await Membership.find({ userId: u._id, role: "owner" }).select("workspaceId").lean()).map((m) => m.workspaceId);
     const paid = teams.length ? await Workspace.exists({ _id: { $in: teams }, plan: { $ne: "free" } }) : null;
-    const why = isDisposableEmail(u.email) ? "throwaway email domain" : !paid && teams.length > FREE_MAX_OWNED_TEAMS ? `owns ${teams.length} free teams` : "";
+    // Accounts an admin already disabled but whose domains are still registered in SES.
+    const leftover = u.disabled && teams.length ? await Domain.exists({ workspaceId: { $in: teams } }) : null;
+    const why = isDisposableEmail(u.email)
+      ? "throwaway email domain"
+      : !paid && teams.length > FREE_MAX_OWNED_TEAMS
+        ? `owns ${teams.length} free teams`
+        : leftover
+          ? "disabled, still has domains"
+          : "";
     if (why) suspects.push({ user: u, why, teams });
   }
 
@@ -60,6 +69,7 @@ async function main() {
     const domains = await Domain.find({ workspaceId: { $in: s.teams } }).select("name region").lean();
     for (const d of domains) {
       await provider.deleteDomainIdentity?.(d.name, d.region).catch((e) => console.error(`  SES delete failed for ${d.name}: ${e.message}`));
+      await new Promise((r) => setTimeout(r, 1200)); // SES allows about one identity call per second
     }
     await Domain.deleteMany({ workspaceId: { $in: s.teams } });
     console.log(`  suspended ${s.user.email}: ${s.teams.length} teams, ${domains.length} domains removed`);
