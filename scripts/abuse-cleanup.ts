@@ -13,7 +13,7 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/db/connect";
 import { ApiKey, Domain, EmailLog, Membership, Session, User, Workspace } from "@/lib/db/models";
-import { FREE_MAX_OWNED_TEAMS, isDisposableEmail } from "@/lib/abuse";
+import { FREE_MAX_OWNED_TEAMS, isDisposableEmail } from "@/lib/abuse-rules";
 import { getEmailProvider } from "@/lib/email";
 
 const APPLY = process.argv.includes("--apply");
