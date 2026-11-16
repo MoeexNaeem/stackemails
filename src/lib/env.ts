@@ -39,6 +39,20 @@ export const env = {
     clientSecret: str("GOOGLE_CLIENT_SECRET", str("Google_Client_Secret")),
   },
 
+  // Bank transfer details shown to customers paying by transfer while no card
+  // processor is connected. Kept in the server's .env, never in the code.
+  // Turned on when MANUAL_PAY_ACCOUNT_NUMBER is set.
+  manualPay: {
+    beneficiary: str("MANUAL_PAY_BENEFICIARY"),
+    bankName: str("MANUAL_PAY_BANK_NAME"),
+    accountNumber: str("MANUAL_PAY_ACCOUNT_NUMBER"),
+    routingNumber: str("MANUAL_PAY_ROUTING_NUMBER"),
+    accountType: str("MANUAL_PAY_ACCOUNT_TYPE", "Checking"),
+    address: str("MANUAL_PAY_ADDRESS"),
+    // Optional extra line, e.g. "Payoneer / Wise also accepted: email support@stackemails.com"
+    note: str("MANUAL_PAY_NOTE"),
+  },
+
   // Cloudflare Turnstile bot check on signup (both keys needed to turn it on).
   turnstile: {
     siteKey: str("TURNSTILE_SITE_KEY"),

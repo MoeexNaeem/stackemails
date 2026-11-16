@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { sendReceiptEmail } from "@/lib/billing/receipts";
+import { activatePlan } from "@/lib/billing/activate";
 import { connectToDatabase } from "@/lib/db/connect";
 import {
   Workspace, Membership, ApiKey, Domain, EmailLog, Webhook, WebhookDelivery,
@@ -15,7 +16,7 @@ export type AdminState = { ok: boolean; error?: string };
 
 async function requireAdminUser() {
   const user = await getCurrentUser();
-  if (!user || user.platformRole !== "admin") throw new Error("Not authorized");
+  if (!user || user.platformRole !== "admin" || !user.mfaEnabled) throw new Error("Not authorized");
   await connectToDatabase();
   return user;
 }
@@ -74,39 +75,8 @@ export async function deleteWorkspaceAction(workspaceId: string): Promise<void> 
 // ── Plan assignment for a tenant ──────────────────────────
 export async function changeWorkspacePlanAction(workspaceId: string, planId: string): Promise<void> {
   await requireAdminUser();
-  const [ws, plan] = await Promise.all([Workspace.findById(workspaceId), Plan.findById(planId)]);
-  if (!ws || !plan) return;
-
-  const periodEnd = new Date();
-  periodEnd.setDate(periodEnd.getDate() + 30);
-
-  await Subscription.updateOne(
-    { workspaceId },
-    {
-      $set: {
-        planId: plan._id,
-        planName: plan.name,
-        priceMonthly: plan.priceMonthly,
-        status: "active",
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: periodEnd,
-        lastRenewedAt: new Date(),
-      },
-    },
-    { upsert: true },
-  );
-  await Workspace.updateOne(
-    { _id: workspaceId },
-    { $set: { plan: plan.slug === "free" ? "free" : plan.slug === "pro" ? "pro" : "scale", monthlyQuota: plan.monthlyQuota, dailyQuota: plan.dailyQuota, contactsQuota: plan.contactsQuota } },
-  );
-  if (plan.priceMonthly > 0) {
-    const tx = await Transaction.create({
-      workspaceId, workspaceName: ws.name, planId: plan._id, planName: plan.name,
-      amount: plan.priceMonthly, type: "upgrade", status: "paid",
-      periodStart: new Date(), periodEnd,
-    });
-    after(() => sendReceiptEmail(tx));
-  }
+  const { tx } = await activatePlan(workspaceId, planId);
+  if (tx) after(() => sendReceiptEmail(tx));
   revalidatePath(`/admin/users/${workspaceId}`);
   revalidatePath("/admin/revenue");
 }

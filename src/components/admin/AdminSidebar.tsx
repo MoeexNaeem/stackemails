@@ -29,7 +29,7 @@ const I = {
  * Fixed admin sidebar: full viewport height, its own scroll, "Back to
  * dashboard" pinned at the bottom. One button collapses it to an icon rail.
  */
-export function AdminSidebar({ email, openTickets, newMessages }: { email: string; openTickets: number; newMessages: number }) {
+export function AdminSidebar({ email, openTickets, newMessages, pendingPayments = 0 }: { email: string; openTickets: number; newMessages: number; pendingPayments?: number }) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, toggle] = useCollapsed("se-admin-sidebar");
@@ -46,6 +46,7 @@ export function AdminSidebar({ email, openTickets, newMessages }: { email: strin
       { href: "/admin/system-emails", label: "System emails", icon: I.mail },
     ],
     [
+      { href: "/admin/payments", label: "Payments", icon: I.revenue, badge: pendingPayments },
       { href: "/admin/plans", label: "Plans", icon: I.plans },
       { href: "/admin/revenue", label: "Revenue", icon: I.revenue },
       { href: "/admin/analytics", label: "Analytics", icon: I.analytics },
@@ -143,7 +144,7 @@ export function AdminMobileNav() {
   const pathname = usePathname();
   const links = [
     ["/admin", "Overview"], ["/admin/users", "Teams"], ["/admin/support", "Support"], ["/admin/messages", "Messages"],
-    ["/admin/blog", "Blog"], ["/admin/system-emails", "Emails"], ["/admin/plans", "Plans"], ["/admin/revenue", "Revenue"], ["/admin/analytics", "Analytics"], ["/admin/settings", "Settings"],
+    ["/admin/blog", "Blog"], ["/admin/system-emails", "Emails"], ["/admin/payments", "Payments"], ["/admin/plans", "Plans"], ["/admin/revenue", "Revenue"], ["/admin/analytics", "Analytics"], ["/admin/settings", "Settings"],
   ];
   return (
     <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-border px-4 py-2 lg:hidden" aria-label="Admin">

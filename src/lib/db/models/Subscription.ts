@@ -18,6 +18,8 @@ const SubscriptionSchema = new Schema(
     currentPeriodStart: { type: Date, default: () => new Date() },
     currentPeriodEnd: { type: Date },
     lastRenewedAt: { type: Date },
+    // Period end the "ends soon" reminder was sent for (so it goes out once per period).
+    reminderSentFor: { type: Date },
     canceledAt: { type: Date },
   },
   { timestamps: true },

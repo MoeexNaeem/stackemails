@@ -11,6 +11,7 @@
  * exactly (idempotency, guards, retries, provider dispatch, webhook events).
  * When SMTP_PORT is set it also runs the SMTP relay (src/worker/smtp.ts).
  */
+import "./allow-server-only";
 import "dotenv/config";
 import { Worker, type Job } from "bullmq";
 import Redis from "ioredis";
@@ -77,8 +78,21 @@ async function recheckPendingDomains() {
     }
   }
 }
-setInterval(() => void recheckPendingDomains(), 10 * 60_000);
-setTimeout(() => void recheckPendingDomains(), 15_000);
+// Background jobs must never take the worker down: log and carry on.
+const safely = (name: string, fn: () => Promise<unknown>) => () => void fn().catch((err) => console.error(`[worker] ${name} failed:`, err));
+setInterval(safely("domain recheck", recheckPendingDomains), 10 * 60_000);
+setTimeout(safely("domain recheck", recheckPendingDomains), 15_000);
+
+// Paid-plan periods: renewal reminders, grace period, then back to Free.
+async function planExpiry() {
+  const { connectToDatabase } = await import("@/lib/db/connect");
+  const { runPlanExpiry } = await import("@/lib/billing/expiry");
+  await connectToDatabase();
+  const s = await runPlanExpiry();
+  if (s.reminded || s.pastDue || s.downgraded) console.log(`[worker] plan expiry: ${s.reminded} reminded, ${s.pastDue} past due, ${s.downgraded} moved to Free`);
+}
+setInterval(safely("plan expiry", planExpiry), 60 * 60_000);
+setTimeout(safely("plan expiry", planExpiry), 60_000);
 
 if (process.env.SMTP_PORT) {
   import("./smtp").then((m) => m.startSmtpRelay()).catch((err) => console.error("[smtp] failed to start", err));

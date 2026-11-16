@@ -18,7 +18,7 @@ export type OpsState = { ok: boolean; error?: string; message?: string } | null;
 
 async function requireAdminUser() {
   const user = await getCurrentUser();
-  if (!user || user.platformRole !== "admin") throw new Error("Not authorized");
+  if (!user || user.platformRole !== "admin" || !user.mfaEnabled) throw new Error("Not authorized");
   await connectToDatabase();
   return user;
 }

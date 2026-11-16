@@ -24,6 +24,7 @@ export { WebhookDelivery, type WebhookDeliveryDoc } from "./WebhookDelivery";
 export { Plan, type PlanDoc } from "./Plan";
 export { Subscription, type SubscriptionDoc } from "./Subscription";
 export { Transaction, type TransactionDoc } from "./Transaction";
+export { ManualPayment, type ManualPaymentDoc } from "./ManualPayment";
 export { SupportTicket, type SupportTicketDoc } from "./SupportTicket";
 export { ContactMessage, type ContactMessageDoc } from "./ContactMessage";
 export { BlogPost, type BlogPostDoc } from "./BlogPost";

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireDashboardContext } from "@/lib/auth/context";
 import { connectToDatabase } from "@/lib/db/connect";
-import { Plan, Subscription, Transaction } from "@/lib/db/models";
+import { ManualPayment, Plan, Subscription, Transaction } from "@/lib/db/models";
+import { bankDetails, manualPayEnabled, paymentReference } from "@/lib/billing/manual";
+import { env } from "@/lib/env";
 import { BillingAddressForm, BillingEmailForm, TaxIdForm } from "@/components/dashboard/BillingForms";
 import { PlanPicker } from "@/components/settings/PlanPicker";
 import { receiptNumber } from "@/lib/billing/receipt-number";
@@ -13,11 +15,15 @@ export const metadata: Metadata = { title: "Billing" };
 export default async function BillingPage() {
   const { workspace } = await requireDashboardContext();
   await connectToDatabase();
-  const [plans, sub, txs] = await Promise.all([
+  const [plans, sub, txs, payments] = await Promise.all([
     Plan.find({ isActive: true }).sort({ order: 1, priceMonthly: 1 }).lean(),
     Subscription.findOne({ workspaceId: workspace._id }).lean(),
     Transaction.find({ workspaceId: workspace._id }).sort({ createdAt: -1 }).limit(50).lean(),
+    ManualPayment.find({ workspaceId: workspace._id }).sort({ createdAt: -1 }).limit(5).lean(),
   ]);
+  const manualPay = manualPayEnabled() ? { details: bankDetails(), reference: paymentReference(workspace._id), note: env.manualPay.note || undefined } : null;
+  const pendingPayment = payments.find((p) => p.status === "pending");
+  const lastRejected = !pendingPayment ? payments.find((p) => p.status === "rejected" && Date.now() - new Date(p.updatedAt).getTime() < 14 * 86_400_000) : undefined;
   const billing = (workspace.billing ?? {}) as { fullName?: string; country?: string; addressLine1?: string; taxIdType?: string; taxId?: string };
   const current = plans.find((p) => p.slug === workspace.plan);
 
@@ -39,7 +45,20 @@ export default async function BillingPage() {
         </div>
       </div>
 
+      {pendingPayment && (
+        <div role="status" className="rounded-xl border px-4 py-3 text-sm" style={{ borderColor: "var(--warning, #d97706)", background: "color-mix(in srgb, #d97706 10%, transparent)" }}>
+          <strong>Payment #{pendingPayment.number} is waiting for confirmation</strong> ({pendingPayment.planName}, ${pendingPayment.amount.toFixed(2)}, sent {new Date(pendingPayment.createdAt).toLocaleDateString()}). We&apos;ll email you as soon as it&apos;s checked.
+        </div>
+      )}
+      {lastRejected && (
+        <div role="alert" className="rounded-xl border px-4 py-3 text-sm" style={{ borderColor: "var(--danger)", background: "color-mix(in srgb, var(--danger) 8%, transparent)" }}>
+          <strong>Payment #{lastRejected.number} couldn&apos;t be confirmed.</strong> {lastRejected.rejectReason || "Contact support@stackemails.com for details."}
+        </div>
+      )}
+
       <PlanPicker
+        manualPay={manualPay}
+        paymentPending={Boolean(pendingPayment)}
         currentSlug={workspace.plan}
         plans={plans.map((p) => ({ id: String(p._id), slug: p.slug, name: p.name, price: p.priceMonthly, monthly: p.monthlyQuota, daily: p.dailyQuota, contacts: p.contactsQuota, features: p.features ?? [] }))}
       />
