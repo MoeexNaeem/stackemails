@@ -1,3 +1,4 @@
+import { containsLink } from "@/lib/abuse-rules";
 import { z } from "zod";
 
 const emailList = z.union([z.string(), z.array(z.string())]).transform((v) =>
@@ -85,11 +86,14 @@ export const createBroadcastSchema = z
   });
 
 /** Auth. */
+// Spammers put links in the name field so it shows up inside our system emails.
+const personName = z.string().trim().min(1).max(80).refine((v) => !containsLink(v), "Names can't contain links or domain names.");
+
 export const signupSchema = z.object({
-  name: z.string().trim().min(1).max(80),
+  name: personName,
   email: z.string().email().toLowerCase(),
   password: z.string().min(8).max(200),
-  workspaceName: z.string().trim().min(1).max(80).optional(),
+  workspaceName: z.string().trim().min(1).max(80).refine((v) => !containsLink(v), "Team names can't contain links or domain names.").optional(),
 });
 
 export const loginSchema = z.object({

@@ -10,6 +10,7 @@ import { getRateLimiter } from "@/lib/ratelimit";
 import { sendSystemEmail } from "@/lib/email/system";
 import { NoticeEmail } from "@/emails/system";
 import { env } from "@/lib/env";
+import { clientIp } from "@/lib/client-ip";
 
 export type ContactState = { ok: boolean; error?: string; fieldErrors?: Record<string, string> } | null;
 
@@ -39,7 +40,7 @@ export async function submitContactAction(_prev: ContactState, formData: FormDat
   }
 
   const h = await headers();
-  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
+  const ip = clientIp(h);
   const rl = await getRateLimiter().check(`contact:${ip}`, 5, 3_600_000);
   if (!rl.allowed) return { ok: false, error: "Too many messages from your network. Please try again later or email us directly." };
 

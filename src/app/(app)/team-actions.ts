@@ -7,6 +7,7 @@ import { ACTIVE_WS_COOKIE } from "@/lib/auth/workspace";
 import { connectToDatabase } from "@/lib/db/connect";
 import { Membership } from "@/lib/db/models";
 import { createWorkspaceFor } from "@/lib/accounts";
+import { containsLink } from "@/lib/abuse-rules";
 import { FREE_MAX_OWNED_TEAMS, ownerHasPaidPlan } from "@/lib/abuse";
 
 const COOKIE_OPTS = {
@@ -34,6 +35,7 @@ export async function createTeamAction(rawName: string): Promise<{ ok: boolean; 
   if (!user) return { ok: false, error: "Not signed in." };
   const name = String(rawName ?? "").trim();
   if (name.length < 2 || name.length > 80) return { ok: false, error: "Team name must be 2–80 characters." };
+  if (containsLink(name)) return { ok: false, error: "Team names can't contain links or domain names." };
 
   await connectToDatabase();
   const owned = await Membership.countDocuments({ userId: user._id, role: "owner" });

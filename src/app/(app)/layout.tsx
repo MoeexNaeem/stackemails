@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getActiveWorkspace, listWorkspacesForUser } from "@/lib/auth/workspace";
+import { Suspense } from "react";
 import { AppShell } from "@/components/dashboard/AppShell";
+import { VerifyEmailBanner } from "@/components/dashboard/VerifyEmailBanner";
+import { isEmailVerified } from "@/lib/auth/verified";
 
 // The dashboard is private: never index it.
 export const metadata: Metadata = {
@@ -26,6 +29,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       usage={{ sent: sentThisPeriod(workspace), quota: workspace.monthlyQuota }}
       assistantEnabled={workspace.labs?.assistant !== false}
     >
+      <Suspense fallback={null}>
+        <VerifyEmailBanner email={user.email} verified={isEmailVerified(user)} />
+      </Suspense>
       {children}
     </AppShell>
   );

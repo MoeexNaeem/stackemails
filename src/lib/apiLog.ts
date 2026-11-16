@@ -1,5 +1,6 @@
 import { ApiLog } from "@/lib/db/models";
 import type { ApiKeyDoc, WorkspaceDoc } from "@/lib/db/models";
+import { clientIp } from "@/lib/client-ip";
 
 const MAX_BODY = 8_000;
 
@@ -48,7 +49,7 @@ export function logApiRequest(params: {
     status: params.status,
     source: detectSource(ua),
     userAgent: ua?.slice(0, 300),
-    ip: params.req.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
+    ip: clientIp(params.req.headers),
     durationMs: Date.now() - params.startedAt,
     apiKeyId: params.apiKey?._id,
     requestBody: redact(params.requestBody),

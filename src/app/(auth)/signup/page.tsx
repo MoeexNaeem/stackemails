@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
+import { turnstileSiteKey } from "@/lib/auth/turnstile";
 import { getCurrentUser } from "@/lib/auth/session";
 import { googleEnabled } from "@/lib/auth/google";
 
@@ -15,7 +16,7 @@ export default async function SignupPage() {
   if (await getCurrentUser()) redirect("/overview");
   return (
     <Suspense>
-      <AuthForm mode="signup" google={googleEnabled()} />
+      <AuthForm mode="signup" google={googleEnabled()} turnstileSiteKey={turnstileSiteKey()} />
     </Suspense>
   );
 }

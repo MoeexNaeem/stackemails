@@ -11,8 +11,10 @@ import { issueMfaChallenge } from "@/lib/auth/mfaChallenge";
 import { getRateLimiter } from "@/lib/ratelimit";
 import { sendSystemEmail } from "@/lib/email/system";
 import { NoticeEmail, SystemWelcomeEmail } from "@/emails/system";
-import { isDisposableEmail } from "@/lib/abuse";
+import { isDisposableEmail, watchSignupSurge } from "@/lib/abuse";
+import { containsLink } from "@/lib/abuse-rules";
 import { GOOGLE_STATE_COOKIE, decodeState, exchangeGoogleCode, googleEnabled } from "@/lib/auth/google";
+import { clientIp } from "@/lib/client-ip";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,11 +34,11 @@ export async function GET(req: Request) {
   const code = url.searchParams.get("code");
   if (!saved || !code || url.searchParams.get("state") !== saved.state) return fail("google_state");
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = clientIp(req.headers);
   const rl = await getRateLimiter().check(`google:ip:${ip}`, 30, 15 * 60_000);
   if (!rl.allowed) return fail("rate_limited");
 
-  let profile;
+  let profile: Awaited<ReturnType<typeof exchangeGoogleCode>>;
   try {
     profile = await exchangeGoogleCode(code, saved);
   } catch (err) {
@@ -56,7 +58,7 @@ export async function GET(req: Request) {
     if (!user.googleId) {
       // First Google sign-in for an existing password account: link it, sign out other
       // sessions (in case someone else knew the password) and tell the owner.
-      await User.updateOne({ _id: user._id }, { $set: { googleId: profile.sub, ...(profile.picture ? { avatarUrl: profile.picture } : {}) } });
+      await User.updateOne({ _id: user._id }, { $set: { googleId: profile.sub, emailVerifiedAt: user.emailVerifiedAt ?? new Date(), ...(profile.picture ? { avatarUrl: profile.picture } : {}) } });
       await Session.deleteMany({ userId: user._id });
       const name = user.name;
       after(() =>
@@ -77,6 +79,12 @@ export async function GET(req: Request) {
     }
   } else {
     if (isDisposableEmail(profile.email)) return fail("google_failed");
+    // Same per-network account cap as password signups.
+    const limiter = getRateLimiter();
+    const [hour, day] = await Promise.all([limiter.check(`signup:ip:h:${ip}`, 3, 3600_000), limiter.check(`signup:ip:d:${ip}`, 5, 24 * 3600_000)]);
+    if (!hour.allowed || !day.allowed) return fail("google_failed");
+    // A display name carrying a link would end up inside our emails; fall back to the inbox name.
+    if (containsLink(profile.name)) profile = { ...profile, name: profile.email.split("@")[0].slice(0, 80) };
     try {
       // Google-only accounts get a random password nobody knows; "Forgot password" lets them set one later.
       await createAccount({ name: profile.name, email: profile.email, password: randomBytes(32).toString("hex") });
@@ -86,10 +94,12 @@ export async function GET(req: Request) {
         return fail("google_failed");
       }
     }
-    await User.updateOne({ email: profile.email }, { $set: { googleId: profile.sub, ...(profile.picture ? { avatarUrl: profile.picture } : {}) } });
+    // Google has already verified this address.
+    await User.updateOne({ email: profile.email }, { $set: { googleId: profile.sub, emailVerifiedAt: new Date(), ...(profile.picture ? { avatarUrl: profile.picture } : {}) } });
     user = await User.findOne({ email: profile.email });
     if (!user) return fail("google_failed");
     isNew = true;
+    after(() => watchSignupSurge(ip));
     after(() =>
       sendSystemEmail({
         kind: "welcome",

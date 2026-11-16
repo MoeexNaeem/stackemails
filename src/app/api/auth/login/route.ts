@@ -6,6 +6,7 @@ import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { getRateLimiter } from "@/lib/ratelimit";
 import { issueMfaChallenge } from "@/lib/auth/mfaChallenge";
+import { clientIp } from "@/lib/client-ip";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
   const { email, password } = parsed.data;
 
   // Brute-force protection: per IP and per account.
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = clientIp(req.headers);
   const limiter = getRateLimiter();
   const [byIp, byEmail] = await Promise.all([limiter.check(`login:ip:${ip}`, 30, 15 * 60_000), limiter.check(`login:email:${email}`, 10, 15 * 60_000)]);
   if (!byIp.allowed || !byEmail.allowed) {

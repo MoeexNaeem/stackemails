@@ -6,6 +6,7 @@ import { createSession } from "@/lib/auth/session";
 import { getRateLimiter } from "@/lib/ratelimit";
 import { verifyMfaChallenge } from "@/lib/auth/mfaChallenge";
 import { decryptSecret, hashRecovery, verifyTotp } from "@/lib/auth/totp";
+import { clientIp } from "@/lib/client-ip";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
   if (!passed) return apiError(401, "invalid_code", "That code isn't valid. Check your authenticator app's time and try again.");
 
   user.lastLoginAt = new Date();
-  user.lastLoginIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  user.lastLoginIp = clientIp(req.headers);
   await user.save();
   await createSession(String(user._id), req.headers.get("user-agent") ?? undefined);
   return apiJson({ ok: true, redirect: user.platformRole === "admin" ? "/admin" : "/overview", recovery_codes_left: user.mfaRecoveryHashes.length });

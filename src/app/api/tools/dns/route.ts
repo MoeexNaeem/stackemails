@@ -1,6 +1,7 @@
 import { apiError, apiJson } from "@/lib/api/response";
 import { getRateLimiter } from "@/lib/ratelimit";
 import { checkDkim, checkDmarc, checkMx, checkSpf, cleanDomain } from "@/lib/dns-tools";
+import { clientIp } from "@/lib/client-ip";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ export async function GET(req: Request) {
   const domain = cleanDomain(url.searchParams.get("domain") ?? "");
   if (!domain) return apiError(422, "invalid_domain", "Enter a valid domain name, such as example.com.");
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = clientIp(req.headers);
   const rl = await getRateLimiter().check(`tools:dns:${ip}`, 40, 60_000);
   if (!rl.allowed) return apiError(429, "rate_limited", "Too many lookups. Wait a minute and try again.");
 

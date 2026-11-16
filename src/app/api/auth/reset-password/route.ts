@@ -3,6 +3,7 @@ import { resetPasswordSchema } from "@/lib/validation/schemas";
 import { getRateLimiter } from "@/lib/ratelimit";
 import { resetPassword } from "@/lib/auth/passwordReset";
 import { createSession } from "@/lib/auth/session";
+import { clientIp } from "@/lib/client-ip";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     return apiError(422, "validation_error", parsed.error.issues[0]?.message ?? "Invalid input.");
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = clientIp(req.headers);
   const rl = await getRateLimiter().check(`pwreset:consume:${ip}`, 10, 15 * 60_000);
   if (!rl.allowed) {
     return apiError(429, "rate_limited", "Too many attempts. Please wait a few minutes and try again.");

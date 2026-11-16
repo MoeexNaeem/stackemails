@@ -10,6 +10,8 @@ const UserSchema = new Schema(
     // Google account id ("sub" claim), set once the account signs in with Google.
     googleId: { type: String, unique: true, sparse: true },
     avatarUrl: { type: String },
+    // Set when the person clicks the verification link (or signs up with Google).
+    emailVerifiedAt: { type: Date },
     // Platform-level role. "admin" = the SaaS owner's superadmin panel access.
     platformRole: { type: String, enum: ["user", "admin"], default: "user", index: true },
     lastLoginAt: { type: Date },

@@ -22,6 +22,8 @@ import { decryptSecret, encryptSecret, generateRecoveryCodes, generateTotpSecret
 import { purgeWorkspace } from "@/lib/workspace-purge";
 import { limitsFor } from "@/lib/plans";
 import { env } from "@/lib/env";
+import { containsLink } from "@/lib/abuse-rules";
+import { isEmailVerified } from "@/lib/auth/verified";
 
 export type SettingsState = { ok: boolean; error?: string; message?: string; data?: Record<string, unknown> };
 const ok = (message?: string, data?: Record<string, unknown>): SettingsState => ({ ok: true, message, data });
@@ -41,6 +43,7 @@ export async function renameTeamAction(_p: SettingsState, fd: FormData): Promise
   if (!canManage(role)) return fail("Only team owners and admins can rename the team.");
   const name = String(fd.get("name") ?? "").trim();
   if (name.length < 2 || name.length > 80) return fail("Team name must be 2–80 characters.");
+  if (containsLink(name)) return fail("Team names can't contain links or domain names.");
   await M.Workspace.updateOne({ _id: workspace._id }, { $set: { name } });
   revalidatePath("/", "layout");
   return ok("Team name saved.");
@@ -49,14 +52,17 @@ export async function renameTeamAction(_p: SettingsState, fd: FormData): Promise
 export async function inviteMemberAction(_p: SettingsState, fd: FormData): Promise<SettingsState> {
   const { workspace, user, role } = await ctx();
   if (!canManage(role)) return fail("Only team owners and admins can invite members.");
+  if (!isEmailVerified(user)) return fail("Confirm your email address first. We sent you a link when you signed up; you can resend it from the banner at the top of the page.");
+  if (containsLink(user.name) || containsLink(workspace.name)) return fail("Remove links from your name and team name before inviting people.");
   const email = normalizeEmail(String(fd.get("email") ?? ""));
   const inviteRole = fd.get("role") === "admin" ? "admin" : "member";
   if (!email) return fail("Enter a valid email address.");
   const maxMembers = limitsFor(workspace.plan).members;
   const seats = (await M.Membership.countDocuments({ workspaceId: workspace._id })) + (await M.Invitation.countDocuments({ workspaceId: workspace._id, acceptedAt: { $exists: false }, email: { $ne: email } }));
   if (seats >= maxMembers) return fail(`Your plan includes ${maxMembers} team members. Upgrade to invite more.`);
-  const rl = await getRateLimiter().check(`invite:${workspace._id}`, 20, 3600_000);
-  if (!rl.allowed) return fail("Too many invitations sent this hour.");
+  const limiter = getRateLimiter();
+  const [rl, daily] = await Promise.all([limiter.check(`invite:${workspace._id}`, 20, 3600_000), limiter.check(`invite:user:d:${user._id}`, 30, 24 * 3600_000)]);
+  if (!rl.allowed || !daily.allowed) return fail("Too many invitations sent recently. Try again later.");
 
   const existingUser = await M.User.findOne({ email }).select("_id").lean();
   if (existingUser && (await M.Membership.exists({ workspaceId: workspace._id, userId: existingUser._id }))) return fail("That person is already on this team.");
@@ -127,6 +133,7 @@ export async function updateNameAction(_p: SettingsState, fd: FormData): Promise
   const { user } = await ctx();
   const name = String(fd.get("name") ?? "").trim();
   if (!name || name.length > 80) return fail("Name must be 1–80 characters.");
+  if (containsLink(name)) return fail("Names can't contain links or domain names.");
   await M.User.updateOne({ _id: user._id }, { $set: { name } });
   revalidatePath("/", "layout");
   return ok("Name saved.");
@@ -269,4 +276,15 @@ export async function setBillingEmailAction(_p: SettingsState, fd: FormData): Pr
   await M.Workspace.updateOne({ _id: workspace._id }, { $set: { billingEmail: email } });
   revalidatePath("/settings/billing");
   return ok("Billing email saved.");
+}
+
+// ── Email confirmation ───────────────────────────────────
+export async function resendVerificationAction(): Promise<SettingsState> {
+  const { user } = await ctx();
+  if (isEmailVerified(user)) return ok("Your email is already confirmed.");
+  const rl = await getRateLimiter().check(`verify-resend:${user._id}`, 3, 3600_000);
+  if (!rl.allowed) return fail("We've sent a few links already. Check your spam folder, or try again in an hour.");
+  const { sendVerificationEmail } = await import("@/lib/auth/emailVerify");
+  const res = await sendVerificationEmail(user);
+  return res.ok ? ok(`Confirmation link sent to ${user.email}.`) : fail("We couldn't send the email right now. Try again shortly.");
 }

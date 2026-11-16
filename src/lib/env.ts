@@ -39,6 +39,12 @@ export const env = {
     clientSecret: str("GOOGLE_CLIENT_SECRET", str("Google_Client_Secret")),
   },
 
+  // Cloudflare Turnstile bot check on signup (both keys needed to turn it on).
+  turnstile: {
+    siteKey: str("TURNSTILE_SITE_KEY"),
+    secretKey: str("TURNSTILE_SECRET_KEY"),
+  },
+
   aws: {
     region: str("AWS_REGION", "us-east-1"),
     accessKeyId: str("AWS_ACCESS_KEY_ID"),

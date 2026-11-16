@@ -1,14 +1,13 @@
-import { createElement } from "react";
 import { after } from "next/server";
 import { apiError, apiJson } from "@/lib/api/response";
 import { signupSchema } from "@/lib/validation/schemas";
 import { createAccount } from "@/lib/accounts";
 import { createSession } from "@/lib/auth/session";
-import { sendSystemEmail } from "@/lib/email/system";
-import { SystemWelcomeEmail } from "@/emails/system";
-import { env } from "@/lib/env";
-import { isDisposableEmail } from "@/lib/abuse";
+import { sendVerificationEmail } from "@/lib/auth/emailVerify";
+import { isDisposableEmail, watchSignupSurge } from "@/lib/abuse";
 import { getRateLimiter } from "@/lib/ratelimit";
+import { verifyTurnstile } from "@/lib/auth/turnstile";
+import { clientIp } from "@/lib/client-ip";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,11 +25,14 @@ export async function POST(req: Request) {
     return apiError(422, "validation_error", parsed.error.issues[0]?.message ?? "Invalid input.");
   }
 
-  // Abuse protection: no throwaway inboxes, and a cap on accounts per IP address.
+  // Abuse protection: bot check, no throwaway inboxes, and a cap on accounts per IP address.
+  const ip = clientIp(req.headers);
+  if (!(await verifyTurnstile((body as Record<string, unknown>)?.["cf-turnstile-response"], ip))) {
+    return apiError(403, "bot_check_failed", "Please complete the security check and try again.");
+  }
   if (isDisposableEmail(parsed.data.email)) {
     return apiError(422, "email_not_allowed", "Please sign up with a permanent work or personal email address.");
   }
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const limiter = getRateLimiter();
   const [hour, day] = await Promise.all([limiter.check(`signup:ip:h:${ip}`, 3, 3600_000), limiter.check(`signup:ip:d:${ip}`, 5, 24 * 3600_000)]);
   if (!hour.allowed || !day.allowed) {
@@ -41,15 +43,10 @@ export async function POST(req: Request) {
     const { userId } = await createAccount(parsed.data);
     await createSession(userId, req.headers.get("user-agent") ?? undefined);
 
-    const { name, email } = parsed.data;
-    after(() =>
-      sendSystemEmail({
-        kind: "welcome",
-        to: email,
-        subject: "Welcome to Stack Emails",
-        react: createElement(SystemWelcomeEmail, { name, dashboardUrl: `${env.appUrl}/emails` }),
-      }),
-    );
+    // One email at signup: the confirmation link. Domains and invites stay locked until it's clicked.
+    const { email } = parsed.data;
+    after(() => sendVerificationEmail({ _id: userId, email }));
+    after(() => watchSignupSurge(ip));
 
     return apiJson({ ok: true }, 201);
   } catch (err) {

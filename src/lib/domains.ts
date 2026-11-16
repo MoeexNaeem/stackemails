@@ -1,4 +1,5 @@
-import { Domain, Inbox, Membership, Workspace } from "@/lib/db/models";
+import { Domain, Inbox, Membership, User, Workspace } from "@/lib/db/models";
+import { isEmailVerified } from "@/lib/auth/verified";
 import { FREE_MAX_DOMAINS_PER_OWNER, ownerHasPaidPlan } from "@/lib/abuse";
 import { limitsFor } from "@/lib/plans";
 import { checkDomainAvailable } from "@/lib/email/guards";
@@ -89,6 +90,11 @@ export async function createDomain(workspaceId: Types.ObjectId, input: DomainInp
   }
   // Count domains across every team the owner runs, so free limits can't be multiplied by creating teams.
   const owner = await Workspace.findById(workspaceId).select("ownerId").lean();
+  // The team owner must have confirmed their email before any domain (and so any sending) is possible.
+  const ownerUser = owner?.ownerId ? await User.findById(owner.ownerId).select("emailVerifiedAt googleId platformRole").lean() : null;
+  if (!ownerUser || !isEmailVerified(ownerUser)) {
+    return { ok: false as const, status: 403, code: "email_unverified", message: "The team owner must confirm their email address before adding a domain. Check your inbox for the confirmation link, or resend it from the dashboard." };
+  }
   if (owner?.ownerId && !(await ownerHasPaidPlan(owner.ownerId))) {
     const ownedTeams = (await Membership.find({ userId: owner.ownerId, role: "owner" }).select("workspaceId").lean()).map((m) => m.workspaceId);
     if ((await Domain.countDocuments({ workspaceId: { $in: ownedTeams } })) >= FREE_MAX_DOMAINS_PER_OWNER) {

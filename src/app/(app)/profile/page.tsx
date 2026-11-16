@@ -10,8 +10,9 @@ import { timeAgo } from "@/lib/format";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Profile" };
 
-export default async function ProfilePage() {
+export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ mfa?: string }> }) {
   const { user } = await requireDashboardContext();
+  const mfaRequired = (await searchParams).mfa === "required" && !user.mfaEnabled;
   await connectToDatabase();
   const [workspaces, memberships, sessions, invites] = await Promise.all([
     listWorkspacesForUser(user),
@@ -26,6 +27,11 @@ export default async function ProfilePage() {
   return (
     <div>
       <h1 className="mb-6 text-[28px] font-normal tracking-[-0.02em]">Profile</h1>
+      {mfaRequired && (
+        <div role="alert" className="mb-5 rounded-xl border px-4 py-3 text-sm" style={{ borderColor: "var(--warning, #d97706)", background: "color-mix(in srgb, #d97706 10%, transparent)" }}>
+          <strong>Two-factor authentication is required for the admin panel.</strong> Turn it on below, then open the admin panel again.
+        </div>
+      )}
       <div className="space-y-5">
         <Section title="Your name"><NameForm name={user.name} /></Section>
         <Section title="Email" desc="Used to sign in and for account notices. Changing it requires your password."><EmailForm email={user.email} /></Section>

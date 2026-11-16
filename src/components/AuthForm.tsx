@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Spinner } from "@/components/ui/Icon";
 import { startNavigationProgress } from "@/components/ui/RouteProgress";
 import { toast } from "@/lib/toast";
+import { Turnstile } from "@/components/Turnstile";
 
 async function post(url: string, payload: unknown) {
   const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
@@ -29,7 +30,7 @@ const GOOGLE_ERRORS: Record<string, string> = {
   rate_limited: "Too many sign-in attempts. Wait 15 minutes and try again.",
 };
 
-export function AuthForm({ mode, google = false }: { mode: "login" | "signup"; google?: boolean }) {
+export function AuthForm({ mode, google = false, turnstileSiteKey = null }: { mode: "login" | "signup"; google?: boolean; turnstileSiteKey?: string | null }) {
   const router = useRouter();
   const params = useSearchParams();
   const next = safeNext(params.get("next"));
@@ -179,6 +180,7 @@ export function AuthForm({ mode, google = false }: { mode: "login" | "signup"; g
             <input id="workspaceName" name="workspaceName" className="input" placeholder="Acme Inc." maxLength={80} />
           </div>
         )}
+        {mode === "signup" && turnstileSiteKey && <Turnstile siteKey={turnstileSiteKey} resetKey={error} />}
         {error && <ErrorNote text={error} />}
         <button type="submit" className="btn btn-primary w-full h-10" disabled={loading}>
           {loading ? <><Spinner /> {mode === "signup" ? "Creating your account" : "Signing in"}</> : mode === "signup" ? "Create account" : "Sign in"}

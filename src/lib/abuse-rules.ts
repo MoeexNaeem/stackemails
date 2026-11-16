@@ -24,3 +24,12 @@ export function isDisposableEmail(email: string): boolean {
 /** Free accounts: how many teams one person may own, and domains across all their teams. */
 export const FREE_MAX_OWNED_TEAMS = 2;
 export const FREE_MAX_DOMAINS_PER_OWNER = 2;
+
+/**
+ * True when text looks like it carries a link or domain name. Spammers put
+ * links in their name or team name so it appears inside our system emails
+ * (invites, notices); those fields must never carry one.
+ */
+export function containsLink(text: string): boolean {
+  return /:\/\/|www\.|\b[a-z0-9-]+\.[a-z]{2,}\b/i.test(String(text ?? ""));
+}

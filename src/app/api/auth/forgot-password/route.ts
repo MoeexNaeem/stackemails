@@ -3,6 +3,7 @@ import { apiError, apiJson } from "@/lib/api/response";
 import { forgotPasswordSchema } from "@/lib/validation/schemas";
 import { getRateLimiter } from "@/lib/ratelimit";
 import { requestPasswordReset } from "@/lib/auth/passwordReset";
+import { clientIp } from "@/lib/client-ip";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
     return apiError(422, "validation_error", parsed.error.issues[0]?.message ?? "Invalid email.");
   }
   const { email } = parsed.data;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = clientIp(req.headers);
 
   // Throttle by IP (abuse) and by email (inbox flooding).
   const limiter = getRateLimiter();

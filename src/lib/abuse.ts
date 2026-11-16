@@ -81,3 +81,47 @@ export async function enforceSenderReputation(workspaceId: Types.ObjectId | stri
   }
   return { restricted: true, reason };
 }
+
+// Signup surge alarm: a normal day has a handful of signups; a wave means a bot run.
+const SURGE_WINDOW_MS = 3600_000;
+const SURGE_THRESHOLD = 15;
+
+/**
+ * Called after every signup. If more than SURGE_THRESHOLD accounts were created
+ * in the last hour, email the platform admin (at most once every 6 hours).
+ */
+export async function watchSignupSurge(ip: string): Promise<void> {
+  try {
+    await connectToDatabase();
+    const since = new Date(Date.now() - SURGE_WINDOW_MS);
+    const recent = await User.countDocuments({ createdAt: { $gte: since } });
+    if (recent < SURGE_THRESHOLD) return;
+    const { getRateLimiter } = await import("@/lib/ratelimit");
+    const gate = await getRateLimiter().check("alert:signup-surge", 1, 6 * 3600_000);
+    if (!gate.allowed) return;
+    const latest = await User.find({ createdAt: { $gte: since } }).sort({ createdAt: -1 }).limit(15).select("email lastLoginIp").lean();
+    const domains = new Map<string, number>();
+    for (const u of latest) {
+      const d = u.email.split("@")[1] ?? "?";
+      domains.set(d, (domains.get(d) ?? 0) + 1);
+    }
+    console.warn(`[abuse] signup surge: ${recent} accounts in the last hour (latest ip ${ip})`);
+    const [{ sendSystemEmail }, { NoticeEmail }] = await Promise.all([import("@/lib/email/system"), import("@/emails/system")]);
+    await sendSystemEmail({
+      kind: "account_notice",
+      to: env.supportEmail,
+      subject: `Signup surge: ${recent} new accounts in the last hour`,
+      react: createElement(NoticeEmail, {
+        heading: "Unusual number of signups",
+        paragraphs: [
+          `${recent} accounts were created in the last hour. That's well above normal and usually means a bot or spam run.`,
+          `Email domains among the latest: ${[...domains].map(([d, n]) => `${d} (${n})`).join(", ")}.`,
+          "New accounts can't add domains until they confirm their email, so nothing can be sent yet. Review them in Admin > Teams & users, and add any throwaway domain to the blocklist.",
+        ],
+        cta: { label: "Open admin", href: `${env.appUrl}/admin/users` },
+      }),
+    });
+  } catch (err) {
+    console.error("[abuse] signup surge check failed", err);
+  }
+}
