@@ -13,6 +13,9 @@ const TransactionSchema = new Schema(
     status: { type: String, enum: ["paid", "failed", "refunded"], default: "paid", index: true },
     periodStart: { type: Date },
     periodEnd: { type: Date },
+    // Payment processor's ID (e.g. Paddle txn_...), so a repeated webhook never records a payment twice.
+    externalId: { type: String, unique: true, sparse: true },
+    provider: { type: String, default: "manual" },
   },
   { timestamps: true },
 );

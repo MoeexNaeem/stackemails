@@ -13,12 +13,12 @@ const MD = `These are the third parties that process customer data on our behalf
 | Sub-processor | Purpose | Location |
 | --- | --- | --- |
 | Amazon Web Services (Amazon SES, SNS) | Email sending, receiving and delivery events | EU (Stockholm) and US |
-| MongoDB Atlas | Primary database | Cloud region of our deployment |
-| Upstash | Queues and rate limiting (Redis) | Cloud region of our deployment |
+| Contabo | Server hosting: application, database and queues | Data center of our server |
+| Paddle.com | Payments, subscriptions, invoicing and sales tax (Merchant of Record) | EU, UK and US |
 | Anthropic | Optional in-dashboard AI assistant (only when you use it) | US |
 
 We update this page at least 14 days before adding a new sub-processor that processes customer personal data. See our [DPA](/legal/dpa) for details.`;
 
 export default function SubprocessorsPage() {
-  return <LegalPage eyebrow="Legal" title="Sub-processors" updated="October 23, 2026" markdown={MD} />;
+  return <LegalPage eyebrow="Legal" title="Sub-processors" updated="November 18, 2026" markdown={MD} />;
 }

@@ -53,6 +53,17 @@ export const env = {
     note: str("MANUAL_PAY_NOTE"),
   },
 
+  // Paddle Billing (card/PayPal checkout, merchant of record). Turned on when the
+  // API key, client token and both price IDs are set.
+  paddle: {
+    environment: str("PADDLE_ENV", "sandbox"), // "sandbox" or "production"
+    apiKey: str("PADDLE_API_KEY"),
+    clientToken: str("PADDLE_CLIENT_TOKEN"),
+    webhookSecret: str("PADDLE_WEBHOOK_SECRET"),
+    pricePro: str("PADDLE_PRICE_PRO"),
+    priceScale: str("PADDLE_PRICE_SCALE"),
+  },
+
   // Cloudflare Turnstile bot check on signup (both keys needed to turn it on).
   turnstile: {
     siteKey: str("TURNSTILE_SITE_KEY"),

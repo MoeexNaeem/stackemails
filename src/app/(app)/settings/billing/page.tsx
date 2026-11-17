@@ -5,6 +5,7 @@ import { connectToDatabase } from "@/lib/db/connect";
 import { ManualPayment, Plan, Subscription, Transaction } from "@/lib/db/models";
 import { bankDetails, manualPayEnabled, paymentReference } from "@/lib/billing/manual";
 import { env } from "@/lib/env";
+import { paddlePublicConfig } from "@/lib/billing/paddle";
 import { BillingAddressForm, BillingEmailForm, TaxIdForm } from "@/components/dashboard/BillingForms";
 import { PlanPicker } from "@/components/settings/PlanPicker";
 import { receiptNumber } from "@/lib/billing/receipt-number";
@@ -26,6 +27,10 @@ export default async function BillingPage() {
   const lastRejected = !pendingPayment ? payments.find((p) => p.status === "rejected" && Date.now() - new Date(p.updatedAt).getTime() < 14 * 86_400_000) : undefined;
   const billing = (workspace.billing ?? {}) as { fullName?: string; country?: string; addressLine1?: string; taxIdType?: string; taxId?: string };
   const current = plans.find((p) => p.slug === workspace.plan);
+  const paddle = paddlePublicConfig();
+  const paddleSub = sub?.provider === "paddle" && sub.paddleSubscriptionId
+    ? { active: sub.status === "active" || sub.status === "past_due", cancelAt: sub.cancelAt ? new Date(sub.cancelAt).toISOString() : null }
+    : null;
 
   return (
     <div className="space-y-6">
@@ -38,8 +43,8 @@ export default async function BillingPage() {
           </div>
           {sub?.currentPeriodEnd && (
             <div className="text-right text-sm">
-              <p className="text-fg-subtle">{sub.status === "active" ? "Renews" : "Status"}</p>
-              <p>{sub.status === "active" ? new Date(sub.currentPeriodEnd).toLocaleDateString() : sub.status}</p>
+              <p className="text-fg-subtle">{sub.cancelAt ? "Ends" : sub.status === "active" ? (sub.provider === "paddle" ? "Renews" : "Paid until") : "Status"}</p>
+              <p>{sub.status === "active" ? new Date(sub.cancelAt ?? sub.currentPeriodEnd).toLocaleDateString() : sub.status.replace("_", " ")}</p>
             </div>
           )}
         </div>
@@ -57,6 +62,8 @@ export default async function BillingPage() {
       )}
 
       <PlanPicker
+        paddle={paddle}
+        paddleSub={paddleSub}
         manualPay={manualPay}
         paymentPending={Boolean(pendingPayment)}
         currentSlug={workspace.plan}

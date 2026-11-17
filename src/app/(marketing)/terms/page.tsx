@@ -35,7 +35,7 @@ To protect recipients and other customers, we monitor bounce and complaint rates
 
 ## 5. Plans, quotas and fees
 
-Plans include the sending quotas and limits shown on our [pricing page](/pricing). Paid plans are billed monthly in advance and renew automatically until you cancel. You can cancel at any time, and you can request a full refund of any charge within 14 days, as described in our [refund policy](/refund). We may change prices with at least 30 days' notice. Exceeding your quota results in sends being rejected, not in overage charges.
+Plans include the sending quotas and limits shown on our [pricing page](/pricing). Paid plans are billed monthly in advance and renew automatically until you cancel. Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders, handles payment and sales tax, and provides customer service for billing questions and returns. You can cancel at any time, and you can request a full refund of any charge within 14 days, as described in our [refund policy](/refund). We may change prices with at least 30 days' notice. Exceeding your quota results in sends being rejected, not in overage charges.
 
 ## 6. Your content and data
 
@@ -68,5 +68,5 @@ These terms are the entire agreement between us regarding the Service. If a prov
 Questions? Contact ${site.supportEmail}.`;
 
 export default function TermsPage() {
-  return <LegalPage eyebrow="Legal" title="Terms of service" updated="November 5, 2026" markdown={MD} />;
+  return <LegalPage eyebrow="Legal" title="Terms of service" updated="November 18, 2026" markdown={MD} />;
 }

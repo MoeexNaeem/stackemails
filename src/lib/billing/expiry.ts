@@ -29,6 +29,7 @@ export async function runPlanExpiry(now = new Date()): Promise<{ reminded: numbe
   const subs = await Subscription.find({
     priceMonthly: { $gt: 0 },
     status: { $in: ["active", "past_due"] },
+    provider: { $ne: "paddle" }, // Paddle renews, retries and cancels these itself (via webhooks)
     currentPeriodEnd: { $ne: null, $lte: new Date(now.getTime() + REMIND_BEFORE) },
   }).limit(200);
   if (!subs.length) return stats;

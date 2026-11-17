@@ -41,7 +41,7 @@ You can cancel or downgrade to the Free plan at any time from **Settings > Billi
 
 ## How to request a refund
 
-Email **${site.supportEmail}** from the address on your account with the subject "Refund request", and include your team name and the date of the charge. We reply within 2 business days. Approved refunds go back to your original payment method, and most banks show them within 5 to 10 business days.
+Email **${site.supportEmail}** from the address on your account with the subject "Refund request", and include your team name and the date of the charge. We reply within 2 business days. Card and PayPal payments are processed by our reseller Paddle.com (the Merchant of Record), so refunds are issued through Paddle back to your original payment method; most banks show them within 5 to 10 business days.
 
 ## Your legal rights
 
@@ -50,5 +50,5 @@ This policy is in addition to, and doesn't limit, any rights you have under the 
 Questions? Contact ${site.supportEmail}.`;
 
 export default function RefundPage() {
-  return <LegalPage eyebrow="Legal" title="Refund policy" updated="November 5, 2026" markdown={MD} />;
+  return <LegalPage eyebrow="Legal" title="Refund policy" updated="November 18, 2026" markdown={MD} />;
 }

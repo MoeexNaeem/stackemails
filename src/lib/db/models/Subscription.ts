@@ -21,6 +21,12 @@ const SubscriptionSchema = new Schema(
     // Period end the "ends soon" reminder was sent for (so it goes out once per period).
     reminderSentFor: { type: Date },
     canceledAt: { type: Date },
+    // "manual" = bank transfer / admin; "paddle" = Paddle charges and renews it automatically.
+    provider: { type: String, enum: ["manual", "paddle"], default: "manual" },
+    paddleSubscriptionId: { type: String, index: true, sparse: true },
+    paddleCustomerId: { type: String },
+    // Set when the customer cancelled in Paddle; the plan stays until this date.
+    cancelAt: { type: Date },
   },
   { timestamps: true },
 );
