@@ -4,7 +4,7 @@
  */
 // Disposable / throwaway inbox providers. Subdomains match too (x.netflows.us).
 const DISPOSABLE = new Set([
-  "netflows.us", "shipwith.us", "octship.us","mailinator.com", "guerrillamail.com", "guerrillamail.net", "sharklasers.com", "grr.la", "10minutemail.com",
+  "netflows.us", "shipwith.us", "octship.us", "raxio.us", "mailinator.com", "guerrillamail.com", "guerrillamail.net", "sharklasers.com", "grr.la", "10minutemail.com",
   "10minutemail.net", "temp-mail.org", "tempmail.com", "tempmail.net", "tempmailo.com", "temp-mail.io", "yopmail.com", "yopmail.net",
   "getnada.com", "nada.email", "trashmail.com", "trashmail.de", "dispostable.com", "maildrop.cc", "throwawaymail.com", "mohmal.com",
   "emailondeck.com", "moakt.com", "tempr.email", "mail.tm", "mailto.plus", "fexpost.com", "fexbox.org", "mailbox.in.ua", "spamgourmet.com",
@@ -18,6 +18,10 @@ export function isDisposableEmail(email: string): boolean {
   const domain = String(email).toLowerCase().split("@")[1] ?? "";
   const parts = domain.split(".");
   for (let i = 0; i <= parts.length - 2; i++) if (DISPOSABLE.has(parts.slice(i).join("."))) return true;
+  // Throwaway services rotate .us domains and hand out addresses on random
+  // subdomains (x@goldenrod.netflows.us, x@quest.raxio.us). Real inboxes are
+  // almost never shaped like that, so block the shape, not just each domain.
+  if (parts.length >= 3 && parts[parts.length - 1] === "us") return true;
   return false;
 }
 
