@@ -13,10 +13,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params;
   if (!isValidObjectId(id)) return new Response("Not found", { status: 404 });
   await connectToDatabase();
-  const p = await ManualPayment.findById(id).select("+proof.data proof number").lean();
-  const data = p?.proof?.data as unknown as { buffer?: ArrayBuffer } | Buffer | undefined;
+  // "+proof.data" alone: also naming "proof" makes MongoDB reject the query (path collision).
+  const p = await ManualPayment.findById(id).select("+proof.data");
+  const data = p?.proof?.data;
   if (!p || !data || !p.proof?.contentType) return new Response("Not found", { status: 404 });
-  const bytes = Buffer.isBuffer(data) ? data : Buffer.from((data as { buffer: ArrayBuffer }).buffer);
+  const bytes = Buffer.from(data);
   const isPdf = p.proof.contentType === "application/pdf";
   return new Response(new Uint8Array(bytes), {
     headers: {

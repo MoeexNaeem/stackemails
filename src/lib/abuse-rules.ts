@@ -4,7 +4,7 @@
  */
 // Disposable / throwaway inbox providers. Subdomains match too (x.netflows.us).
 const DISPOSABLE = new Set([
-  "netflows.us", "shipwith.us", "mailinator.com", "guerrillamail.com", "guerrillamail.net", "sharklasers.com", "grr.la", "10minutemail.com",
+  "netflows.us", "shipwith.us", "octship.us","mailinator.com", "guerrillamail.com", "guerrillamail.net", "sharklasers.com", "grr.la", "10minutemail.com",
   "10minutemail.net", "temp-mail.org", "tempmail.com", "tempmail.net", "tempmailo.com", "temp-mail.io", "yopmail.com", "yopmail.net",
   "getnada.com", "nada.email", "trashmail.com", "trashmail.de", "dispostable.com", "maildrop.cc", "throwawaymail.com", "mohmal.com",
   "emailondeck.com", "moakt.com", "tempr.email", "mail.tm", "mailto.plus", "fexpost.com", "fexbox.org", "mailbox.in.ua", "spamgourmet.com",
