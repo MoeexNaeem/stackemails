@@ -10,9 +10,10 @@ import { env } from "@/lib/env";
 
 const API_BASE = () => (env.paddle.environment === "production" ? "https://api.paddle.com" : "https://sandbox-api.paddle.com");
 
+/** All keys present, including the webhook secret (without it payments couldn't switch plans on). */
 export function paddleEnabled(): boolean {
   const p = env.paddle;
-  return Boolean(p.apiKey && p.clientToken && p.pricePro && p.priceScale);
+  return Boolean(p.apiKey && p.clientToken && p.webhookSecret && p.pricePro && p.priceScale);
 }
 
 /** What the browser needs to open a checkout. */
