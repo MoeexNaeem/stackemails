@@ -1,3 +1,4 @@
+import { MARKETING_ENABLED } from "@/lib/features";
 /**
  * /glossary/[slug]: short, accurate definitions of email terms. Each entry
  * links to the tools, guides and docs that go deeper (internal linking hub).
@@ -276,7 +277,7 @@ Transactional email is expected, time-sensitive and usually doesn't need an unsu
 - Include your postal address and a working unsubscribe link.
 - Gmail and Yahoo require **one-click unsubscribe** (\`List-Unsubscribe\` and \`List-Unsubscribe-Post\` headers) for bulk senders.
 
-Stack Emails [broadcasts](/features/marketing-email) add one-click unsubscribe automatically and respect each contact's topic preferences.`,
+${MARKETING_ENABLED ? "Stack Emails [broadcasts](/features/marketing-email) add one-click unsubscribe automatically and respect each contact's topic preferences." : "Stack Emails is built for transactional email, so keep newsletters and campaigns on a dedicated marketing platform and a separate subdomain."}`,
     related: ["transactional-email", "list-unsubscribe", "double-opt-in"],
   },
   {

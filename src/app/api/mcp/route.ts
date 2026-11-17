@@ -9,6 +9,7 @@ import { createAndQueueEmail } from "@/lib/email/send";
 import { upsertContact } from "@/lib/contacts";
 import { serializeContact, serializeDomain, serializeEmail, serializeInbound, serializeSegment } from "@/lib/api/serializers";
 import type { ApiKeyDoc, WorkspaceDoc } from "@/lib/db/models";
+import { marketingEnabled } from "@/lib/features";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -122,6 +123,10 @@ const TOOLS: Tool[] = [
   },
 ];
 
+// Contact/segment tools belong to the marketing features; hidden while those are off.
+const MARKETING_TOOLS = new Set(["create_contact", "list_contacts", "list_segments"]);
+const ACTIVE_TOOLS = marketingEnabled() ? TOOLS : TOOLS.filter((t) => !MARKETING_TOOLS.has(t.name));
+
 type RpcReq = { jsonrpc: "2.0"; id?: string | number | null; method: string; params?: Record<string, unknown> };
 const rpcResult = (id: RpcReq["id"], result: unknown) => ({ jsonrpc: "2.0", id: id ?? null, result });
 const rpcError = (id: RpcReq["id"], code: number, message: string) => ({ jsonrpc: "2.0", id: id ?? null, error: { code, message } });
@@ -139,11 +144,11 @@ async function handle(msg: RpcReq, ctx: { workspace: WorkspaceDoc; apiKey: ApiKe
       return rpcResult(msg.id, {});
     case "tools/list":
       return rpcResult(msg.id, {
-        tools: TOOLS.filter((t) => ctx.apiKey.permission !== "sending_access" || t.sending).map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema })),
+        tools: ACTIVE_TOOLS.filter((t) => ctx.apiKey.permission !== "sending_access" || t.sending).map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema })),
       });
     case "tools/call": {
       const name = String(msg.params?.name ?? "");
-      const tool = TOOLS.find((t) => t.name === name);
+      const tool = ACTIVE_TOOLS.find((t) => t.name === name);
       if (!tool) return rpcError(msg.id, -32602, `Unknown tool: ${name}`);
       if (ctx.apiKey.permission === "sending_access" && !tool.sending) return rpcResult(msg.id, { content: [{ type: "text", text: "This API key only has sending access." }], isError: true });
       try {

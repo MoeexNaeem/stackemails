@@ -11,6 +11,7 @@ import { RangeToggle } from "@/components/ui/RangeToggle";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { timeAgo } from "@/lib/format";
 import { Icon } from "@/components/ui/Icon";
+import { marketingEnabled } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Overview" };
@@ -51,7 +52,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
     { done: verified, label: "Verify a sending domain", href: "/domains", cta: "Add domain" },
     { done: keyCount > 0, label: "Create an API key", href: "/api-keys", cta: "Create key" },
     { done: !!anyEmail, label: "Send your first email", href: "/onboarding", cta: "Send email" },
-    { done: contacts > 0, label: "Add contacts to your audience", href: "/audience", cta: "Add contacts" },
+    ...(marketingEnabled() ? [{ done: contacts > 0, label: "Add contacts to your audience", href: "/audience", cta: "Add contacts" }] : []),
   ];
   const showSetup = steps.some((s) => !s.done);
   const pending = Math.max(0, cur.sent - cur.delivered - cur.bounced - cur.complained);

@@ -8,10 +8,11 @@ import { WhyBento } from "@/components/marketing/WhyBento";
 import { FAQS } from "@/lib/knowledge";
 import { absUrl, jsonLd, site } from "@/lib/site";
 import { Icon } from "@/components/ui/Icon";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 export const metadata: Metadata = pageMeta({
   title: "Stack Emails | The email API for developers",
-  description: "The email API for developers: transactional and marketing email with verified domains, webhooks and inbound inboxes, on Amazon SES. 3,000 free emails a month.",
+  description: MARKETING_ENABLED ? "The email API for developers: transactional and marketing email with verified domains, webhooks and inbound inboxes, on Amazon SES. 3,000 free emails a month." : "The transactional email API for developers: send app email with verified domains, webhooks and inbound inboxes, on Amazon SES. 3,000 free emails a month.",
   path: "/",
   absoluteTitle: true,
 });
@@ -84,7 +85,7 @@ export default function HomePage() {
             Email for developers, <span className="m-highlight">done right.</span>
           </h1>
           <p className="m-enter m-lead mx-auto mt-7 max-w-[600px]" style={{ "--d": "160ms" } as React.CSSProperties}>
-            Send transactional and marketing email with one clean API. Verified domains, real-time webhooks and deliverability tooling, so your emails land in the inbox, not the spam folder.
+            {MARKETING_ENABLED ? "Send transactional and marketing email with one clean API." : "Send transactional email from your app with one clean API."} Verified domains, real-time webhooks and deliverability tooling, so your emails land in the inbox, not the spam folder.
           </p>
           <div className="m-enter mt-9 flex flex-wrap items-center justify-center gap-3" style={{ "--d": "240ms" } as React.CSSProperties}>
             <Link href="/signup" className="m-btn m-btn-ink">Start for free</Link>
@@ -213,7 +214,7 @@ export default function HomePage() {
           {[
             ["Authenticated by default", "Easy DKIM (2048-bit), SPF on a custom return path and a starter DMARC policy for every domain."],
             ["Automatic suppression", "Hard bounces and spam complaints are suppressed so you never mail them again."],
-            ["One-click unsubscribe", "RFC 8058 List-Unsubscribe headers and a hosted preference page on every marketing email."],
+            MARKETING_ENABLED ? ["One-click unsubscribe", "RFC 8058 List-Unsubscribe headers and a hosted preference page on every marketing email."] : ["Idempotent sends", "Retry safely: the same Idempotency-Key never sends the same email twice."],
             ["Health at a glance", "Bounce and complaint rates tracked against the thresholds Gmail and Yahoo enforce."],
           ].map(([t, b], i) => (
             <div key={t} data-reveal className="m-card m-spot" style={{ "--d": `${i * 90}ms` } as React.CSSProperties}>

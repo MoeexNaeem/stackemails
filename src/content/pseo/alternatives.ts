@@ -1,3 +1,4 @@
+import { MARKETING_ALTERNATIVE_SLUGS, MARKETING_ENABLED } from "@/lib/features";
 /**
  * /alternatives/[slug]: "<provider> alternatives" pages. Descriptions of other
  * providers stick to long-standing, publicly documented facts; we avoid
@@ -6,7 +7,7 @@
 export type Vendor = { slug: string; name: string; blurb: string; bestFor: string; compare?: string };
 
 export const VENDORS: Record<string, Vendor> = {
-  stack: { slug: "stack-emails", name: "Stack Emails", blurb: "A developer-first email API and SMTP relay on Amazon SES, with broadcasts, inbound email, shared team inboxes, request-level logs, webhooks and an MCP server for AI agents. 3,000 emails a month free; paid plans from $25/month.", bestFor: "Teams that want one place for transactional email, broadcasts and inbound mail, with a familiar Resend-style API." },
+  stack: { slug: "stack-emails", name: "Stack Emails", blurb: (MARKETING_ENABLED ? "A developer-first email API and SMTP relay on Amazon SES, with broadcasts, inbound email, shared team inboxes," : "A developer-first transactional email API and SMTP relay on Amazon SES, with inbound email, shared team inboxes,") + " request-level logs, webhooks and an MCP server for AI agents. 3,000 emails a month free; paid plans from $25/month.", bestFor: MARKETING_ENABLED ? "Teams that want one place for transactional email, broadcasts and inbound mail, with a familiar Resend-style API." : "Teams that want transactional and inbound email in one place, with a familiar Resend-style API." },
   resend: { slug: "resend", name: "Resend", blurb: "A developer-focused email API from the team behind React Email, with SDKs for many languages, broadcasts and a polished dashboard.", bestFor: "React and Next.js teams that like building emails as components.", compare: "/compare/resend" },
   postmark: { slug: "postmark", name: "Postmark", blurb: "A transactional email service known for its focus on fast delivery, with separate message streams for transactional and broadcast mail.", bestFor: "Teams whose priority is transactional delivery and detailed message history.", compare: "/compare/postmark" },
   sendgrid: { slug: "sendgrid", name: "SendGrid", blurb: "Twilio's email platform, offering an email API, SMTP relay and marketing campaigns, used by many large senders.", bestFor: "Large organisations already in the Twilio ecosystem.", compare: "/compare/sendgrid" },
@@ -27,7 +28,7 @@ export type AlternativePage = {
   faq: { q: string; a: string }[];
 };
 
-export const ALTERNATIVES: AlternativePage[] = [
+const ALL_ALTERNATIVES: AlternativePage[] = [
   {
     slug: "sendgrid",
     vendor: "sendgrid",
@@ -36,7 +37,7 @@ export const ALTERNATIVES: AlternativePage[] = [
     picks: ["stack", "resend", "postmark", "mailgun", "ses"],
     switching: "Most apps send through SendGrid's SMTP relay or its v3 Mail Send API. For SMTP, change the host to `smtp.stackemails.com`, the username from `apikey` to `stackemails` and the password to a Stack Emails API key. For the API, map SendGrid's `personalizations` to Stack Emails' flat `to`, `cc` and `bcc` fields. Verify your domain first and run both providers side by side until your webhooks are switched over.",
     faq: [
-      { q: "What is the best SendGrid alternative?", a: "It depends on what you send. For a developer-friendly API with broadcasts and inbound email, Stack Emails or Resend; for transactional-only, Postmark; for the lowest cost with more setup, Amazon SES." },
+      { q: "What is the best SendGrid alternative?", a: (MARKETING_ENABLED ? "It depends on what you send. For a developer-friendly API with broadcasts and inbound email, Stack Emails or Resend; for transactional-only, Postmark;" : "It depends on what you send. For a developer-friendly transactional API with inbound email, Stack Emails, Postmark or Resend;") + " for the lowest cost with more setup, Amazon SES." },
       { q: "Is there a free alternative to SendGrid?", a: "Yes. Stack Emails includes 3,000 emails a month free (up to 100 a day) with the API, SMTP relay, webhooks and inbound email." },
       { q: "How hard is it to migrate from SendGrid?", a: "Usually a few hours: verify your domain, swap SMTP credentials or the API call, and point your webhooks at the new provider." },
     ],
@@ -80,9 +81,9 @@ export const ALTERNATIVES: AlternativePage[] = [
     slug: "amazon-ses",
     vendor: "ses",
     lead: "Amazon SES is cheap but bare. If you want SES-grade delivery without building domain setup, bounce handling, logs and a dashboard yourself, these are the alternatives to consider.",
-    reasons: ["Not wanting to build bounce and complaint handling (SNS, suppression) themselves", "Wanting a dashboard for non-engineers", "Wanting broadcasts, contacts and templates out of the box", "Getting stuck in the SES sandbox or production-access review"],
+    reasons: ["Not wanting to build bounce and complaint handling (SNS, suppression) themselves", "Wanting a dashboard for non-engineers", (MARKETING_ENABLED ? "Wanting broadcasts, contacts and templates out of the box" : "Wanting templates, logs and webhooks out of the box"), "Getting stuck in the SES sandbox or production-access review"],
     picks: ["stack", "postmark", "resend", "mailgun", "sendgrid"],
-    switching: "Stack Emails runs on Amazon SES, so delivery infrastructure stays the same; you get domain verification, suppression, webhooks, logs, broadcasts and inbound email on top. Replace `SendEmail` calls with `POST /v1/emails`, or swap your SES SMTP credentials for `smtp.stackemails.com`.",
+    switching: "Stack Emails runs on Amazon SES, so delivery infrastructure stays the same; you get domain verification, suppression, webhooks, logs" + (MARKETING_ENABLED ? ", broadcasts" : "") + " and inbound email on top. Replace `SendEmail` calls with `POST /v1/emails`, or swap your SES SMTP credentials for `smtp.stackemails.com`.",
     faq: [
       { q: "Is there an easier alternative to Amazon SES?", a: "Yes. Services built on SES, such as Stack Emails, keep SES delivery while handling domain setup, bounces, webhooks and dashboards for you." },
     ],
@@ -117,5 +118,8 @@ export const ALTERNATIVES: AlternativePage[] = [
     faq: [{ q: "What is the best Mailjet alternative?", a: "For developer-focused transactional email with broadcasts and inbound, Stack Emails; for transactional-only, Postmark." }],
   },
 ];
+
+// Marketing-suite alternatives (Brevo) are hidden while the marketing features are off.
+export const ALTERNATIVES: AlternativePage[] = MARKETING_ENABLED ? ALL_ALTERNATIVES : ALL_ALTERNATIVES.filter((a) => !MARKETING_ALTERNATIVE_SLUGS.has(a.slug));
 
 export const altBySlug = (slug: string) => ALTERNATIVES.find((a) => a.slug === slug);

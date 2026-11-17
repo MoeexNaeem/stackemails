@@ -30,6 +30,15 @@ const nextConfig: NextConfig = {
       { source: "/audiences/:id", destination: "/audience?segment=:id", permanent: true },
       { source: "/suppressions", destination: "/emails/suppressions", permanent: true },
       { source: "/settings/unsubscribe", destination: "/settings/unsubscribe-page", permanent: true },
+      // Marketing features switched off (see src/lib/features.ts): send their public
+      // pages to the closest page. Temporary (307) so they can come back later.
+      ...(process.env.NEXT_PUBLIC_MARKETING_FEATURES === "on"
+        ? []
+        : [
+            { source: "/features/marketing-email", destination: "/features/transactional-email", permanent: false },
+            { source: "/docs/:slug(broadcasts|contacts|segments-topics|events)", destination: "/docs", permanent: false },
+            { source: "/alternatives/brevo", destination: "/alternatives", permanent: false },
+          ]),
     ];
   },
   // These are heavy, Node-only libraries that must not be bundled for the

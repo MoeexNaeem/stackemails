@@ -467,7 +467,7 @@ A clean list is the cheapest deliverability win there is.`,
   {
     slug: "send-email-from-ai-agents-mcp",
     title: "Let AI agents send email with the Stack Emails MCP server",
-    excerpt: "Connect Claude, Cursor or any MCP client to Stack Emails so agents can send email, check delivery and manage contacts.",
+    excerpt: "Connect Claude, Cursor or any MCP client to Stack Emails so agents can send email, check delivery and read inbound mail.",
     category: "Product",
     tags: ["mcp", "ai-agents", "claude", "product"],
     publishedAt: "2026-10-21T09:00:00.000Z",
@@ -480,8 +480,6 @@ A clean list is the cheapest deliverability win there is.`,
 | \`send_email\` | Send an email from a verified domain |
 | \`list_emails\` / \`get_email\` | Check recent sends and delivery status |
 | \`list_domains\` | See which domains can send |
-| \`create_contact\` / \`list_contacts\` | Manage your audience |
-| \`list_segments\` | List audience segments |
 | \`list_received_emails\` | Read inbound mail |
 
 ## Connect a client
@@ -509,9 +507,9 @@ Agents make mistakes, so give them the least access they need:
 
 ## Example prompt
 
-> "Email the five newest contacts in the *Beta* segment a short thank-you note from team@agents.acme.com, then tell me which ones were delivered."
+> "Check which of yesterday's password-reset emails bounced, email me a summary from team@agents.acme.com, then tell me whether it was delivered."
 
-The agent calls \`list_contacts\`, sends five emails with \`send_email\`, then checks each with \`get_email\`.
+The agent calls \`list_emails\`, sends the summary with \`send_email\`, then checks it with \`get_email\`.
 
 MCP turns email from something you integrate into something your agents can simply use. Read the [MCP docs](/docs/mcp) to get started.`,
   },

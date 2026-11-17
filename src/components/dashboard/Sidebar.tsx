@@ -6,6 +6,7 @@ import { useState } from "react";
 import { LogoMark } from "@/components/Logo";
 import { TeamSwitcher, type TeamOption } from "@/components/dashboard/TeamSwitcher";
 import { CollapseButton } from "@/components/ui/CollapseButton";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 type NavChild = { href: string; label: string; exact?: boolean };
 type NavItem = { href: string; label: string; icon: string; children?: NavChild[] };
@@ -29,7 +30,7 @@ const I = {
   shield: "M12 2l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z",
 };
 
-const GROUPS: NavItem[][] = [
+const ALL_GROUPS: NavItem[][] = [
   [
     { href: "/overview", label: "Overview", icon: I.overview },
     {
@@ -76,6 +77,10 @@ const GROUPS: NavItem[][] = [
     { href: "/webhooks", label: "Webhooks", icon: I.webhooks },
   ],
 ];
+
+// Marketing sections (Audience, Broadcasts, Automations) only show when those features are on.
+const MARKETING_HREFS = new Set(["/audience", "/broadcasts", "/automations"]);
+const GROUPS: NavItem[][] = MARKETING_ENABLED ? ALL_GROUPS : ALL_GROUPS.map((g) => g.filter((i) => !MARKETING_HREFS.has(i.href)));
 
 function isActive(pathname: string, href: string, exact = false) {
   return exact ? pathname === href : pathname === href || pathname.startsWith(href + "/");

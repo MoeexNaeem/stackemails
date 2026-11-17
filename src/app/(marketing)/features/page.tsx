@@ -5,10 +5,11 @@ import { FEATURES } from "@/content/features";
 import { CtaBand, PageHero } from "@/components/marketing/Sections";
 import { DashboardMock } from "@/components/marketing/DashboardMock";
 import { Icon } from "@/components/ui/Icon";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 export const metadata: Metadata = pageMeta({
-  title: "Product: email API, broadcasts, inbound, SMTP & webhooks",
-  description: "Everything Stack Emails does: transactional email API, broadcasts, inbound email and shared inboxes, SMTP relay, signed webhooks and an MCP server for AI agents.",
+  title: MARKETING_ENABLED ? "Product: email API, broadcasts, inbound, SMTP & webhooks" : "Product: transactional email API, inbound, SMTP & webhooks",
+  description: MARKETING_ENABLED ? "Everything Stack Emails does: transactional email API, broadcasts, inbound email and shared inboxes, SMTP relay, signed webhooks and an MCP server for AI agents." : "Everything Stack Emails does: transactional email API, inbound email and shared inboxes, SMTP relay, signed webhooks and an MCP server for AI agents.",
   path: "/features",
 });
 
@@ -18,13 +19,13 @@ const EXTRAS = [
   ["Automations", "Trigger multi-step sequences from contact events and custom events sent from your app."],
   ["Metrics", "Delivery, open, click, bounce and complaint rates over time, per domain."],
   ["Teams & roles", "Invite teammates as admins or members, switch between teams, and protect accounts with two-factor authentication."],
-  ["Exports", "Download emails, contacts, suppressions and logs as CSV at any time."],
+  ["Exports", MARKETING_ENABLED ? "Download emails, contacts, suppressions and logs as CSV at any time." : "Download emails, suppressions and logs as CSV at any time."],
 ];
 
 export default function FeaturesPage() {
   return (
     <>
-      <PageHero eyebrow="Product" title="One platform for every email" highlight="your product sends." lead="From a password reset to a product newsletter to a reply from a customer, Stack Emails handles sending, receiving and everything in between.">
+      <PageHero eyebrow="Product" title="One platform for every email" highlight="your product sends." lead={MARKETING_ENABLED ? "From a password reset to a product newsletter to a reply from a customer, Stack Emails handles sending, receiving and everything in between." : "From a sign-up confirmation to a password reset to a reply from a customer, Stack Emails handles sending, receiving and everything in between."}>
         <Link href="/signup" className="m-btn m-btn-ink">Start for free</Link>
         <Link href="/pricing" className="m-btn m-btn-light">See pricing</Link>
       </PageHero>

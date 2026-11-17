@@ -1,4 +1,5 @@
 import { LogoMark } from "@/components/Logo";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 /**
  * Static, decorative rendition of the Stack Emails dashboard (Monera style)
@@ -22,7 +23,7 @@ export function DashboardMock() {
             <LogoMark size={20} />
             Stack Emails
           </div>
-          {["Overview", "Emails", "Templates", "Audience", "Broadcasts", "Automations", "Metrics", "Domains"].map((l, i) => (
+          {(MARKETING_ENABLED ? ["Overview", "Emails", "Templates", "Audience", "Broadcasts", "Automations", "Metrics", "Domains"] : ["Overview", "Emails", "Templates", "Inboxes", "Metrics", "Domains", "Logs", "Webhooks"]).map((l, i) => (
             <div key={l} className="relative mb-1 rounded-lg px-2.5 py-1.5 text-[12px]" style={{ background: i === 0 ? "#26262b" : "transparent", color: i === 0 ? "#ededef" : "#8a8a94" }}>
               {i === 0 && <span className="absolute -left-4 top-1 bottom-1 w-[3px] rounded-r" style={{ background: "#b77fe0" }} />}
               {l}

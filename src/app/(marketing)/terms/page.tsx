@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMeta } from "@/lib/seo";
 import { LegalPage } from "@/components/marketing/LegalPage";
 import { site } from "@/lib/site";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 export const metadata: Metadata = pageMeta({
   title: "Terms of service",
@@ -27,7 +28,7 @@ Our [acceptable use policy](/acceptable-use) is part of these terms. You may onl
 - attempt to bypass sending limits, suppression lists, or security controls;
 - probe, overload or disrupt the Service or other customers.
 
-Marketing email must include a working unsubscribe mechanism. ${site.name} adds one-click unsubscribe to broadcasts automatically; you must not remove or obstruct it.
+${MARKETING_ENABLED ? `Marketing email must include a working unsubscribe mechanism. ${site.name} adds one-click unsubscribe to broadcasts automatically; you must not remove or obstruct it.` : `${site.name} is a transactional email service. You may use it for email your application sends to its own users because of their account or activity, such as confirmations, password resets, receipts and notifications. You may not use it to send newsletters, marketing campaigns, cold outreach or other bulk promotional email.`}
 
 ## 4. Deliverability and enforcement
 

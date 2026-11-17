@@ -2,13 +2,14 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { PreferredSourceButton } from "@/components/marketing/PreferredSource";
 import { site } from "@/lib/site";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 const COLUMNS = [
   {
     title: "Product",
     links: [
       { href: "/features/transactional-email", label: "Transactional email" },
-      { href: "/features/marketing-email", label: "Broadcasts" },
+      ...(MARKETING_ENABLED ? [{ href: "/features/marketing-email", label: "Broadcasts" }] : []),
       { href: "/features/inbound-email", label: "Inbound & inboxes" },
       { href: "/features/smtp-relay", label: "SMTP relay" },
       { href: "/features/email-webhooks", label: "Webhooks" },

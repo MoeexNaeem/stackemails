@@ -7,6 +7,7 @@ import { PLAN_LIMITS, fmtLimit, type PlanKey } from "@/lib/plans";
 import { CtaBand, Faq, faqLd } from "@/components/marketing/Sections";
 import { absUrl, jsonLd, site } from "@/lib/site";
 import { Icon } from "@/components/ui/Icon";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 export const revalidate = 3600;
 
@@ -41,10 +42,10 @@ const BLURB: Record<string, string> = {
   scale: "For high-volume senders and teams.",
 };
 
-const EVERY_PLAN = ["REST API, SDK & SMTP relay", "DKIM, SPF & DMARC setup", "Automatic bounce & complaint suppression", "Signed webhooks with retries", "Broadcasts, segments & topics", "Inbound email & shared inboxes", "MCP server for AI agents", "30-day logs & analytics"];
+const EVERY_PLAN = ["REST API, SDK & SMTP relay", "DKIM, SPF & DMARC setup", "Automatic bounce & complaint suppression", "Signed webhooks with retries", ...(MARKETING_ENABLED ? ["Broadcasts, segments & topics"] : []), "Inbound email & shared inboxes", "MCP server for AI agents", "30-day logs & analytics"];
 
 const FAQS = [
-  { q: "What counts as an email?", a: "Each recipient counts as one email. A message sent to three addresses in the To, Cc and Bcc fields counts as three. Broadcast emails count the same way." },
+  { q: "What counts as an email?", a: "Each recipient counts as one email. A message sent to three addresses in the To, Cc and Bcc fields counts as three." },
   { q: "What happens if I reach my limit?", a: "Sends beyond your daily or monthly limit are rejected with a clear quota_exceeded error, and nothing is charged. You'll see usage in the dashboard header and can upgrade at any time." },
   { q: "How do I upgrade?", a: "Go to Settings > Billing in the dashboard and choose a plan. Our team confirms the change by email, usually within a few hours, and your new limits apply immediately." },
   { q: "Is there a contract or setup fee?", a: "No. Plans are month-to-month and you can cancel or downgrade at any time." },
@@ -58,7 +59,7 @@ export default async function PricingPage() {
   const limitRows: { label: string; get: (p: P) => string }[] = [
     { label: "Emails / month", get: (p) => p.monthly.toLocaleString() },
     { label: "Emails / day", get: (p) => p.daily.toLocaleString() },
-    { label: "Contacts", get: (p) => p.contacts.toLocaleString() },
+    ...(MARKETING_ENABLED ? [{ label: "Contacts", get: (p: P) => p.contacts.toLocaleString() }] : []),
     { label: "Domains", get: (p) => fmtLimit(PLAN_LIMITS[(p.slug as PlanKey)]?.domains ?? 1) },
     { label: "Team members", get: (p) => fmtLimit(PLAN_LIMITS[(p.slug as PlanKey)]?.members ?? 3) },
     { label: "Segments", get: (p) => fmtLimit(PLAN_LIMITS[(p.slug as PlanKey)]?.segments ?? 3) },
@@ -124,7 +125,7 @@ export default async function PricingPage() {
                 <ul className="mt-6 flex-1 space-y-2.5 text-[15px]" style={{ color: "var(--m-text)" }}>
                   <li className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{p.monthly.toLocaleString()} emails / month</li>
                   <li className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{p.daily.toLocaleString()} emails / day</li>
-                  <li className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{p.contacts.toLocaleString()} contacts</li>
+                  {MARKETING_ENABLED && <li className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{p.contacts.toLocaleString()} contacts</li>}
                   <li className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{fmtLimit(PLAN_LIMITS[(p.slug as PlanKey)]?.domains ?? 1)} domain{(PLAN_LIMITS[(p.slug as PlanKey)]?.domains ?? 1) === 1 ? "" : "s"}</li>
                   {p.features.filter((f) => !/emails \/ month|domain/i.test(f) && !/dedicated ip/i.test(f)).map((f) => <li key={f} className="flex items-start gap-2"><Icon name="check" size={17} className="mt-[3px]" style={{ color: "var(--m-accent)" }} />{f}</li>)}
                 </ul>

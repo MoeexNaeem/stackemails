@@ -3,9 +3,10 @@
  * (system prompt + offline answers), the Help page knowledge base, the public
  * FAQ (with FAQPage JSON-LD) and llms-full.txt - so every surface says the same thing.
  */
+import { MARKETING_ENABLED } from "@/lib/features";
 export type Faq = { q: string; a: string; tags: string[]; category: "Getting started" | "Sending" | "Domains" | "Deliverability" | "Audience" | "Billing" | "Developers" | "Account" };
 
-export const FAQS: Faq[] = [
+const ALL_FAQS: Faq[] = [
   {
     category: "Getting started",
     q: "How do I send my first email?",
@@ -111,7 +112,25 @@ export const FAQS: Faq[] = [
 ];
 
 /** Compact product brief used as the assistant's frozen system prompt. */
-export const PRODUCT_BRIEF = `Stack Emails (stackemails.com) is an email API for developers, similar to Resend. It sends transactional and marketing email through Amazon SES.
+// With the marketing features off, drop contacts/broadcast answers and wording.
+const OFF_EDITS: [string, string][] = [
+  ["include a working unsubscribe link and List-Unsubscribe header on marketing mail; ", ""],
+  ["; and send transactional and marketing mail from separate subdomains", "; and keep any marketing mail on a separate platform and subdomain"],
+  [", email.received, contact.created and more)", ", email.received and more)"],
+  ["send emails, list emails and manage contacts on your behalf", "send emails, list emails and read inbound mail on your behalf"],
+  ["; higher plans add more domains, contacts and support.", "; higher plans add more domains and support."],
+];
+export const FAQS: Faq[] = MARKETING_ENABLED
+  ? ALL_FAQS
+  : ALL_FAQS.filter((f) => f.category !== "Audience").map((f) => ({ ...f, a: OFF_EDITS.reduce((a, [from, to]) => a.replace(from, to), f.a) }));
+
+const BRIEF_OFF_EDITS: [string, string][] = [
+  ["It sends transactional and marketing email through Amazon SES.", "It sends transactional email (app email such as sign-ups, password resets, receipts and notifications) through Amazon SES. It does not offer newsletters, broadcasts or marketing campaigns."],
+  [" Audience (Contacts, Properties, Segments, Topics), Inboxes, Broadcasts, Automations (Automations, Events),", " Inboxes,"],
+  [", GET/POST /v1/contacts, GET/POST /v1/segments, POST /v1/broadcasts, POST /v1/events (trigger automations).", "."],
+];
+
+export const PRODUCT_BRIEF = BRIEF_OFF_EDITS.reduce((b, [from, to]) => (MARKETING_ENABLED ? b : b.replace(from, to)), `Stack Emails (stackemails.com) is an email API for developers, similar to Resend. It sends transactional and marketing email through Amazon SES.
 
 Dashboard sections: Overview (KPIs and charts), Emails (Sending, Receiving, Suppressions), Templates, Audience (Contacts, Properties, Segments, Topics), Inboxes, Broadcasts, Automations (Automations, Events), Metrics, Domains, Logs, API keys, Webhooks, Settings (Usage, Billing, Team, SMTP, Integrations, Unsubscribe page, Documents, Labs), Help, Onboarding.
 
@@ -121,7 +140,7 @@ Error envelope: {"error":{"code","message"}} with codes like missing_api_key (40
 SDK: npm install stackemails, then new StackEmails(key).emails.send({...}). SMTP: smtp.stackemails.com:465/587, user "stackemails", password = API key.
 
 FAQ:
-${FAQS.map((f) => `Q: ${f.q}\nA: ${f.a}`).join("\n\n")}`;
+${FAQS.map((f) => `Q: ${f.q}\nA: ${f.a}`).join("\n\n")}`);
 
 /** Lightweight keyword retrieval for offline answers and the Help search. */
 export function searchFaqs(query: string, limit = 3): Faq[] {

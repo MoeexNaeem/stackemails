@@ -4,14 +4,15 @@ import Link from "next/link";
 import { DOCS, DOC_GROUPS } from "@/content/docs";
 import { CodeShowcase } from "@/components/marketing/CodeShowcase";
 import { absUrl, jsonLd } from "@/lib/site";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 export const metadata: Metadata = pageMeta({
   title: "Documentation: Stack Emails API reference",
-  description: "Stack Emails API documentation: quickstart, authentication, sending emails, domains, contacts, broadcasts, webhooks, inbound email, SMTP, MCP and the Node.js SDK.",
+  description: MARKETING_ENABLED ? "Stack Emails API documentation: quickstart, authentication, sending emails, domains, contacts, broadcasts, webhooks, inbound email, SMTP, MCP and the Node.js SDK." : "Stack Emails API documentation: quickstart, authentication, sending emails, domains, webhooks, inbound email, SMTP, MCP and the Node.js SDK.",
   path: "/docs",
 });
 
-const ENDPOINTS = [
+const ALL_ENDPOINTS = [
   ["POST", "/v1/emails", "Send an email", "emails"],
   ["POST", "/v1/emails/batch", "Send up to 100 emails", "emails"],
   ["GET", "/v1/emails/:id", "Retrieve an email", "emails"],
@@ -25,6 +26,9 @@ const ENDPOINTS = [
   ["POST", "/v1/broadcasts", "Create a broadcast", "broadcasts"],
   ["POST", "/v1/events", "Send a custom event", "events"],
 ];
+
+// Only list endpoints whose docs page is published.
+const ENDPOINTS = ALL_ENDPOINTS.filter((e) => DOCS.some((d) => d.slug === e[3]));
 
 export default function DocsIndex() {
   const ld = {

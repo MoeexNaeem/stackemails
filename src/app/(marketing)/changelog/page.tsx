@@ -3,10 +3,11 @@ import { pageMeta } from "@/lib/seo";
 import { CHANGELOG } from "@/content/changelog";
 import { PageHero } from "@/components/marketing/Sections";
 import { formatDate } from "@/lib/blog";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 export const metadata: Metadata = pageMeta({
   title: "Changelog: new features and updates",
-  description: "Every new feature, improvement and fix in Stack Emails: the email API, dashboard, SMTP relay, webhooks, broadcasts and inbound email.",
+  description: MARKETING_ENABLED ? "Every new feature, improvement and fix in Stack Emails: the email API, dashboard, SMTP relay, webhooks, broadcasts and inbound email." : "Every new feature, improvement and fix in Stack Emails: the email API, dashboard, SMTP relay, webhooks and inbound email.",
   path: "/changelog",
 });
 

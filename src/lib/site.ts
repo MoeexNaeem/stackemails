@@ -1,3 +1,4 @@
+import { MARKETING_ENABLED } from "@/lib/features";
 /**
  * Public-site configuration shared by metadata, sitemaps, JSON-LD, RSS and
  * llms.txt. SITE_URL is the canonical origin search engines should index  - 
@@ -10,7 +11,9 @@ export const site = {
   domain: "stackemails.com",
   tagline: "The email API for developers",
   description:
-    "Stack Emails is the email API for developers. Send transactional and marketing email with a clean REST API, typed SDKs, verified domains, real-time webhooks and inbound inboxes, built on Amazon SES.",
+    MARKETING_ENABLED
+      ? "Stack Emails is the email API for developers. Send transactional and marketing email with a clean REST API, typed SDKs, verified domains, real-time webhooks and inbound inboxes, built on Amazon SES."
+      : "Stack Emails is the transactional email API for developers. Send app email (sign-ups, password resets, receipts, notifications) with a clean REST API, typed SDKs, verified domains, real-time webhooks and inbound inboxes, built on Amazon SES.",
   keywords: [
     "email API",
     "transactional email",
@@ -22,8 +25,7 @@ export const site = {
     "Amazon SES",
     "email deliverability",
     "DKIM SPF DMARC",
-    "marketing email",
-    "broadcast email",
+    ...(MARKETING_ENABLED ? ["marketing email", "broadcast email"] : ["transactional email API", "Postmark alternative"]),
     "React Email",
     "email webhooks",
     "inbound email API",

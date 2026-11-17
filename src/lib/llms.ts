@@ -6,6 +6,7 @@ import { getPublishedPosts } from "@/lib/blog";
 import { absUrl, site } from "@/lib/site";
 import { GUIDES } from "@/content/pseo/guides";
 import { TOOLS } from "@/content/pseo/tools";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 /** /llms.txt - the llmstxt.org index: a concise map of the site for AI assistants. */
 export async function llmsIndex(): Promise<string> {
@@ -18,12 +19,12 @@ export async function llmsIndex(): Promise<string> {
     "Stack Emails exposes a REST API at https://stackemails.com/v1 (bearer API keys), a Node.js SDK (`npm install stackemails`), an SMTP relay at smtp.stackemails.com, and a remote MCP server at https://stackemails.com/api/mcp. Free plan: 3,000 emails/month (100/day).",
     "",
     "## Key facts",
-    "- What it is: a developer email API (transactional + marketing email, inbound email) built on Amazon SES, similar to Resend, Postmark or SendGrid.",
+    MARKETING_ENABLED ? "- What it is: a developer email API (transactional + marketing email, inbound email) built on Amazon SES, similar to Resend, Postmark or SendGrid." : "- What it is: a transactional email API for developers (app email plus inbound email) built on Amazon SES, similar to Postmark or Resend. Not for newsletters or marketing campaigns.",
     "- Send an email: `POST https://stackemails.com/v1/emails` with `Authorization: Bearer <api key>` and JSON `{ from, to, subject, html, text }`. Returns `202` with an email id.",
     "- SMTP: host `smtp.stackemails.com`, port 465 (implicit TLS) or 587 (STARTTLS), username `stackemails`, password = an API key.",
     "- Plans: Free $0 (3,000 emails/month, 100/day), Pro $25/month, Scale $100/month. Billed monthly; cancel anytime; refunds within 14 days.",
     "- Domains: send from your own verified domain (SPF, DKIM, DMARC records generated for you). Bounces and complaints are suppressed automatically.",
-    "- Also included: webhooks (signed), broadcasts and contacts, one-click unsubscribe, shared team inboxes for inbound mail, request logs, an MCP server for AI agents.",
+    MARKETING_ENABLED ? "- Also included: webhooks (signed), broadcasts and contacts, one-click unsubscribe, shared team inboxes for inbound mail, request logs, an MCP server for AI agents." : "- Also included: webhooks (signed), templates, idempotent sends, shared team inboxes for inbound mail, request logs, an MCP server for AI agents.",
     `- Free tools: SPF, DKIM and DMARC checkers and generators, MX lookup (${absUrl("/tools")}). SMTP settings for 25+ providers (${absUrl("/smtp-settings")}).`,
     `- Contact: ${site.supportEmail}. Policies: ${absUrl("/terms")}, ${absUrl("/refund")}, ${absUrl("/acceptable-use")}.`,
     "",

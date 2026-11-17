@@ -4,6 +4,8 @@
  * misstate them. Each page carries a "last reviewed" date and a note to check
  * the vendor's site for current details.
  */
+import { MARKETING_ENABLED } from "@/lib/features";
+
 export type Comparison = {
   slug: string;
   name: string;
@@ -18,7 +20,7 @@ export type Comparison = {
 
 export const REVIEWED = "October 2026";
 
-export const COMPARISONS: Comparison[] = [
+const ALL_COMPARISONS: Comparison[] = [
   {
     slug: "resend",
     name: "Resend",
@@ -115,5 +117,37 @@ export const COMPARISONS: Comparison[] = [
     migrate: "Map Postmark's From/To/Subject/HtmlBody/TextBody fields to from/to/subject/html/text, move templates into Stack Emails, and use a separate subdomain for broadcast traffic.",
   },
 ];
+
+/**
+ * With the marketing features switched off, Stack Emails is a transactional email
+ * API: drop broadcast/contacts rows and claims, and use transactional wording.
+ */
+const MARKETING_TEXT = /broadcast|marketing|contacts|segments|topics/i;
+const TRANSACTIONAL_COPY: Record<string, Partial<Comparison>> = {
+  resend: { metaDescription: "Comparing Stack Emails and Resend for transactional email: API design, inbound inboxes, MCP, SMTP and pricing model. Switch with a near drop-in API." },
+  sendgrid: {
+    metaDescription: "Comparing Stack Emails and Twilio SendGrid for transactional email: developer experience, setup, pricing model and features.",
+    summary: "Twilio SendGrid is one of the most established email platforms, with a very broad feature set. Stack Emails is deliberately smaller: one clean API and one dashboard focused on the email your product sends.",
+  },
+  "amazon-ses": {
+    metaDescription: "Stack Emails runs on Amazon SES and adds what raw SES leaves to you: per-email logs, webhooks, suppression handling, inbound inboxes and a developer-friendly API.",
+    summary: "Amazon SES is the delivery engine underneath Stack Emails. SES is excellent infrastructure, but on its own you build the rest: event pipelines, logs, suppression handling and a UI for your team.",
+  },
+  mailgun: { metaDescription: "Comparing Stack Emails and Mailgun for transactional email: API, inbound routing, webhooks and developer experience." },
+  postmark: {
+    metaDescription: "Comparing Stack Emails and Postmark for transactional email: speed, inbound, webhooks and developer tools.",
+    summary: "Postmark has a strong reputation for fast transactional delivery. Stack Emails is also focused on transactional email, and adds shared team inboxes, sending-only keys scoped to one domain and AI-agent tooling.",
+    migrate: "Map Postmark's From/To/Subject/HtmlBody/TextBody fields to from/to/subject/html/text, move templates into Stack Emails, and verify your sending domain.",
+  },
+};
+
+export const COMPARISONS: Comparison[] = MARKETING_ENABLED
+  ? ALL_COMPARISONS
+  : ALL_COMPARISONS.map((c) => ({
+      ...c,
+      weDiffer: c.weDiffer.filter((w) => !MARKETING_TEXT.test(w)),
+      rows: c.rows.filter((r) => !MARKETING_TEXT.test(r.label)),
+      ...TRANSACTIONAL_COPY[c.slug],
+    }));
 
 export const comparisonBySlug = (slug: string) => COMPARISONS.find((c) => c.slug === slug);

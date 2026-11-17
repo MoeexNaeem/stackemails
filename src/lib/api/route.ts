@@ -5,6 +5,7 @@ import { getRateLimiter } from "@/lib/ratelimit";
 import { logApiRequest } from "@/lib/apiLog";
 import { ApiError } from "@/lib/api/errors";
 import { randomId } from "@/lib/ids";
+import { isMarketingEndpoint, marketingEnabled } from "@/lib/features";
 import type { ApiKeyDoc, WorkspaceDoc } from "@/lib/db/models";
 
 export type ApiContext<P> = {
@@ -47,6 +48,11 @@ export function apiRoute<P = Record<string, never>>(
       logApiRequest({ workspace, req, endpoint: opts.endpoint, status, startedAt, apiKey, requestBody: parsedBody, responseBody: payload });
       return NextResponse.json(payload, { status, headers: { ...baseHeaders, ...extra } });
     };
+
+    // Marketing endpoints (broadcasts, contacts, segments, topics, events) are switched off.
+    if (!marketingEnabled() && isMarketingEndpoint(opts.endpoint)) {
+      return finish(404, { error: { code: "not_found", message: "This endpoint is not available. Stack Emails is a transactional email API." } });
+    }
 
     if (apiKey.permission === "sending_access" && !opts.sending) {
       return finish(403, { error: { code: "restricted_api_key", message: "This API key only has sending access. Use a full access key for this endpoint." } });

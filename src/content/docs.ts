@@ -2,11 +2,13 @@
  * API reference rendered at /docs/[slug]. Markdown, rendered server-side
  * with heading anchors. Keep in sync with src/app/api/v1/*.
  */
+import { MARKETING_DOC_SLUGS, MARKETING_ENABLED } from "@/lib/features";
+
 export type DocPage = { slug: string; title: string; group: string; description: string; content: string };
 
 const BASE = "https://stackemails.com/v1";
 
-export const DOCS: DocPage[] = [
+const ALL_DOCS: DocPage[] = [
   {
     slug: "quickstart",
     group: "Getting started",
@@ -704,5 +706,11 @@ See [Webhooks](/docs/webhooks).`,
   },
 ];
 
-export const DOC_GROUPS = ["Getting started", "Sending", "Audience", "Events", "Integrations"];
+// Contacts, segments, broadcasts and automations docs are hidden while the marketing features are off.
+const MARKETING_MCP_ROW = /^\| `(create_contact|list_contacts|list_segments)` \|.*\n/gm;
+export const DOCS: DocPage[] = MARKETING_ENABLED
+  ? ALL_DOCS
+  : ALL_DOCS.filter((d) => !MARKETING_DOC_SLUGS.has(d.slug)).map((d) => ({ ...d, content: d.content.replace(MARKETING_MCP_ROW, "") }));
+
+export const DOC_GROUPS = ["Getting started", "Sending", "Audience", "Events", "Integrations"].filter((g) => DOCS.some((d) => d.group === g));
 export const docBySlug = (slug: string) => DOCS.find((d) => d.slug === slug);

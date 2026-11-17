@@ -1,3 +1,4 @@
+import { MARKETING_ENABLED, MARKETING_FEATURE_SLUGS } from "@/lib/features";
 /** Content for /features/[slug] landing pages (each targets one search intent). */
 export type Feature = {
   slug: string;
@@ -13,7 +14,7 @@ export type Feature = {
   related: string[];
 };
 
-export const FEATURES: Feature[] = [
+const ALL_FEATURES: Feature[] = [
   {
     slug: "transactional-email",
     name: "Transactional email API",
@@ -46,7 +47,7 @@ export const FEATURES: Feature[] = [
     },
     faqs: [
       { q: "How fast are transactional emails delivered?", a: "Emails are queued immediately and handed to Amazon SES within seconds. Delivery to the recipient's inbox typically completes in a few seconds, depending on the receiving server." },
-      { q: "Do transactional emails need an unsubscribe link?", a: "Purely transactional messages such as receipts and password resets generally don't. Promotional content does. Use Broadcasts for that, which adds one-click unsubscribe automatically." },
+      { q: "Do transactional emails need an unsubscribe link?", a: `Purely transactional messages such as receipts and password resets generally don't. ${MARKETING_ENABLED ? "Promotional content does. Use Broadcasts for that, which adds one-click unsubscribe automatically." : "Stack Emails is for this kind of transactional email; promotional email belongs on a separate marketing platform."}` },
       { q: "What happens if I send to a bounced address?", a: "Addresses that hard-bounced or complained are on your suppression list, and the send is skipped so your reputation isn't harmed. You can remove an address from the list in the dashboard." },
     ],
     related: ["email-webhooks", "smtp-relay", "mcp-server"],
@@ -131,7 +132,7 @@ Password:  se_live_...   (an API key)`,
     highlight: "signed and retried.",
     metaTitle: "Email webhooks: delivery, bounce, open & click events",
     metaDescription: "Get signed webhook events for every email delivered, bounced, opened, clicked or received, with replay protection, automatic retries and a delivery log.",
-    lead: "Know exactly what happened to every email. Webhooks push delivery, engagement, inbound and audience events to your endpoint the moment they happen.",
+    lead: `Know exactly what happened to every email. Webhooks push delivery, engagement${MARKETING_ENABLED ? ", inbound and audience" : " and inbound"} events to your endpoint the moment they happen.`,
     points: [
       { title: "15 event types", body: "email.sent, delivered, delivery_delayed, bounced, complained, opened, clicked, failed and received, plus contact.* and domain.* events." },
       { title: "Signed with HMAC-SHA256", body: "Each request carries a timestamped signature over the raw body, so you can reject forged or replayed events. The SDK verifies it in one line." },
@@ -173,11 +174,11 @@ export async function POST(req: Request) {
     h1: "Give your AI agents",
     highlight: "an email address.",
     metaTitle: "Email MCP server for Claude, Cursor & AI agents",
-    metaDescription: "Connect Claude, Cursor or any MCP client to Stack Emails. Agents can send email, check delivery, manage contacts and read inbound mail, safely scoped by API key.",
+    metaDescription: MARKETING_ENABLED ? "Connect Claude, Cursor or any MCP client to Stack Emails. Agents can send email, check delivery, manage contacts and read inbound mail, safely scoped by API key." : "Connect Claude, Cursor or any MCP client to Stack Emails. Agents can send email, check delivery and read inbound mail, safely scoped by API key.",
     lead: "A native Model Context Protocol server lets AI assistants send and read email through Stack Emails, with the same guardrails as your API.",
     points: [
       { title: "Remote, standards-based", body: "Streamable HTTP MCP endpoint at /api/mcp: no local process to install." },
-      { title: "Useful tools", body: "send_email, list_emails, get_email, list_domains, create_contact, list_contacts, list_segments and list_received_emails." },
+      { title: "Useful tools", body: MARKETING_ENABLED ? "send_email, list_emails, get_email, list_domains, create_contact, list_contacts, list_segments and list_received_emails." : "send_email, list_emails, get_email, list_domains and list_received_emails." },
       { title: "Least privilege", body: "Authenticate with a sending-only key scoped to one domain so agents can never send from your main domain." },
       { title: "Fully audited", body: "Every tool call is logged like an API request, and every email appears in your dashboard." },
     ],
@@ -200,5 +201,10 @@ export async function POST(req: Request) {
     related: ["transactional-email", "inbound-email", "email-webhooks"],
   },
 ];
+
+// Marketing email is hidden while the marketing features are switched off (see lib/features).
+export const FEATURES: Feature[] = MARKETING_ENABLED
+  ? ALL_FEATURES
+  : ALL_FEATURES.filter((f) => !MARKETING_FEATURE_SLUGS.has(f.slug)).map((f) => ({ ...f, related: f.related.filter((r) => !MARKETING_FEATURE_SLUGS.has(r)) }));
 
 export const featureBySlug = (slug: string) => FEATURES.find((f) => f.slug === slug);

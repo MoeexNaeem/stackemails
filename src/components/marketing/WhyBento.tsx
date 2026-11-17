@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 /**
  * "Why Stack Emails" bento: each card shows a small, honest slice of the
@@ -86,7 +87,7 @@ export function WhyBento() {
         </Card>
 
         {/* 5. Broadcasts */}
-        <Card className="md:col-span-2 lg:col-span-2" d={180} href="/features/marketing-email" title="Broadcasts with real audiences" body="Segments, subscription topics and merge tags, with one-click unsubscribe added to every send.">
+        <Card className="md:col-span-2 lg:col-span-2" d={180} href={MARKETING_ENABLED ? "/features/marketing-email" : "/email-templates"} title={MARKETING_ENABLED ? "Broadcasts with real audiences" : "Templates with variables"} body={MARKETING_ENABLED ? "Segments, subscription topics and merge tags, with one-click unsubscribe added to every send." : "Reusable templates with merge variables, filled in for every recipient your app emails."}>
           <div className="rounded-2xl border p-4" style={{ borderColor: "var(--m-line)", background: "var(--m-bg)" }}>
             <p className="text-[11.5px] uppercase tracking-[0.12em]" style={{ color: "var(--m-faint)" }}>Subject</p>
             <p className="mt-1 text-[14px] font-medium" style={{ color: "var(--m-head)" }}>
@@ -94,7 +95,7 @@ export function WhyBento() {
             </p>
             <p className="mt-1 text-[11.5px]" style={{ color: "var(--m-faint)", fontFamily: "var(--font-mono)" }}>{"Hi {{first_name}}, your {{month}} report is ready"}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {["Beta users", "Pro plan", "Product updates"].map((c) => (
+              {(MARKETING_ENABLED ? ["Beta users", "Pro plan", "Product updates"] : ["Welcome", "Password reset", "Monthly report"]).map((c) => (
                 <span key={c} className="rounded-full border px-2.5 py-1 text-[11.5px]" style={{ borderColor: "var(--m-line)", color: "var(--m-text)" }}>{c}</span>
               ))}
             </div>
@@ -123,11 +124,11 @@ export function WhyBento() {
         <Card className="lg:col-span-3" d={90} href="/features/mcp-server" title="Built for AI agents" body="A native MCP server lets Claude, Cursor and your own agents send email with the same guardrails as your API keys.">
           <div className="space-y-2.5">
             <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md px-3.5 py-2 text-[13px]" style={{ background: "var(--m-ink)", color: "var(--m-on-ink)" }}>
-              Email the 5 newest Beta contacts a thank-you note.
+              {MARKETING_ENABLED ? "Email the 5 newest Beta contacts a thank-you note." : "Email me a summary of today's bounced emails."}
             </p>
             <div className="w-fit max-w-[90%] rounded-2xl rounded-bl-md border px-3.5 py-2.5 text-[12.5px]" style={{ borderColor: "var(--m-line)", background: "var(--m-bg)" }}>
               <p className="flex items-center gap-1.5" style={{ color: "var(--m-muted)", fontFamily: "var(--font-mono)" }}>
-                <Icon name="code" size={13} /> list_contacts <Icon name="chevron-right" size={12} /> send_email &times; 5
+                <Icon name="code" size={13} /> {MARKETING_ENABLED ? "list_contacts" : "list_emails"} <Icon name="chevron-right" size={12} /> send_email{MARKETING_ENABLED ? " \u00d7 5" : ""}
               </p>
               <p className="mt-1.5 flex items-center gap-1.5" style={{ color: "var(--m-head)" }}>
                 <Icon name="check" size={13} strokeWidth={2.6} style={{ color: "#16a34a" }} /> 5 emails delivered from agents.acme.com

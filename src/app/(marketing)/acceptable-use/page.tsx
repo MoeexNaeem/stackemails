@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMeta } from "@/lib/seo";
 import { LegalPage } from "@/components/marketing/LegalPage";
 import { site } from "@/lib/site";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 export const metadata: Metadata = pageMeta({
   title: "Acceptable use and anti-spam policy",
@@ -17,8 +18,7 @@ ${site.name} has zero tolerance for spam. Every email sent through our platform 
 
 You may only send email to recipients who:
 
-- gave you their address and agreed to hear from you (for marketing, through a clear opt-in), or
-- have an existing relationship with you that the email relates to, such as a sign-up confirmation, password reset, receipt or account notice.
+${MARKETING_ENABLED ? "- gave you their address and agreed to hear from you (for marketing, through a clear opt-in), or\n- have an existing relationship with you that the email relates to, such as a sign-up confirmation, password reset, receipt or account notice." : "- are users of your application, and\n- receive the email because of their own account or activity, such as a sign-up confirmation, password reset, receipt, security alert or account notice."}
 
 You must not use purchased, rented, shared, scraped or harvested lists, or send to addresses that have unsubscribed, bounced or complained.
 
@@ -31,12 +31,20 @@ You must not use purchased, rented, shared, scraped or harvested lists, or send 
 - Illegal content, or content that harasses, threatens or promotes violence
 - Content that infringes someone else's intellectual property or privacy
 
-## Requirements for marketing email
+${MARKETING_ENABLED ? `## Requirements for marketing email
 
 - Identify your business and include a valid physical postal address.
 - Include a working unsubscribe link. ${site.name} adds one-click unsubscribe (RFC 8058) to every broadcast automatically, and you must not remove or hide it.
 - Honour unsubscribe requests immediately.
-- Follow the anti-spam laws that apply to you and your recipients, such as CAN-SPAM, CASL, GDPR and the ePrivacy rules.
+- Follow the anti-spam laws that apply to you and your recipients, such as CAN-SPAM, CASL, GDPR and the ePrivacy rules.` : `## Transactional email only
+
+${site.name} is for transactional email: messages your application sends to its own users because of something they did or something that happened on their account. You may not use ${site.name} to send:
+
+- Newsletters, promotions, marketing campaigns or announcements to lists
+- Cold outreach, lead generation or sales sequences
+- Email to anyone who is not a user of your application
+
+Follow the anti-spam and privacy laws that apply to you and your recipients, such as CAN-SPAM, CASL, GDPR and the ePrivacy rules.`}
 
 ## How we enforce it
 

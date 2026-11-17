@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMeta } from "@/lib/seo";
 import { LegalPage } from "@/components/marketing/LegalPage";
 import { site } from "@/lib/site";
+import { MARKETING_ENABLED } from "@/lib/features";
 
 export const metadata: Metadata = pageMeta({
   title: "Security and data protection",
@@ -35,8 +36,7 @@ const MD = `Security is built into how Stack Emails works, not bolted on. This p
 
 - You can only send from domains you've verified with DNS.
 - Hard-bounced and complained addresses are suppressed automatically.
-- One-click unsubscribe (RFC 8058) on all broadcasts.
-
+${MARKETING_ENABLED ? "- One-click unsubscribe (RFC 8058) on all broadcasts.\n" : ""}
 ## Webhooks
 
 - Every webhook is signed with HMAC-SHA256 over a timestamp and the raw body, so receivers can reject forged or replayed events.
