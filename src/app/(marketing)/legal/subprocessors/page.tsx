@@ -16,9 +16,10 @@ const MD = `These are the third parties that process customer data on our behalf
 | Contabo | Server hosting: application, database and queues | Data center of our server |
 | Paddle.com | Payments, subscriptions, invoicing and sales tax (Merchant of Record) | EU, UK and US |
 | Anthropic | Optional in-dashboard AI assistant (only when you use it) | US |
+| Google (Google Analytics) | Website visitor analytics on our public site (not the dashboard) | US and EU |
 
 We update this page at least 14 days before adding a new sub-processor that processes customer personal data. See our [DPA](/legal/dpa) for details.`;
 
 export default function SubprocessorsPage() {
-  return <LegalPage eyebrow="Legal" title="Sub-processors" updated="November 18, 2026" markdown={MD} />;
+  return <LegalPage eyebrow="Legal" title="Sub-processors" updated="November 21, 2026" markdown={MD} />;
 }

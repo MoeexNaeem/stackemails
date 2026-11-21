@@ -3,6 +3,8 @@ import { Logo } from "@/components/Logo";
 import { PreferredSourceButton } from "@/components/marketing/PreferredSource";
 import { site } from "@/lib/site";
 import { MARKETING_ENABLED } from "@/lib/features";
+import { CookieSettingsLink } from "@/components/marketing/ConsentBanner";
+import { analyticsEnabled } from "@/lib/ga";
 
 const COLUMNS = [
   {
@@ -81,7 +83,8 @@ export function Footer() {
         </div>
         <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t pt-6 text-sm" style={{ borderColor: "var(--m-line)", color: "var(--m-muted)" }}>
           <p>© {new Date().getFullYear()} Stack Emails. All rights reserved.</p>
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center gap-5">
+            {analyticsEnabled() && <CookieSettingsLink className="hover:text-[var(--m-head)]" />}
             <Link href="/status" className="flex items-center gap-2 hover:text-[var(--m-head)]"><span className="h-2 w-2 rounded-full" style={{ background: "var(--m-accent)" }} />System status</Link>
             <a href={site.social.x} rel="noopener me" target="_blank" aria-label="Stack Emails on X" className="hover:text-[var(--m-head)]">X</a>
             <a href={site.social.github} rel="noopener me" target="_blank" aria-label="Stack Emails on GitHub" className="hover:text-[var(--m-head)]">GitHub</a>

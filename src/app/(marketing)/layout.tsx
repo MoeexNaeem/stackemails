@@ -2,6 +2,8 @@ import { Nav } from "@/components/marketing/Nav";
 import { Footer } from "@/components/marketing/Footer";
 import { MotionController } from "@/components/marketing/Motion";
 import { REVEAL_BOOT } from "@/lib/motion-boot";
+import { analyticsEnabled, gaBootScript } from "@/lib/ga";
+import { ConsentBanner } from "@/components/marketing/ConsentBanner";
 
 /** Public site shell: Ghost × Ready canvas, independent of the dashboard theme. */
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
@@ -14,6 +16,13 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <main id="main" className="flex-1">{children}</main>
       <Footer />
       <MotionController />
+      {/* Google Analytics (public site only), consent defaults set before gtag.js loads. */}
+      {analyticsEnabled() && (
+        <>
+          <script dangerouslySetInnerHTML={{ __html: gaBootScript() }} />
+          <ConsentBanner />
+        </>
+      )}
     </div>
   );
 }

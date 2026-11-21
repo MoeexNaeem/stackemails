@@ -62,12 +62,14 @@ Depending on where you live, you may have the right to access, correct, delete, 
 
 ## Cookies
 
-The marketing site does not use advertising or third-party analytics cookies. The dashboard uses strictly necessary cookies to keep you signed in, remember your selected team and protect against cross-site request forgery.
+Our public website uses **Google Analytics** to understand how visitors use it (pages viewed, how long, which site referred them) so we can improve it. Google Analytics sets cookies (\`_ga\` and \`_ga_*\`). Visitors in the EU/EEA, UK and Switzerland are asked first, and Google Analytics cookies are only set after you accept; everywhere else they are on by default and you can decline. You can change your choice at any time with **Cookie settings** at the bottom of every page. IP addresses are not stored by Google Analytics 4, and we use no advertising cookies and don't share analytics data for advertising.
+
+The dashboard does not use Google Analytics. It uses only strictly necessary cookies to keep you signed in, remember your selected team and protect against cross-site request forgery.
 
 ## Changes
 
 We will post changes to this policy on this page and, for material changes, notify account owners by email.`;
 
 export default function PrivacyPage() {
-  return <LegalPage eyebrow="Legal" title="Privacy policy" updated="October 23, 2026" markdown={MD} />;
+  return <LegalPage eyebrow="Legal" title="Privacy policy" updated="November 21, 2026" markdown={MD} />;
 }
